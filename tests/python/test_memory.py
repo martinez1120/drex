@@ -1,12 +1,16 @@
 """
-Tests for drex.models.memory — MemoryState, DeltaRuleUpdate, TitanMemory.
+Tests for drex.models.memory — MemoryState, DeltaRuleUpdate, TitanMemory, L3MemoryBridge.
 """
+
+import sys
+import time
 
 import pytest
 import torch
 
 from drex.models.memory import (
     DeltaRuleUpdate,
+    L3MemoryBridge,
     LayerState,
     MemoryState,
     TitanMemory,
@@ -81,6 +85,14 @@ class TestLayerState:
         state.memory.M.requires_grad = True
         d = state.detach()
         assert not d.memory.M.requires_grad
+
+    def test_to(self, batch, n_heads, d_k, d_v, device):
+        """LayerState.to() — line 70 in memory.py."""
+        dev = torch.device(device)
+        state = LayerState.zeros(batch, n_heads, d_k, d_v, torch.device("cpu"))
+        moved = state.to(dev)
+        assert moved.memory.M.device.type == dev.type
+        assert moved.step == state.step
 
 
 class TestElu1:
@@ -180,3 +192,135 @@ class TestTitanMemory:
         titan = TitanMemory(d_model=32, d_hidden=16)
         # fc1: 32*16=512, fc2: 16*32=512 → total 1024
         assert titan.weight_vector_size() == 32 * 16 + 16 * 32
+
+
+# ---------------------------------------------------------------------------
+# L3MemoryBridge
+# ---------------------------------------------------------------------------
+
+D = 16   # d_model for tiny titans
+
+
+@pytest.fixture
+def titans():
+    """Two tiny TitanMemory instances (one per simulated layer)."""
+    return [TitanMemory(d_model=D, d_hidden=8) for _ in range(2)]
+
+
+@pytest.fixture
+def bridge(titans, tmp_path):
+    """Bridge backed by the live Rust extension."""
+    return L3MemoryBridge(titans, base_path=str(tmp_path), compress=False, sketch_rank=4)
+
+
+class TestL3MemoryBridge:
+    # ------------------------------------------------------------------
+    # __init__ branches
+    # ------------------------------------------------------------------
+
+    def test_init_rust_available(self, bridge):
+        """Happy path: Rust extension present → _available True."""
+        assert bridge._available is True
+        assert bridge._store is not None
+        assert bridge._engine is not None
+        assert bridge._prefetch_hits == 0
+        assert bridge._prefetch_calls == 0
+
+    def test_init_rust_unavailable(self, titans, tmp_path):
+        """ImportError fallback: lines 223-226 in memory.py."""
+        saved = sys.modules.pop("drex._sys", None)
+        sys.modules["drex._sys"] = None  # forces ModuleNotFoundError (subclass of ImportError)
+        try:
+            b = L3MemoryBridge(titans, base_path=str(tmp_path))
+            assert b._available is False
+            assert b._store is None
+            assert b._engine is None
+        finally:
+            if saved is not None:
+                sys.modules["drex._sys"] = saved
+            else:
+                del sys.modules["drex._sys"]
+
+    # ------------------------------------------------------------------
+    # write_and_snapshot
+    # ------------------------------------------------------------------
+
+    def test_write_and_snapshot_available(self, bridge):
+        """Rust available: titan is updated AND snapshot appears on disk."""
+        key, val = torch.randn(D), torch.randn(D)
+        bridge.write_and_snapshot(layer=0, head=0, step=1, key_vec=key, value_vec=val)
+        assert bridge._store.exists(0, 0, 1)
+
+    def test_write_and_snapshot_unavailable(self, titans, tmp_path):
+        """_available=False: titan.write() still called, disk step skipped."""
+        b = L3MemoryBridge(titans, base_path=str(tmp_path))
+        b._available = False  # force unavailable path
+        key, val = torch.randn(D), torch.randn(D)
+        # Must not raise; should silently skip disk I/O
+        b.write_and_snapshot(layer=0, head=0, step=2, key_vec=key, value_vec=val)
+        # _store was initialized normally; check no disk entry was written
+        assert not b._store.exists(0, 0, 2)
+
+    # ------------------------------------------------------------------
+    # retrieve_and_load
+    # ------------------------------------------------------------------
+
+    def test_retrieve_unavailable(self, titans, tmp_path):
+        """_available=False: immediately returns False."""
+        b = L3MemoryBridge(titans, base_path=str(tmp_path))
+        b._available = False
+        assert b.retrieve_and_load(layer=0, head=0, step=0) is False
+
+    def test_retrieve_prefetch_cache_hit(self, bridge):
+        """Prefetch fills cache; retrieve returns True via cache path."""
+        key, val = torch.randn(D), torch.randn(D)
+        bridge.write_and_snapshot(layer=0, head=0, step=55, key_vec=key, value_vec=val)
+        bridge.trigger_prefetch(layer=0, query_vec=key, k=1)
+        time.sleep(0.15)  # let the Tokio background task complete
+        hit = bridge.retrieve_and_load(layer=0, head=0, step=55)
+        assert hit is True
+
+    def test_retrieve_disk_hit(self, bridge):
+        """Disk fallback path: consume_prefetched returns None, disk exists."""
+        key, val = torch.randn(D), torch.randn(D)
+        bridge.write_and_snapshot(layer=0, head=0, step=7, key_vec=key, value_vec=val)
+        # Drain the prefetch cache to force disk path
+        bridge._engine.consume_prefetched(0, 0, 7)
+        assert bridge.retrieve_and_load(layer=0, head=0, step=7) is True
+
+    def test_retrieve_total_miss(self, bridge):
+        """Neither cache nor disk has the snapshot."""
+        assert bridge.retrieve_and_load(layer=0, head=0, step=9999) is False
+
+    # ------------------------------------------------------------------
+    # trigger_prefetch
+    # ------------------------------------------------------------------
+
+    def test_trigger_prefetch_available(self, bridge):
+        """Fire prefetch without raising when Rust is available."""
+        key, val = torch.randn(D), torch.randn(D)
+        bridge.write_and_snapshot(layer=0, head=0, step=10, key_vec=key, value_vec=val)
+        bridge.trigger_prefetch(layer=0, query_vec=key, k=1)
+
+    def test_trigger_prefetch_unavailable(self, titans, tmp_path):
+        """_available=False: no-op, must not raise."""
+        b = L3MemoryBridge(titans, base_path=str(tmp_path))
+        b._available = False
+        b.trigger_prefetch(layer=0, query_vec=torch.randn(D), k=2)
+
+    # ------------------------------------------------------------------
+    # prefetch_hit_rate property
+    # ------------------------------------------------------------------
+
+    def test_prefetch_hit_rate_zero_calls(self, bridge):
+        """No calls yet → guard returns 0.0."""
+        assert bridge.prefetch_hit_rate == 0.0
+
+    def test_prefetch_hit_rate_after_calls(self, bridge):
+        """After a disk-only retrieve: calls=1, hits=0 → rate=0.0."""
+        key, val = torch.randn(D), torch.randn(D)
+        bridge.write_and_snapshot(layer=0, head=0, step=99, key_vec=key, value_vec=val)
+        bridge._engine.consume_prefetched(0, 0, 99)  # drain cache
+        bridge.retrieve_and_load(layer=0, head=0, step=99)
+        assert bridge._prefetch_calls == 1
+        assert bridge.prefetch_hit_rate == 0.0  # disk hit, not cache hit

@@ -19,6 +19,7 @@ impl SnapshotId {
         format!("l{}_h{}_s{}.snap", self.layer, self.head, self.step)
     }
 
+    #[allow(dead_code)]
     /// Parse from a filename produced by `to_filename()`.
     pub fn from_filename(name: &str) -> Option<Self> {
         let name = name.strip_suffix(".snap")?;
@@ -222,6 +223,65 @@ impl SnapshotStore {
         self.serializer.deserialize(&data)
     }
 
+    /// Read weights using memory-mapped I/O (uncompressed stores only).
+    ///
+    /// Avoids the intermediate `Vec<u8>` heap allocation that `tokio::fs::read`
+    /// produces. The OS maps the `.snap` file pages directly into the process
+    /// address space; the only allocation is the output `Vec<f32>`.
+    ///
+    /// For compressed stores the call transparently falls back to `read()`.
+    pub async fn read_mmap(&self, id: &SnapshotId) -> Result<Vec<f32>, StorageError> {
+        if self.serializer.is_compressed() {
+            return self.read(id).await;
+        }
+
+        let path = self.snap_path(id);
+        if !path.exists() {
+            return Err(StorageError::NotFound(id.layer, id.head, id.step));
+        }
+
+        // Read expected checksum from sidecar (async, before entering the blocking closure).
+        let meta_path = self.meta_path(id);
+        let expected_checksum: Option<u32> = if meta_path.exists() {
+            let meta_bytes = tokio::fs::read(&meta_path).await?;
+            let meta: SnapshotMetadata = serde_json::from_slice(&meta_bytes)
+                .map_err(|e| StorageError::Serialization(e.to_string()))?;
+            Some(meta.checksum)
+        } else {
+            None
+        };
+
+        let (layer, head, step) = (id.layer, id.head, id.step);
+        tokio::task::spawn_blocking(move || -> Result<Vec<f32>, StorageError> {
+            let file = std::fs::File::open(&path)?;
+            // SAFETY: .snap files are write-once (atomic rename in write()).
+            // No other thread or process modifies the file after the rename.
+            let mmap = unsafe { memmap2::Mmap::map(&file)? };
+            let data: &[u8] = &mmap;
+
+            if let Some(expected) = expected_checksum {
+                let got = crc32fast::hash(data);
+                if got != expected {
+                    return Err(StorageError::ChecksumMismatch(layer, head, step));
+                }
+            }
+
+            if data.len() < 8 || &data[..8] != MAGIC {
+                return Err(StorageError::Corrupt("invalid magic header".into()));
+            }
+            let payload = &data[8..];
+            if payload.len() % 4 != 0 {
+                return Err(StorageError::Corrupt("payload length not divisible by 4".into()));
+            }
+            Ok(payload
+                .chunks_exact(4)
+                .map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]]))
+                .collect())
+        })
+        .await
+        .map_err(|e| StorageError::Io(std::io::Error::other(e.to_string())))?
+    }
+
     /// Delete a snapshot and its metadata sidecar.
     pub async fn delete(&self, id: &SnapshotId) -> Result<(), StorageError> {
         let snap = self.snap_path(id);
@@ -314,5 +374,31 @@ mod tests {
         let filename = id.to_filename();
         let recovered = SnapshotId::from_filename(&filename).unwrap();
         assert_eq!(id, recovered);
+    }
+
+    #[tokio::test]
+    async fn test_read_mmap_roundtrip() {
+        let dir = tempdir().unwrap();
+        let store = SnapshotStore::new(dir.path(), false).unwrap();
+        let id = SnapshotId::new(0, 0, 42);
+        let weights: Vec<f32> = (0..128).map(|i| i as f32 * 0.5).collect();
+
+        store.write(id.clone(), &weights).await.unwrap();
+        let recovered = store.read_mmap(&id).await.unwrap();
+
+        assert_eq!(weights, recovered);
+    }
+
+    #[tokio::test]
+    async fn test_read_mmap_falls_through_for_compressed() {
+        let dir = tempdir().unwrap();
+        let store = SnapshotStore::new(dir.path(), true).unwrap(); // compressed
+        let id = SnapshotId::new(0, 0, 1);
+        let weights: Vec<f32> = vec![1.0, 2.0, 3.0];
+
+        store.write(id.clone(), &weights).await.unwrap();
+        // read_mmap must still work for compressed stores (falls back to read)
+        let recovered = store.read_mmap(&id).await.unwrap();
+        assert_eq!(weights, recovered);
     }
 }

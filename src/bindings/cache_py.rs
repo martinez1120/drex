@@ -1,10 +1,17 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyRuntimeError;
 use tokio::runtime::Runtime;
+use crate::error::DrexError;
 use crate::cache::manager::{MemoryTierManager, TierConfig};
 
 fn to_py_err<E: std::fmt::Display>(e: E) -> PyErr {
     PyRuntimeError::new_err(e.to_string())
+}
+
+impl From<DrexError> for PyErr {
+    fn from(e: DrexError) -> PyErr {
+        PyRuntimeError::new_err(e.to_string())
+    }
 }
 
 /// Python wrapper for MemoryTierManager.
@@ -62,19 +69,16 @@ impl PyMemoryTierManager {
         head: u32,
         step: u64,
         score: f32,
-    ) -> PyResult<()> {
+    ) {
         self.inner.record_attention_score(layer, head, step, score);
-        Ok(())
     }
 
     /// Run an eviction pass. Evicts lowest-priority snapshots if L3 is over budget.
     ///
     /// Returns:
     ///     list[tuple[int, int]] — list of (layer, head) pairs that were evicted.
-    pub fn run_eviction(&self) -> PyResult<Vec<(u32, u32)>> {
-        self.rt
-            .block_on(self.inner.maybe_evict())
-            .map_err(to_py_err)
+    pub fn run_eviction(&self) -> Result<Vec<(u32, u32)>, DrexError> {
+        self.rt.block_on(self.inner.maybe_evict())
     }
 
     /// Demote weights from Python/L2 to disk/L3.
@@ -90,25 +94,21 @@ impl PyMemoryTierManager {
         head: u32,
         step: u64,
         weights: Vec<f32>,
-    ) -> PyResult<()> {
-        self.rt
-            .block_on(self.inner.demote(layer, head, step, &weights))
-            .map_err(to_py_err)
+    ) -> Result<(), DrexError> {
+        self.rt.block_on(self.inner.demote(layer, head, step, &weights))
     }
 
     /// Promote weights from disk/L3 back to Python/L2.
     ///
     /// Returns:
     ///     list[float] — the stored weight values.
-    pub fn promote(&self, layer: u32, head: u32, step: u64) -> PyResult<Vec<f32>> {
-        self.rt
-            .block_on(self.inner.promote(layer, head, step))
-            .map_err(to_py_err)
+    pub fn promote(&self, layer: u32, head: u32, step: u64) -> Result<Vec<f32>, DrexError> {
+        self.rt.block_on(self.inner.promote(layer, head, step))
     }
 
     /// Return the number of snapshots currently in L3.
-    pub fn snapshot_count(&self) -> PyResult<usize> {
-        Ok(self.inner.snapshot_count())
+    pub fn snapshot_count(&self) -> usize {
+        self.inner.snapshot_count()
     }
 
     fn __repr__(&self) -> String {

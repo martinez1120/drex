@@ -1,11 +1,18 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyRuntimeError;
+use crate::error::StorageError;
 use crate::storage::snapshot::{SnapshotStore, SnapshotId};
 use tokio::runtime::Runtime;
 use std::sync::Arc;
 
 fn to_py_err<E: std::fmt::Display>(e: E) -> PyErr {
     PyRuntimeError::new_err(e.to_string())
+}
+
+impl From<StorageError> for PyErr {
+    fn from(e: StorageError) -> PyErr {
+        PyRuntimeError::new_err(e.to_string())
+    }
 }
 
 /// Metadata about a stored snapshot, accessible from Python.
@@ -77,12 +84,11 @@ impl PySnapshotStore {
         head: u32,
         step: u64,
         weights: Vec<f32>,
-    ) -> PyResult<()> {
+    ) -> Result<(), StorageError> {
         let id = SnapshotId::new(layer, head, step);
         self.rt
             .block_on(self.inner.write(id, &weights))
             .map(|_| ())
-            .map_err(to_py_err)
     }
 
     /// Read weights from disk.
@@ -92,28 +98,26 @@ impl PySnapshotStore {
     ///
     /// Raises:
     ///     RuntimeError: If the snapshot does not exist or checksum fails.
-    pub fn read(&self, layer: u32, head: u32, step: u64) -> PyResult<Vec<f32>> {
+    pub fn read(&self, layer: u32, head: u32, step: u64) -> Result<Vec<f32>, StorageError> {
         let id = SnapshotId::new(layer, head, step);
-        self.rt.block_on(self.inner.read(&id)).map_err(to_py_err)
+        self.rt.block_on(self.inner.read(&id))
     }
 
     /// Delete a snapshot.
-    pub fn delete(&self, layer: u32, head: u32, step: u64) -> PyResult<()> {
+    pub fn delete(&self, layer: u32, head: u32, step: u64) -> Result<(), StorageError> {
         let id = SnapshotId::new(layer, head, step);
-        self.rt
-            .block_on(self.inner.delete(&id))
-            .map_err(to_py_err)
+        self.rt.block_on(self.inner.delete(&id))
     }
 
     /// Return True if the snapshot exists on disk.
-    pub fn exists(&self, layer: u32, head: u32, step: u64) -> PyResult<bool> {
+    pub fn exists(&self, layer: u32, head: u32, step: u64) -> bool {
         let id = SnapshotId::new(layer, head, step);
-        Ok(self.rt.block_on(self.inner.exists(&id)))
+        self.rt.block_on(self.inner.exists(&id))
     }
 
     /// List all snapshots in the store.
-    pub fn list_snapshots(&self) -> PyResult<Vec<PySnapshotMeta>> {
-        let metas = self.rt.block_on(self.inner.list_all()).map_err(to_py_err)?;
+    pub fn list_snapshots(&self) -> Result<Vec<PySnapshotMeta>, StorageError> {
+        let metas = self.rt.block_on(self.inner.list_all())?;
         Ok(metas
             .into_iter()
             .map(|m| PySnapshotMeta {
@@ -128,11 +132,8 @@ impl PySnapshotStore {
     }
 
     /// List all snapshots for a given layer.
-    pub fn list_by_layer(&self, layer: u32) -> PyResult<Vec<PySnapshotMeta>> {
-        let metas = self
-            .rt
-            .block_on(self.inner.list_by_layer(layer))
-            .map_err(to_py_err)?;
+    pub fn list_by_layer(&self, layer: u32) -> Result<Vec<PySnapshotMeta>, StorageError> {
+        let metas = self.rt.block_on(self.inner.list_by_layer(layer))?;
         Ok(metas
             .into_iter()
             .map(|m| PySnapshotMeta {
@@ -144,6 +145,23 @@ impl PySnapshotStore {
                 compressed: m.compressed,
             })
             .collect())
+    }
+
+    /// Read weights from disk using memory-mapped I/O.
+    ///
+    /// For uncompressed stores this avoids the intermediate ``Vec<u8>``
+    /// allocation that :py:meth:`read` incurs, mapping the file pages
+    /// directly into the process address space before parsing the f32 values.
+    /// For compressed stores it transparently falls back to :py:meth:`read`.
+    ///
+    /// Returns:
+    ///     list[float] — the stored weight values.
+    ///
+    /// Raises:
+    ///     RuntimeError: If the snapshot does not exist or checksum fails.
+    pub fn read_mmap(&self, layer: u32, head: u32, step: u64) -> Result<Vec<f32>, StorageError> {
+        let id = SnapshotId::new(layer, head, step);
+        self.rt.block_on(self.inner.read_mmap(&id))
     }
 
     fn __repr__(&self) -> String {

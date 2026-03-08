@@ -49,6 +49,7 @@ impl WriteAheadJournal {
         Ok(())
     }
 
+    #[allow(dead_code)]
     /// Read all journal entries in order.
     pub async fn read_all(&self) -> Result<Vec<JournalEntry>, StorageError> {
         if !self.path.exists() {
@@ -67,6 +68,7 @@ impl WriteAheadJournal {
         Ok(entries)
     }
 
+    #[allow(dead_code)]
     /// Rewrite the journal keeping only entries for IDs still in `keep_ids`.
     pub async fn compact(&self, keep_ids: &[SnapshotId]) -> Result<(), StorageError> {
         let entries = self.read_all().await?;

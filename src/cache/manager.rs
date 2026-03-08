@@ -150,7 +150,7 @@ impl MemoryTierManager {
     pub fn snapshot_count(&self) -> usize {
         self.registry.count()
     }
-
+    #[allow(dead_code)]
     pub fn store(&self) -> Arc<SnapshotStore> {
         Arc::clone(&self.store)
     }

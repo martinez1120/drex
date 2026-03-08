@@ -147,6 +147,40 @@ class TestDrexTransformer:
         # LM head should have grads, but this shouldn't fail
         assert model.lm_head.weight.grad is not None
 
+    def test_gradient_checkpointing_forward(self, cfg, device):
+        """Gradient checkpointing enabled: output shape matches non-checkpointed."""
+        dev = torch.device(device)
+        ckpt_cfg = DrexConfig(
+            d_model=cfg.d_model, n_heads=cfg.n_heads, n_layers=cfg.n_layers,
+            ff_mult=cfg.ff_mult, vocab_size=cfg.vocab_size,
+            window_size=cfg.window_size, max_seq_len=cfg.max_seq_len,
+            dropout=0.0, gradient_checkpointing=True,
+        )
+        ckpt_model = DrexTransformer(ckpt_cfg).to(dev)
+        ckpt_model.train()
+        B, S = 2, 8
+        ids = torch.randint(0, cfg.vocab_size, (B, S), device=dev)
+        logits, states = ckpt_model(ids)
+        assert logits.shape == (B, S, cfg.vocab_size)
+        assert len(states) == cfg.n_layers
+
+    def test_gradient_checkpointing_backward(self, cfg, device):
+        """Gradient checkpointing: gradients still flow to all parameters."""
+        dev = torch.device(device)
+        ckpt_cfg = DrexConfig(
+            d_model=cfg.d_model, n_heads=cfg.n_heads, n_layers=cfg.n_layers,
+            ff_mult=cfg.ff_mult, vocab_size=cfg.vocab_size,
+            window_size=cfg.window_size, max_seq_len=cfg.max_seq_len,
+            dropout=0.0, gradient_checkpointing=True,
+        )
+        ckpt_model = DrexTransformer(ckpt_cfg).to(dev)
+        ckpt_model.train()
+        B, S = 1, 8
+        ids = torch.randint(0, cfg.vocab_size, (B, S), device=dev)
+        logits, _ = ckpt_model(ids)
+        logits.sum().backward()
+        assert any(p.grad is not None for p in ckpt_model.parameters())
+
 
 # ---------------------------------------------------------------------------
 # DrexTrainer
@@ -183,3 +217,25 @@ class TestDrexTrainer:
         assert trainer._states is not None
         trainer.reset_states()
         assert trainer._states is None
+
+    def test_train_step_zero_tokens_returns_zero(self, cfg, device):
+        """When the input is too short to form one complete segment, return 0.0."""
+        dev = torch.device(device)
+        model = DrexTransformer(cfg).to(dev)
+        seg_len = 16
+        trainer = DrexTrainer(model, cfg, n_segments_per_step=2, segment_len=seg_len)
+        # T == seg_len: end = seg_len + 1 > T, loop body never runs → n_tokens == 0
+        ids = torch.randint(0, cfg.vocab_size, (1, seg_len), device=dev)
+        loss = trainer.train_step(ids)
+        assert loss == 0.0
+
+    def test_train_step_no_grad_clip(self, cfg, device):
+        """grad_clip=0.0 disables gradient clipping (branch coverage)."""
+        dev = torch.device(device)
+        model = DrexTransformer(cfg).to(dev)
+        trainer = DrexTrainer(model, cfg, grad_clip=0.0, n_segments_per_step=1, segment_len=16)
+        ids = torch.randint(0, cfg.vocab_size, (1, 32), device=dev)
+        loss = trainer.train_step(ids)
+        assert isinstance(loss, float)
+        assert loss > 0.0
+

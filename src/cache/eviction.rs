@@ -17,6 +17,7 @@ pub struct H2OScore {
 pub struct EvictionCandidate {
     pub layer: u32,
     pub head: u32,
+    #[allow(dead_code)]
     pub score: H2OScore,
     /// Lower priority = evict first.
     pub priority: f32,
@@ -27,7 +28,9 @@ pub trait EvictionPolicy: Send + Sync {
     fn record_score(&self, layer: u32, head: u32, step: u64, attn_score: f32);
     fn top_candidates(&self, n: usize, current_step: u64) -> Vec<EvictionCandidate>;
     fn remove(&self, layer: u32, head: u32);
+    #[allow(dead_code)]
     fn score_of(&self, layer: u32, head: u32) -> Option<H2OScore>;
+    #[allow(dead_code)]
     fn len(&self) -> usize;
 }
 

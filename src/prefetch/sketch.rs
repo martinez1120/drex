@@ -6,6 +6,7 @@ pub struct SketchConfig {
     /// Projection dimension (e.g., 32). Much smaller than d_model.
     pub rank: usize,
     /// Maximum candidates to return from a single query.
+    #[allow(dead_code)]
     pub n_candidates: usize,
     /// Minimum dot-product score to include in results.
     pub score_threshold: f32,
@@ -44,6 +45,7 @@ pub struct SketchIndex {
     projection: Vec<f32>,
     d_model: usize,
     entries: Vec<SketchEntry>,
+    #[allow(dead_code)]
     pub layer: u32,
 }
 
@@ -95,9 +97,9 @@ impl SketchIndex {
         assert_eq!(vec.len(), self.d_model, "input must have d_model dimensions");
         let rank = self.config.rank;
         let mut out = vec![0.0f32; rank];
-        for r in 0..self.d_model {
-            for c in 0..rank {
-                out[c] += vec[r] * self.projection[r * rank + c];
+        for (r, &v) in vec.iter().enumerate() {
+            for (c, out_c) in out.iter_mut().enumerate() {
+                *out_c += v * self.projection[r * rank + c];
             }
         }
         out
@@ -111,6 +113,7 @@ impl SketchIndex {
     }
 
     /// Remove a snapshot from the index.
+    #[allow(dead_code)]
     pub fn remove(&mut self, id: &SnapshotId) {
         self.entries.retain(|e| &e.id != id);
     }
@@ -149,10 +152,12 @@ impl SketchIndex {
             .collect()
     }
 
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.entries.len()
     }
 
+    #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
     }

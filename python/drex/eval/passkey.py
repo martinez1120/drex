@@ -114,7 +114,7 @@ class PasskeyBenchmark:
         with torch.no_grad():
             for start in range(0, T, self.segment_len):
                 seg = prompt_ids[:, start : start + self.segment_len]
-                if seg.shape[1] == 0:
+                if seg.shape[1] == 0:  # pragma: no cover
                     break
                 logits, states = self.model(seg, states)
 
@@ -151,7 +151,7 @@ class PasskeyBenchmark:
                 generated = self._greedy_generate(prompt, n_tokens=5)
                 gen_str = "".join(chr(t) for t in generated if 32 <= t < 127)
 
-                if passkey in gen_str or gen_str.strip().startswith(passkey):
+                if passkey in gen_str:
                     correct += 1
 
             results[ctx_len] = correct / self.n_trials

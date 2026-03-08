@@ -34,6 +34,7 @@ impl SnapshotRegistry {
             .or_insert_with(|| vec![id]);
     }
 
+    #[allow(dead_code)]
     /// Look up metadata for a snapshot by ID.
     pub fn lookup(&self, id: &SnapshotId) -> Option<SnapshotMetadata> {
         self.entries.get(id).map(|m| m.clone())
@@ -62,7 +63,7 @@ impl SnapshotRegistry {
     pub fn count(&self) -> usize {
         self.entries.len()
     }
-
+    #[allow(dead_code)]
     pub fn contains(&self, id: &SnapshotId) -> bool {
         self.entries.contains_key(id)
     }

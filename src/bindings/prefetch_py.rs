@@ -1,14 +1,9 @@
 use pyo3::prelude::*;
-use pyo3::exceptions::PyRuntimeError;
 use crate::prefetch::engine::PrefetchEngine;
 use crate::prefetch::sketch::SketchConfig;
 use crate::storage::snapshot::SnapshotId;
 use crate::bindings::storage_py::PySnapshotStore;
 use std::sync::Arc;
-
-fn to_py_err<E: std::fmt::Display>(e: E) -> PyErr {
-    PyRuntimeError::new_err(e.to_string())
-}
 
 /// Python wrapper for PrefetchEngine.
 ///
@@ -66,10 +61,9 @@ impl PyPrefetchEngine {
         head: u32,
         step: u64,
         key_vec: Vec<f32>,
-    ) -> PyResult<()> {
+    ) {
         let id = SnapshotId::new(layer, head, step);
         self.inner.register_snapshot(layer, id, key_vec);
-        Ok(())
     }
 
     /// Speculatively prefetch the top-k snapshots most likely needed next.
@@ -81,9 +75,8 @@ impl PyPrefetchEngine {
     ///     layer:      Transformer layer index.
     ///     query_vec:  Current query vector (length d_model).
     ///     k:          Number of candidates to prefetch.
-    pub fn prefetch(&self, layer: u32, query_vec: Vec<f32>, k: usize) -> PyResult<()> {
+    pub fn prefetch(&self, layer: u32, query_vec: Vec<f32>, k: usize) {
         self.inner.prefetch(layer, query_vec, k);
-        Ok(())
     }
 
     /// Consume a prefetched snapshot from the in-memory cache.
@@ -96,15 +89,14 @@ impl PyPrefetchEngine {
         layer: u32,
         head: u32,
         step: u64,
-    ) -> PyResult<Option<Vec<f32>>> {
+    ) -> Option<Vec<f32>> {
         let id = SnapshotId::new(layer, head, step);
-        Ok(self.inner.consume_prefetched(&id))
+        self.inner.consume_prefetched(&id)
     }
 
     /// Clear all prefetch state (sketch indices and in-memory cache).
-    pub fn clear(&mut self) -> PyResult<()> {
+    pub fn clear(&mut self) {
         self.inner.clear();
-        Ok(())
     }
 
     fn __repr__(&self) -> String {

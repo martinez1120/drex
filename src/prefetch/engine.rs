@@ -62,6 +62,7 @@ impl PrefetchEngine {
         idx.add(id, &key_vec);
     }
 
+    #[allow(dead_code)]
     /// Remove a snapshot from its layer's sketch index.
     pub fn deregister_snapshot(&mut self, id: &SnapshotId) {
         if let Some(idx) = self.indices.get_mut(&id.layer) {

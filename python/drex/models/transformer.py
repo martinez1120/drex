@@ -3,13 +3,17 @@ drex.models.transformer — DrexConfig, DrexLayer, DrexTransformer.
 
 Each layer has HybridAttention (L1+L2) + FeedForward.
 Model carries a list of LayerState across segment boundaries.
+
+Phase 3 (L3): when config.use_l3=True, DrexTransformer creates TitanMemory
+instances and an L3MemoryBridge; each DrexLayer holds a reference to the bridge
+and writes mean-pooled representations to disk after every segment step.
 """
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Optional
 
 import torch
 import torch.nn as nn
@@ -17,6 +21,9 @@ import torch.nn.functional as F
 
 from drex.models.attention import HybridAttention
 from drex.models.memory import LayerState
+
+if TYPE_CHECKING:
+    from drex.models.memory import L3MemoryBridge
 
 
 @dataclass
@@ -29,6 +36,7 @@ class DrexConfig:
     vocab_size: int = 32_000
     max_seq_len: int = 4096
     dropout: float = 0.0
+    gradient_checkpointing: bool = False  # recompute activations in backward to save memory
     use_l3: bool = False       # enable L3 disk cache (requires Rust extension)
     l3_base_path: str = "/tmp/drex_l3"
     l3_compress: bool = False
@@ -51,8 +59,16 @@ class FeedForward(nn.Module):
 
 
 class DrexLayer(nn.Module):
-    def __init__(self, config: DrexConfig) -> None:
+    def __init__(
+        self,
+        config: DrexConfig,
+        layer_idx: int = 0,
+        l3_bridge: Optional["L3MemoryBridge"] = None,
+    ) -> None:
         super().__init__()
+        self.layer_idx = layer_idx
+        self.l3_bridge = l3_bridge
+
         self.attn = HybridAttention(
             d_model=config.d_model,
             n_heads=config.n_heads,
@@ -76,6 +92,23 @@ class DrexLayer(nn.Module):
         x = x + self.ff(self.norm2(x))
 
         new_state = LayerState(memory=new_memory, step=layer_state.step + 1)
+
+        # L3: write representative (mean-pooled over seq and batch[0]) to disk
+        if self.l3_bridge is not None:
+            rep = x.detach().mean(dim=1)[0].cpu()  # (d_model,) on CPU
+            self.l3_bridge.write_and_snapshot(
+                layer=self.layer_idx,
+                head=0,
+                step=layer_state.step,
+                key_vec=rep,
+                value_vec=rep,
+            )
+            self.l3_bridge.trigger_prefetch(
+                layer=self.layer_idx,
+                query_vec=rep,
+                k=4,
+            )
+
         return x, new_state
 
 
@@ -85,6 +118,10 @@ class DrexTransformer(nn.Module):
 
     For training over long sequences, call forward() on each segment and
     thread states through. Use state.detach() at segment boundaries for TBPTT.
+
+    When config.use_l3=True, each layer writes to disk via L3MemoryBridge and
+    fires async prefetch. TitanMemory instances are stored as a plain Python
+    list (not nn.ModuleList) so that model.to(device) leaves them on CPU.
     """
 
     def __init__(self, config: DrexConfig) -> None:
@@ -95,7 +132,33 @@ class DrexTransformer(nn.Module):
         self.pos_emb = nn.Embedding(config.max_seq_len, config.d_model)
         self.drop = nn.Dropout(config.dropout)
 
-        self.layers = nn.ModuleList([DrexLayer(config) for _ in range(config.n_layers)])
+        # L3: create TitanMemory + bridge before layers (bridge passed into each layer)
+        if config.use_l3:
+            from drex.models.memory import L3MemoryBridge, TitanMemory
+
+            # Plain list — not nn.ModuleList so model.to() won't move them to GPU.
+            # TitanMemory always runs CPU; inputs are .cpu()'d before writes.
+            self._titan_list: Optional[list] = [
+                TitanMemory(config.d_model, config.d_model * 2)
+                for _ in range(config.n_layers)
+            ]
+            self._l3_bridge: Optional[L3MemoryBridge] = L3MemoryBridge(
+                self._titan_list,
+                base_path=config.l3_base_path,
+                compress=config.l3_compress,
+            )
+            self.layers = nn.ModuleList([
+                DrexLayer(config, i, self._l3_bridge)
+                for i in range(config.n_layers)
+            ])
+        else:
+            self._titan_list = None
+            self._l3_bridge = None
+            self.layers = nn.ModuleList([
+                DrexLayer(config, i)
+                for i in range(config.n_layers)
+            ])
+
         self.norm_out = nn.LayerNorm(config.d_model)
         self.lm_head = nn.Linear(config.d_model, config.vocab_size, bias=False)
 
@@ -123,6 +186,14 @@ class DrexTransformer(nn.Module):
             for _ in range(cfg.n_layers)
         ]
 
+    @staticmethod
+    def _ckpt_forward(layer: DrexLayer, step: int, x: torch.Tensor, M: torch.Tensor, z: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Checkpoint-compatible layer call: unpacks/repacks LayerState as tensors."""
+        from drex.models.memory import LayerState, MemoryState
+        state = LayerState(memory=MemoryState(M=M, z=z), step=step)
+        x_out, new_state = layer(x, state)
+        return x_out, new_state.memory.M, new_state.memory.z
+
     def forward(
         self,
         input_ids: torch.Tensor,         # (B, S)
@@ -144,9 +215,23 @@ class DrexTransformer(nn.Module):
 
         x = self.drop(self.token_emb(input_ids) + self.pos_emb(pos))
 
+        use_ckpt = self.config.gradient_checkpointing and self.training
         new_states: list[LayerState] = []
         for layer, state in zip(self.layers, states):
-            x, new_state = layer(x, state)
+            if use_ckpt:
+                from torch.utils.checkpoint import checkpoint
+                from drex.models.memory import LayerState, MemoryState
+                x, new_M, new_z = checkpoint(
+                    DrexTransformer._ckpt_forward,
+                    layer, state.step, x, state.memory.M, state.memory.z,
+                    use_reentrant=False,
+                )
+                new_state = LayerState(
+                    memory=MemoryState(M=new_M, z=new_z),
+                    step=state.step + 1,
+                )
+            else:
+                x, new_state = layer(x, state)
             new_states.append(new_state)
 
         logits = self.lm_head(self.norm_out(x))  # (B, S, vocab_size)

@@ -102,6 +102,28 @@ class TestSnapshotStore:
         for o, r in zip(weights, recovered):
             assert abs(r - f32(o)) < 1e-9
 
+    def test_read_mmap_roundtrip(self, tmp_path):
+        """read_mmap on an uncompressed store returns identical weights to write."""
+        store = sys.SnapshotStore(str(tmp_path))
+        weights = [float(i) * 0.25 for i in range(64)]
+        store.write(0, 0, 1, weights)
+        recovered = store.read_mmap(0, 0, 1)
+        assert recovered == weights
+
+    def test_read_mmap_compressed_fallback(self, tmp_path):
+        """read_mmap on a compressed store falls back to regular read."""
+        store = sys.SnapshotStore(str(tmp_path), compress=True)
+        weights = [1.0, 2.0, 3.0]
+        store.write(0, 0, 1, weights)
+        recovered = store.read_mmap(0, 0, 1)
+        assert recovered == weights
+
+    def test_read_mmap_nonexistent_raises(self, tmp_path):
+        """read_mmap raises RuntimeError for a missing snapshot."""
+        store = sys.SnapshotStore(str(tmp_path))
+        with pytest.raises(RuntimeError, match="not found"):
+            store.read_mmap(0, 0, 999)
+
 
 class TestMemoryTierManager:
     def test_demote_promote(self, tmp_path):

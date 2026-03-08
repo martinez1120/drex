@@ -4,9 +4,11 @@ pub enum DrexError {
     #[error("storage error: {0}")]
     Storage(#[from] StorageError),
 
+    #[allow(dead_code)]
     #[error("cache error: {0}")]
     Cache(String),
 
+    #[allow(dead_code)]
     #[error("prefetch error: {0}")]
     Prefetch(String),
 }

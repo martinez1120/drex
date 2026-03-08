@@ -24,7 +24,7 @@ __version__ = "0.1.0"
 try:
     from drex._sys import SnapshotStore, SnapshotMeta, MemoryTierManager, PrefetchEngine
     _RUST_AVAILABLE = True
-except ImportError:
+except ImportError:  # pragma: no cover
     _RUST_AVAILABLE = False
     SnapshotStore = None
     SnapshotMeta = None
