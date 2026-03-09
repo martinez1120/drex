@@ -1060,3 +1060,68 @@ same memory capacity.
 Separating episodic (temporal/event order) memory from semantic (content association)
 memory outperforms a unified memory store by >5% on tasks requiring both recall types.
 *Status: ✓ SUPPORTED (exp_36_3)*
+
+---
+
+## Category 37: Robustness (Phase 7)
+
+**H-37.1 — Noise-Augmented Training Reduces Catastrophic Memory Collapse**
+Training DeltaModel with Gaussian noise (σ=0.05) on M at read-time reduces the
+accuracy collapse at σ_test=0.10 from ratio=0.08 (exp_35_1 baseline) to ≥0.50,
+showing that noise augmentation provides denoising regularization on M.
+*Status: ~ INCONCLUSIVE (exp_37_1) — Normalized-key delta already resilient (ratio~0.95); augmentation Δ≈+0.04 but below 0.10 threshold*
+
+**H-37.2 — Row-Normalizing M After Each Write Resists Noise Collapse**
+Normalizing each row of M to unit L2 norm after each delta-rule update bounds M
+magnitude; the accuracy-retention ratio at σ=0.10 rises to ≥0.50 vs 0.08 baseline.
+Rationale: bounded M.std() makes additive noise less destructive relatively.
+*Status: ~ INCONCLUSIVE (exp_37_2) — Baseline already robust (ratio~0.86-1.01); row-norm neither helps nor hurts consistently*
+
+**H-37.3 — EMA-Smoothed M Updates Improve Noise Resistance**
+Applying exponential moving average (α=0.85) to M updates — writing only (1-α) of
+each new delta — produces a lower spectral-radius M; acc_ratio at σ=0.10 ≥ 0.50
+while retaining ≥95% of clean accuracy.
+*Status: ✓ SUPPORTED (exp_37_3) — EMA (α=0.85-0.95) achieves ratio≥0.96 AND improves clean accuracy by 5-10%*
+
+---
+
+## Category 38: Episodic/Semantic Architecture (Phase 7)
+
+**H-38.1 — Learned Soft Routing Outperforms Fixed 50/50 Episodic/Semantic Split**
+A trainable logistic gate g_t ∈ (0,1) that blends episodic vs semantic write weights
+per-timestep outperforms the fixed 50/50 split of exp_36_3 by >5%, indicating the
+model can route content to the more appropriate memory module.
+*Status: ✗ REFUTED (exp_38_1) — Fixed split beats learned router by 10-24%. Inductive bias (recency-weighted episodic) outperforms learned routing*
+
+**H-38.2 — Asymmetric Capacity (25% Episodic, 75% Semantic) Outperforms 50/50**
+Allocating only 25% of HIDDEN_DIM to episodic memory and 75% to semantic outperforms
+the symmetric split by >3%, because the primary task (KV content recall) is semantic.
+*Status: ~ INCONCLUSIVE (exp_38_2) — Seed-dependent: 1/3 seeds show 25% epi wins (+12%), 2/3 show 50/50 optimal*
+
+**H-38.3 — Learned Gated Read Combination Outperforms Simple Concatenation**
+Using a query-conditioned softmax gate over [M_sem_read, M_epi_read] outputs improves
+accuracy by >5% over direct concatenation, allowing the model to selectively attend to
+the more informative memory module per query.
+*Status: ~ INCONCLUSIVE (exp_38_3) — Seed-dependent results; gated wins by +22% on seed 777 but loses on seed 123*
+
+---
+
+## Category 39: Write Controller Adaptation (Phase 7)
+
+**H-39.1 — Write Rate Sweet Spot Near 0.50 (Concave Accuracy-vs-Rate Curve)**
+Forcing write rate to 0.10 or 0.90 via threshold scaling each degrades accuracy by
+>10% relative to the near-optimal write rate, confirming a concave accuracy curve
+peaking near 0.50 and validating the observed equilibrium ~0.54 as near-optimal.
+*Status: ~ INCONCLUSIVE (exp_39_1) — Asymmetric curve: low write rate hurts (-21%) but high write rate shows no penalty. One-sided concavity only*
+
+**H-39.2 — Write Rate Equilibrium Increases With Interference Density ρ**
+The steady-state write rate of EnergyGatedDelta rises with ρ = N_pairs/HIDDEN_DIM:
+wr(ρ=0.75) exceeds wr(ρ=0.08) by >0.15, showing the locked-at-0.534 finding
+(exp_34_3, ρ≈0.078) is task-load-dependent, not universally fixed.
+*Status: ~ INCONCLUSIVE (exp_39_2) — Moderate variation (Δ=0.083, below 0.15 threshold); write rate 0.70-0.78 across ρ, though not conclusively density-driven*
+
+**H-39.3 — Learnable Threshold Converges to 0.40–0.55 From Any Initialization**
+When the energy gate threshold is a learnable parameter optimized jointly with model
+weights, it converges from any initial value {0.05, 0.20, 0.50, 0.80, 1.20} to the
+range [0.40, 0.55], confirming ~0.54 as a gradient-dynamics attractor.
+*Status: ✗ REFUTED (exp_39_3) — No convergence: spread=1.022, final thresholds stay near initialization [0.049, 0.188, 0.464, 0.814, 1.072]. System is multi-stable, not attracted to 0.54*

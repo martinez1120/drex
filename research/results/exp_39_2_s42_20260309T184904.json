@@ -1,0 +1,50 @@
+{
+  "experiment_id": "exp_39_2",
+  "hypothesis": "EnergyGatedDelta write rate at equilibrium increases with \u03c1: wr(\u03c1=0.75) > wr(\u03c1=0.08) by >0.15, showing task-load dependence.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "wr_n02": 0.7027,
+    "acc_n02": 0.5125,
+    "wr_n05": 0.834,
+    "acc_n05": 0.2875,
+    "wr_n10": 0.8679,
+    "acc_n10": 0.1359,
+    "wr_n20": 0.8779,
+    "acc_n20": 0.0776,
+    "wr_n32": 0.8298,
+    "acc_n32": 0.0682,
+    "wr_n48": 0.7712,
+    "acc_n48": 0.0448,
+    "wr_low_rho": 0.7027,
+    "wr_high_rho": 0.7712,
+    "wr_ref_rho": 0.834,
+    "delta_wr_high_minus_low": 0.0685,
+    "rhos": [
+      0.031,
+      0.078,
+      0.156,
+      0.312,
+      0.5,
+      0.75
+    ]
+  },
+  "notes": "Moderate variation: low=0.703, high=0.771, \u0394=0.068. Non-monotone or boundary effects.",
+  "error": "",
+  "timestamp": "2026-03-09T18:49:04.627167+00:00",
+  "duration_seconds": 610.1208257919643,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 1000,
+    "n_pairs_list": [
+      2,
+      5,
+      10,
+      20,
+      32,
+      48
+    ],
+    "energy_thresh": 0.4
+  },
+  "seed": 42
+}

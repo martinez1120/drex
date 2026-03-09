@@ -1,0 +1,30 @@
+{
+  "experiment_id": "exp_38_2",
+  "hypothesis": "EPI_FRAC=0.25 (25% episodic, 75% semantic) outperforms 50/50 by >3%, indicating semantic capacity dominates for content-association tasks.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "epi025": 0.2682,
+    "epi050": 0.3281,
+    "epi075": 0.2594,
+    "best_split": "epi050",
+    "best_acc": 0.3281,
+    "gap_best_vs_50": 0.0,
+    "acc_25_epi": 0.2682,
+    "acc_75_epi": 0.2594
+  },
+  "notes": "50/50 optimal: best=epi050(0.328), 50/50=0.328, gap=0.000 \u2264 0.03.",
+  "error": "",
+  "timestamp": "2026-03-09T18:47:11.245872+00:00",
+  "duration_seconds": 145.03121908404864,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 800,
+    "epi_fracs": [
+      0.25,
+      0.5,
+      0.75
+    ]
+  },
+  "seed": 123
+}

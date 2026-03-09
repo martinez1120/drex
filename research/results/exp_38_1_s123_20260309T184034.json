@@ -1,0 +1,22 @@
+{
+  "experiment_id": "exp_38_1",
+  "hypothesis": "Learned soft-routing on episodic/semantic split outperforms fixed 50/50 split by >5% accuracy; router learns a non-trivial allocation (not always 0.5).",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_fixed": 0.3349,
+    "acc_router": 0.2313,
+    "gap_router_minus_fixed": -0.1036
+  },
+  "notes": "Fixed split wins: fixed=0.335, router=0.231, gap=-0.104<-0.03.",
+  "error": "",
+  "timestamp": "2026-03-09T18:40:34.607686+00:00",
+  "duration_seconds": 94.94043795892503,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 800,
+    "seq_len": 32,
+    "num_pairs": 5
+  },
+  "seed": 123
+}

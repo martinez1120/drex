@@ -174,6 +174,9 @@ CATEGORY_NAMES = {
     "exp_34": "Category 34 — Training Dynamics (Phase 6)",
     "exp_35": "Category 35 — Failure Modes (Phase 6)",
     "exp_36": "Category 36 — Biological Analogues (Phase 6)",
+    "exp_37": "Category 37 — Robustness (Phase 7)",
+    "exp_38": "Category 38 — Episodic/Semantic Architecture (Phase 7)",
+    "exp_39": "Category 39 — Write Controller Adaptation (Phase 7)",
 }
 
 

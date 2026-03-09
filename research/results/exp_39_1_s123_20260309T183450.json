@@ -1,0 +1,45 @@
+{
+  "experiment_id": "exp_39_1",
+  "hypothesis": "Accuracy peaks near write_rate \u2248 0.50; forcing rate to 0.10 or 0.90 degrades accuracy by >10% each (concave accuracy vs write-rate curve).",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "acc_ts01": 0.2162,
+    "wr_ts01": 0.5626,
+    "acc_ts03": 0.2325,
+    "wr_ts03": 0.5526,
+    "acc_ts05": 0.2394,
+    "wr_ts05": 0.5319,
+    "acc_ts07": 0.2006,
+    "wr_ts07": 0.5098,
+    "acc_ts09": 0.2125,
+    "wr_ts09": 0.4049,
+    "acc_ts11": 0.0306,
+    "wr_ts11": 0.0,
+    "acc_ts14": 0.0338,
+    "wr_ts14": 0.0,
+    "peak_acc": 0.2394,
+    "peak_wr": 0.5319,
+    "peak_scale": 0.5,
+    "drop_at_low_wr": 0.2087,
+    "drop_at_high_wr": 0.0
+  },
+  "notes": "Asymmetric: peak_wr=0.532, low_drop=0.209, high_drop=0.000. One extreme hurts more than other.",
+  "error": "",
+  "timestamp": "2026-03-09T18:34:50.435588+00:00",
+  "duration_seconds": 251.05656075000297,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 800,
+    "threshold_scales": [
+      0.1,
+      0.3,
+      0.5,
+      0.7,
+      0.9,
+      1.1,
+      1.4
+    ]
+  },
+  "seed": 123
+}

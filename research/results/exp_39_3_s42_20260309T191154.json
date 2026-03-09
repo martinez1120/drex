@@ -1,0 +1,50 @@
+{
+  "experiment_id": "exp_39_3",
+  "hypothesis": "Learnable threshold converges to 0.40\u20130.55 from any initial value; spread of final thresholds < 0.30 across initializations.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "final_thresh_init005": 0.0477,
+    "final_wr_init005": 0.5637,
+    "acc_init005": 0.2462,
+    "final_thresh_init020": 0.1841,
+    "final_wr_init020": 0.5583,
+    "acc_init020": 0.2269,
+    "final_thresh_init050": 0.4823,
+    "final_wr_init050": 0.5274,
+    "acc_init050": 0.2062,
+    "final_thresh_init080": 0.8044,
+    "final_wr_init080": 0.5003,
+    "acc_init080": 0.2313,
+    "final_thresh_init120": 1.0673,
+    "final_wr_init120": 0.0,
+    "acc_init120": 0.2325,
+    "final_thresholds": [
+      0.0477,
+      0.1841,
+      0.4823,
+      0.8044,
+      1.0673
+    ],
+    "spread": 1.0196,
+    "mean_thresh": 0.5172,
+    "frac_in_attractor_40_55": 0.2
+  },
+  "notes": "No convergence: spread=1.020>0.50. Thresholds: [0.048, 0.184, 0.482, 0.804, 1.067]. Initial value matters; no attractor at 0.54.",
+  "error": "",
+  "timestamp": "2026-03-09T19:11:54.302940+00:00",
+  "duration_seconds": 219.49418087501545,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 1000,
+    "init_thresholds": [
+      0.05,
+      0.2,
+      0.5,
+      0.8,
+      1.2
+    ],
+    "gate_temp": 10.0
+  },
+  "seed": 42
+}

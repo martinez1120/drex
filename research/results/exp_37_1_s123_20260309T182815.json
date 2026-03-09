@@ -1,0 +1,40 @@
+{
+  "experiment_id": "exp_37_1",
+  "hypothesis": "Training DeltaModel with \u03c3_train=0.05 noise on M keeps acc_ratio(\u03c3=0.10) \u2265 0.50 (vs 0.08 ratio found in exp_35_1 with no augmentation).",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "baseline_std": 0.2269,
+    "baseline_aug": 0.2069,
+    "ratio_std_at10": 0.9392,
+    "ratio_aug_at10": 0.9758,
+    "aug_improvement": 0.0367,
+    "std_s000": 0.2269,
+    "std_s003": 0.2194,
+    "std_s005": 0.2225,
+    "std_s010": 0.2131,
+    "std_s020": 0.2269,
+    "aug_s000": 0.2069,
+    "aug_s003": 0.2125,
+    "aug_s005": 0.2225,
+    "aug_s010": 0.2019,
+    "aug_s020": 0.2181
+  },
+  "notes": "Partial improvement: ratio_aug=0.976, ratio_std=0.939. aug_improvement=0.037.",
+  "error": "",
+  "timestamp": "2026-03-09T18:28:15.469192+00:00",
+  "duration_seconds": 49.14441266702488,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 600,
+    "sigma_train": 0.05,
+    "eval_sigmas": [
+      0.0,
+      0.03,
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "seed": 123
+}

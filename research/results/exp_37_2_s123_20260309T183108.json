@@ -1,0 +1,39 @@
+{
+  "experiment_id": "exp_37_2",
+  "hypothesis": "Row-normalizing M after each write bounds M magnitude; acc_ratio at \u03c3=0.10 \u2265 0.50 (vs 0.08 for standard delta).",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "std_s000": 0.22,
+    "norm_s000": 0.2269,
+    "std_s003": 0.2331,
+    "norm_s003": 0.2194,
+    "std_s005": 0.2031,
+    "norm_s005": 0.2144,
+    "std_s010": 0.2213,
+    "norm_s010": 0.2137,
+    "std_s020": 0.2219,
+    "norm_s020": 0.235,
+    "baseline_std": 0.22,
+    "baseline_norm": 0.2269,
+    "ratio_std_at10": 1.0059,
+    "ratio_norm_at10": 0.9418,
+    "improvement": -0.0641
+  },
+  "notes": "Partial: ratio_norm=0.942, ratio_std=1.006, improvement=-0.064.",
+  "error": "",
+  "timestamp": "2026-03-09T18:31:08.749343+00:00",
+  "duration_seconds": 59.31561099993996,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 600,
+    "eval_sigmas": [
+      0.0,
+      0.03,
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "seed": 123
+}

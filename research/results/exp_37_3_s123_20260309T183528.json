@@ -1,0 +1,51 @@
+{
+  "experiment_id": "exp_37_3",
+  "hypothesis": "EMA update (\u03b1=0.85) achieves acc_ratio \u2265 0.50 at \u03c3=0.10 while retaining \u2265 95% of clean accuracy.",
+  "outcome": "SUPPORTED",
+  "metrics": {
+    "std_s000": 0.2106,
+    "std_s005": 0.2181,
+    "std_s010": 0.2238,
+    "std_s020": 0.2025,
+    "ema070_s000": 0.26,
+    "ema070_s005": 0.2575,
+    "ema070_s010": 0.2437,
+    "ema070_s020": 0.245,
+    "ratio_ema070": 0.9375,
+    "ema085_s000": 0.2475,
+    "ema085_s005": 0.2525,
+    "ema085_s010": 0.2519,
+    "ema085_s020": 0.2544,
+    "ratio_ema085": 1.0177,
+    "ema095_s000": 0.2219,
+    "ema095_s005": 0.2206,
+    "ema095_s010": 0.2394,
+    "ema095_s020": 0.2244,
+    "ratio_ema095": 1.0789,
+    "ratio_std": 1.0627,
+    "best_alpha": 0.95,
+    "best_ratio": 1.0789,
+    "best_clean": 0.2219
+  },
+  "notes": "EMA (\u03b1=0.95) resilient: ratio=1.079 \u2265 0.50, clean_loss=-0.054 \u2264 0.05. ratio_std=1.063.",
+  "error": "",
+  "timestamp": "2026-03-09T18:35:28.750003+00:00",
+  "duration_seconds": 95.24989579198882,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 600,
+    "alphas": [
+      0.7,
+      0.85,
+      0.95
+    ],
+    "eval_sigmas": [
+      0.0,
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "seed": 123
+}

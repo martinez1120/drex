@@ -1,0 +1,22 @@
+{
+  "experiment_id": "exp_38_3",
+  "hypothesis": "Gated read (learned softmax over [M_sem, M_epi] outputs) outperforms simple concatenation by >5%.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_concat": 0.3349,
+    "acc_gated": 0.3016,
+    "gap_gated_minus_concat": -0.0333
+  },
+  "notes": "Concat wins: concat=0.335, gated=0.302, gap=-0.033<-0.03.",
+  "error": "",
+  "timestamp": "2026-03-09T18:53:32.257904+00:00",
+  "duration_seconds": 131.6160928340396,
+  "config": {
+    "vocab": 64,
+    "hidden": 64,
+    "steps": 800,
+    "seq_len": 32,
+    "num_pairs": 5
+  },
+  "seed": 123
+}

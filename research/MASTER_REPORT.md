@@ -1,19 +1,19 @@
 # drex Research — Master Results Report
 
-**Generated:** 2026-03-09 17:49 UTC
-**Experiments:** 167  |  **Seeds per experiment:** 0, 1, 2, 7, 13, 42, 99, 123, 777
-**Total runs evaluated:** 698
+**Generated:** 2026-03-09 19:20 UTC
+**Experiments:** 176  |  **Seeds per experiment:** 0, 1, 2, 7, 13, 42, 99, 123, 777
+**Total runs evaluated:** 725
 
 ## Overall Scoreboard
 
 | Outcome | Count | % |
 |---------|-------|---|
-| ✓ SUPPORTED    | 41    | 25% |
-| ~ INCONCLUSIVE | 53 | 32% |
-| ✗ REFUTED      | 73      | 44% |
+| ✓ SUPPORTED    | 43    | 24% |
+| ~ INCONCLUSIVE | 57 | 32% |
+| ✗ REFUTED      | 76      | 43% |
 | ! ERROR        | 0        | 0% |
 
-**Seed consistency:** 123/167 experiments gave the same verdict across all seeds. 44 inconsistent.
+**Seed consistency:** 129/176 experiments gave the same verdict across all seeds. 47 inconsistent.
 
 ## Summary Table
 
@@ -186,6 +186,15 @@
 | exp_36_1 | ✗ REFUTED | ✓ | acc_no_consolidation=0.178±0.008 | No consolidation benefit: gain=0.005 (threshold >0.03). Offl… |
 | exp_36_2 | ~ INCONCLUSIVE | ✓ | acc_full_representation=0.205±0.011 | Roughly equivalent: full=0.194, residual=0.190, gap=-0.004. … |
 | exp_36_3 | ✓ SUPPORTED | ✓ | acc_split=0.236±0.019 | Split memory wins: unified=0.156, split=0.215, advantage=0.0… |
+| exp_37_1 | ~ INCONCLUSIVE | ✓ | aug_improvement=0.007±0.051 | Partial improvement: ratio_aug=0.976, ratio_std=0.939. aug_i… |
+| exp_37_2 | ~ INCONCLUSIVE | ✓ | baseline_norm=0.225±0.005 | Partial: ratio_norm=0.942, ratio_std=1.006, improvement=-0.0… |
+| exp_37_3 | ✓ SUPPORTED | ✓ | best_alpha=0.917±0.058 | EMA (α=0.95) resilient: ratio=1.079 ≥ 0.50, clean_loss=-0.05… |
+| exp_38_1 | ✗ REFUTED | ⚠ ['REFUTED', 'REFUTED', 'INCONCLUSIVE'] | acc_fixed=0.354±0.107 | Fixed split wins: fixed=0.335, router=0.231, gap=-0.104<-0.0… |
+| exp_38_2 | ✗ REFUTED | ⚠ ['REFUTED', 'SUPPORTED', 'REFUTED'] | acc_25_epi=0.339±0.074 | 50/50 optimal: best=epi050(0.328), 50/50=0.328, gap=0.000 ≤ … |
+| exp_38_3 | ✓ SUPPORTED | ⚠ ['REFUTED', 'INCONCLUSIVE', 'SUPPORTED'] | acc_concat=0.354±0.107 | Concat wins: concat=0.335, gated=0.302, gap=-0.033<-0.03.… |
+| exp_39_1 | ~ INCONCLUSIVE | ✓ | acc_ts01=0.232±0.017 | Asymmetric: peak_wr=0.532, low_drop=0.209, high_drop=0.000. … |
+| exp_39_2 | ~ INCONCLUSIVE | ✓ | acc_n02=0.526±0.012 | Moderate variation: low=0.696, high=0.779, Δ=0.083. Non-mono… |
+| exp_39_3 | ✗ REFUTED | ✓ | acc_init005=0.235±0.016 | No convergence: spread=1.022>0.50. Thresholds: [0.049, 0.188… |
 
 ---
 
@@ -3593,13 +3602,246 @@
 
 ---
 
+### Category 37 — Robustness (Phase 7)
+*1 supported / 0 refuted / 2 inconclusive / 0 error*
+
+#### exp_37_1  ~ INCONCLUSIVE
+**Hypothesis:** Training DeltaModel with σ_train=0.05 noise on M keeps acc_ratio(σ=0.10) ≥ 0.50 (vs 0.08 ratio found in exp_35_1 with no augmentation).
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 54s
+
+**Metrics (mean ± std across seeds):**
+
+- `aug_improvement` = **0.0067** ± 0.0508  *(runs: 0.037, -0.052, 0.035)*
+- `aug_s000` = **0.2156** ± 0.0094  *(runs: 0.207, 0.226, 0.214)*
+- `aug_s003` = **0.2154** ± 0.0028  *(runs: 0.212, 0.218, 0.216)*
+- `aug_s005` = **0.2292** ± 0.0095  *(runs: 0.223, 0.225, 0.240)*
+- `aug_s010` = **0.2115** ± 0.0145  *(runs: 0.202, 0.228, 0.204)*
+- `aug_s020` = **0.2160** ± 0.0053  *(runs: 0.218, 0.220, 0.210)*
+- `baseline_aug` = **0.2156** ± 0.0094  *(runs: 0.207, 0.226, 0.214)*
+- `baseline_std` = **0.2277** ± 0.0007  *(runs: 0.227, 0.228, 0.228)*
+- `ratio_aug_at10` = **0.9801** ± 0.0291  *(runs: 0.976, 1.011, 0.953)*
+- `ratio_std_at10` = **0.9734** ± 0.0784  *(runs: 0.939, 1.063, 0.918)*
+- `std_s000` = **0.2277** ± 0.0007  *(runs: 0.227, 0.228, 0.228)*
+- `std_s003` = **0.2225** ± 0.0049  *(runs: 0.219, 0.220, 0.228)*
+- `std_s005` = **0.2292** ± 0.0058  *(runs: 0.223, 0.232, 0.233)*
+- `std_s010` = **0.2217** ± 0.0181  *(runs: 0.213, 0.242, 0.209)*
+- `std_s020` = **0.2256** ± 0.0051  *(runs: 0.227, 0.230, 0.220)*
+
+**Notes:** Partial improvement: ratio_aug=0.976, ratio_std=0.939. aug_improvement=0.037.
+
+---
+#### exp_37_2  ~ INCONCLUSIVE
+**Hypothesis:** Row-normalizing M after each write bounds M magnitude; acc_ratio at σ=0.10 ≥ 0.50 (vs 0.08 for standard delta).
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 60s
+
+**Metrics (mean ± std across seeds):**
+
+- `baseline_norm` = **0.2248** ± 0.0047  *(runs: 0.227, 0.228, 0.219)*
+- `baseline_std` = **0.2273** ± 0.0078  *(runs: 0.220, 0.226, 0.236)*
+- `improvement` = **0.0220** ± 0.0762  *(runs: -0.064, 0.081, 0.049)*
+- `norm_s000` = **0.2248** ± 0.0047  *(runs: 0.227, 0.228, 0.219)*
+- `norm_s003` = **0.2154** ± 0.0121  *(runs: 0.219, 0.202, 0.225)*
+- `norm_s005` = **0.2202** ± 0.0051  *(runs: 0.214, 0.224, 0.223)*
+- `norm_s010` = **0.2150** ± 0.0017  *(runs: 0.214, 0.214, 0.217)*
+- `norm_s020` = **0.2185** ± 0.0163  *(runs: 0.235, 0.218, 0.203)*
+- `ratio_norm_at10` = **0.9568** ± 0.0276  *(runs: 0.942, 0.940, 0.989)*
+- `ratio_std_at10` = **0.9347** ± 0.0736  *(runs: 1.006, 0.859, 0.939)*
+- `std_s000` = **0.2273** ± 0.0078  *(runs: 0.220, 0.226, 0.236)*
+- `std_s003` = **0.2175** ± 0.0141  *(runs: 0.233, 0.214, 0.206)*
+- `std_s005` = **0.2129** ± 0.0104  *(runs: 0.203, 0.224, 0.212)*
+- `std_s010` = **0.2123** ± 0.0155  *(runs: 0.221, 0.194, 0.221)*
+- `std_s020` = **0.2144** ± 0.0066  *(runs: 0.222, 0.209, 0.212)*
+
+**Notes:** Partial: ratio_norm=0.942, ratio_std=1.006, improvement=-0.064.
+
+---
+#### exp_37_3  ✓ SUPPORTED
+**Hypothesis:** EMA update (α=0.85) achieves acc_ratio ≥ 0.50 at σ=0.10 while retaining ≥ 95% of clean accuracy.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 100s
+
+**Metrics (mean ± std across seeds):**
+
+- `best_alpha` = **0.9167** ± 0.0577  *(runs: 0.950, 0.850, 0.950)*
+- `best_clean` = **0.2340** ± 0.0188  *(runs: 0.222, 0.256, 0.224)*
+- `best_ratio` = **1.0476** ± 0.0761  *(runs: 1.079, 0.961, 1.103)*
+- `ema070_s000` = **0.2606** ± 0.0047  *(runs: 0.260, 0.266, 0.256)*
+- `ema070_s005` = **0.2577** ± 0.0097  *(runs: 0.258, 0.248, 0.268)*
+- `ema070_s010` = **0.2460** ± 0.0020  *(runs: 0.244, 0.247, 0.247)*
+- `ema070_s020` = **0.2523** ± 0.0087  *(runs: 0.245, 0.262, 0.250)*
+- `ema085_s000` = **0.2546** ± 0.0066  *(runs: 0.247, 0.256, 0.261)*
+- `ema085_s005` = **0.2513** ± 0.0016  *(runs: 0.253, 0.252, 0.249)*
+- `ema085_s010` = **0.2562** ± 0.0133  *(runs: 0.252, 0.246, 0.271)*
+- `ema085_s020` = **0.2471** ± 0.0064  *(runs: 0.254, 0.243, 0.244)*
+- `ema095_s000` = **0.2296** ± 0.0112  *(runs: 0.222, 0.242, 0.224)*
+- `ema095_s005` = **0.2221** ± 0.0104  *(runs: 0.221, 0.233, 0.212)*
+- `ema095_s010` = **0.2356** ± 0.0141  *(runs: 0.239, 0.220, 0.247)*
+- `ema095_s020` = **0.2208** ± 0.0084  *(runs: 0.224, 0.227, 0.211)*
+- `ratio_ema070` = **0.9443** ± 0.0192  *(runs: 0.938, 0.929, 0.966)*
+- `ratio_ema085` = **1.0065** ± 0.0411  *(runs: 1.018, 0.961, 1.041)*
+- `ratio_ema095` = **1.0297** ± 0.1068  *(runs: 1.079, 0.907, 1.103)*
+- `ratio_std` = **0.9938** ± 0.0941  *(runs: 1.063, 0.887, 1.032)*
+- `std_s000` = **0.2190** ± 0.0114  *(runs: 0.211, 0.232, 0.214)*
+- `std_s005` = **0.2225** ± 0.0051  *(runs: 0.218, 0.221, 0.228)*
+- `std_s010` = **0.2169** ± 0.0099  *(runs: 0.224, 0.206, 0.221)*
+- `std_s020` = **0.2117** ± 0.0097  *(runs: 0.203, 0.211, 0.222)*
+
+**Notes:** EMA (α=0.95) resilient: ratio=1.079 ≥ 0.50, clean_loss=-0.054 ≤ 0.05. ratio_std=1.063.
+
+---
+
+### Category 38 — Episodic/Semantic Architecture (Phase 7)
+*1 supported / 2 refuted / 0 inconclusive / 0 error*
+
+#### exp_38_1  ✗ REFUTED ⚠ inconsistent across seeds ['REFUTED', 'REFUTED', 'INCONCLUSIVE']
+**Hypothesis:** Learned soft-routing on episodic/semantic split outperforms fixed 50/50 split by >5% accuracy; router learns a non-trivial allocation (not always 0.5).
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 101s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_fixed` = **0.3545** ± 0.1074  *(runs: 0.335, 0.470, 0.258)*
+- `acc_router` = **0.2412** ± 0.0154  *(runs: 0.231, 0.233, 0.259)*
+- `gap_router_minus_fixed` = **-0.1134** ± 0.1191  *(runs: -0.104, -0.237, 0.001)*
+
+**Notes:** Fixed split wins: fixed=0.335, router=0.231, gap=-0.104<-0.03.
+
+---
+#### exp_38_2  ✗ REFUTED ⚠ inconsistent across seeds ['REFUTED', 'SUPPORTED', 'REFUTED']
+**Hypothesis:** EPI_FRAC=0.25 (25% episodic, 75% semantic) outperforms 50/50 by >3%, indicating semantic capacity dominates for content-association tasks.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 142s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_25_epi` = **0.3394** ± 0.0736  *(runs: 0.268, 0.415, 0.335)*
+- `acc_75_epi` = **0.2962** ± 0.0395  *(runs: 0.259, 0.291, 0.338)*
+- `best_acc` = **0.3767** ± 0.0444  *(runs: 0.328, 0.415, 0.387)*
+- `best_split` = ['epi050', 'epi025', 'epi050']
+- `epi025` = **0.3394** ± 0.0736  *(runs: 0.268, 0.415, 0.335)*
+- `epi050` = **0.3363** ± 0.0471  *(runs: 0.328, 0.294, 0.387)*
+- `epi075` = **0.2962** ± 0.0395  *(runs: 0.259, 0.291, 0.338)*
+- `gap_best_vs_50` = **0.0404** ± 0.0700  *(runs: 0.000, 0.121, 0.000)*
+
+**Notes:** 50/50 optimal: best=epi050(0.328), 50/50=0.328, gap=0.000 ≤ 0.03.
+
+---
+#### exp_38_3  ✓ SUPPORTED ⚠ inconsistent across seeds ['REFUTED', 'INCONCLUSIVE', 'SUPPORTED']
+**Hypothesis:** Gated read (learned softmax over [M_sem, M_epi] outputs) outperforms simple concatenation by >5%.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 118s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_concat` = **0.3545** ± 0.1074  *(runs: 0.335, 0.470, 0.258)*
+- `acc_gated` = **0.4247** ± 0.1072  *(runs: 0.302, 0.498, 0.474)*
+- `gap_gated_minus_concat` = **0.0701** ± 0.1300  *(runs: -0.033, 0.028, 0.216)*
+
+**Notes:** Concat wins: concat=0.335, gated=0.302, gap=-0.033<-0.03.
+
+---
+
+### Category 39 — Write Controller Adaptation (Phase 7)
+*0 supported / 1 refuted / 2 inconclusive / 0 error*
+
+#### exp_39_1  ~ INCONCLUSIVE
+**Hypothesis:** Accuracy peaks near write_rate ≈ 0.50; forcing rate to 0.10 or 0.90 degrades accuracy by >10% each (concave accuracy vs write-rate curve).
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 249s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ts01` = **0.2319** ± 0.0167  *(runs: 0.216, 0.249, 0.230)*
+- `acc_ts03` = **0.2150** ± 0.0201  *(runs: 0.233, 0.219, 0.193)*
+- `acc_ts05` = **0.2242** ± 0.0175  *(runs: 0.239, 0.228, 0.205)*
+- `acc_ts07` = **0.2142** ± 0.0157  *(runs: 0.201, 0.211, 0.231)*
+- `acc_ts09` = **0.2179** ± 0.0060  *(runs: 0.212, 0.224, 0.217)*
+- `acc_ts11` = **0.0290** ± 0.0064  *(runs: 0.031, 0.034, 0.022)*
+- `acc_ts14` = **0.0319** ± 0.0023  *(runs: 0.034, 0.033, 0.029)*
+- `drop_at_high_wr` = **0.0000**  *(stable across seeds)*
+- `drop_at_low_wr` = **0.2110** ± 0.0035  *(runs: 0.209, 0.215, 0.209)*
+- `peak_acc` = **0.2400** ± 0.0091  *(runs: 0.239, 0.249, 0.231)*
+- `peak_scale` = **0.4333** ± 0.3055  *(runs: 0.500, 0.100, 0.700)*
+- `peak_wr` = **0.5345** ± 0.0266  *(runs: 0.532, 0.562, 0.509)*
+- `wr_ts01` = **0.5624** ± 0.0002  *(runs: 0.563, 0.562, 0.562)*
+- `wr_ts03` = **0.5471** ± 0.0049  *(runs: 0.553, 0.543, 0.545)*
+- `wr_ts05` = **0.5249** ± 0.0061  *(runs: 0.532, 0.522, 0.521)*
+- `wr_ts07` = **0.5095** ± 0.0003  *(runs: 0.510, 0.509, 0.509)*
+- `wr_ts09` = **0.3998** ± 0.0150  *(runs: 0.405, 0.412, 0.383)*
+- `wr_ts11` = **0.0000**  *(stable across seeds)*
+- `wr_ts14` = **0.0000**  *(stable across seeds)*
+
+**Notes:** Asymmetric: peak_wr=0.532, low_drop=0.209, high_drop=0.000. One extreme hurts more than other.
+
+---
+#### exp_39_2  ~ INCONCLUSIVE
+**Hypothesis:** EnergyGatedDelta write rate at equilibrium increases with ρ: wr(ρ=0.75) > wr(ρ=0.08) by >0.15, showing task-load dependence.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 586s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_n02` = **0.5264** ± 0.0121  *(runs: 0.533, 0.512, 0.534)*
+- `acc_n05` = **0.2344** ± 0.0495  *(runs: 0.226, 0.287, 0.190)*
+- `acc_n10` = **0.1250** ± 0.0115  *(runs: 0.113, 0.136, 0.126)*
+- `acc_n20` = **0.0757** ± 0.0018  *(runs: 0.074, 0.078, 0.075)*
+- `acc_n32` = **0.0653** ± 0.0027  *(runs: 0.065, 0.068, 0.063)*
+- `acc_n48` = **0.0451** ± 0.0083  *(runs: 0.037, 0.045, 0.054)*
+- `delta_wr_high_minus_low` = **0.0769** ± 0.0076  *(runs: 0.083, 0.069, 0.079)*
+- `rhos` = [[0.031, 0.078, 0.156, 0.312, 0.5, 0.75], [0.031, 0.078, 0.156, 0.312, 0.5, 0.75], [0.031, 0.078, 0.156, 0.312, 0.5, 0.75]]
+- `wr_high_rho` = **0.7772** ± 0.0053  *(runs: 0.779, 0.771, 0.781)*
+- `wr_low_rho` = **0.7004** ± 0.0037  *(runs: 0.696, 0.703, 0.702)*
+- `wr_n02` = **0.7004** ± 0.0037  *(runs: 0.696, 0.703, 0.702)*
+- `wr_n05` = **0.8258** ± 0.0098  *(runs: 0.828, 0.834, 0.815)*
+- `wr_n10` = **0.8697** ± 0.0024  *(runs: 0.869, 0.868, 0.872)*
+- `wr_n20` = **0.8824** ± 0.0043  *(runs: 0.886, 0.878, 0.883)*
+- `wr_n32` = **0.8348** ± 0.0070  *(runs: 0.832, 0.830, 0.843)*
+- `wr_n48` = **0.7772** ± 0.0053  *(runs: 0.779, 0.771, 0.781)*
+- `wr_ref_rho` = **0.8258** ± 0.0098  *(runs: 0.828, 0.834, 0.815)*
+
+**Notes:** Moderate variation: low=0.696, high=0.779, Δ=0.083. Non-monotone or boundary effects.
+
+---
+#### exp_39_3  ✗ REFUTED
+**Hypothesis:** Learnable threshold converges to 0.40–0.55 from any initial value; spread of final thresholds < 0.30 across initializations.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 233s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_init005` = **0.2348** ± 0.0157  *(runs: 0.241, 0.246, 0.217)*
+- `acc_init020` = **0.2486** ± 0.0425  *(runs: 0.221, 0.227, 0.297)*
+- `acc_init050` = **0.2133** ± 0.0088  *(runs: 0.223, 0.206, 0.211)*
+- `acc_init080` = **0.2198** ± 0.0110  *(runs: 0.219, 0.231, 0.209)*
+- `acc_init120` = **0.2273** ± 0.0112  *(runs: 0.235, 0.233, 0.214)*
+- `final_thresh_init005` = **0.0486** ± 0.0009  *(runs: 0.049, 0.048, 0.049)*
+- `final_thresh_init020` = **0.1869** ± 0.0024  *(runs: 0.188, 0.184, 0.188)*
+- `final_thresh_init050` = **0.4801** ± 0.0150  *(runs: 0.464, 0.482, 0.494)*
+- `final_thresh_init080` = **0.8087** ± 0.0047  *(runs: 0.814, 0.804, 0.808)*
+- `final_thresh_init120` = **1.0683** ± 0.0032  *(runs: 1.072, 1.067, 1.066)*
+- `final_thresholds` = [[0.0494, 0.1884, 0.4642, 0.8137, 1.0718], [0.0477, 0.1841, 0.4823, 0.8044, 1.0673], [0.0488, 0.1881, 0.4939, 0.808, 1.0657]]
+- `final_wr_init005` = **0.5638** ± 0.0004  *(runs: 0.564, 0.564, 0.563)*
+- `final_wr_init020` = **0.5584** ± 0.0022  *(runs: 0.556, 0.558, 0.561)*
+- `final_wr_init050` = **0.5255** ± 0.0017  *(runs: 0.525, 0.527, 0.524)*
+- `final_wr_init080` = **0.4869** ± 0.0116  *(runs: 0.481, 0.500, 0.479)*
+- `final_wr_init120` = **0.0000**  *(stable across seeds)*
+- `frac_in_attractor_40_55` = **0.2000**  *(stable across seeds)*
+- `mean_thresh` = **0.5185** ± 0.0021  *(runs: 0.517, 0.517, 0.521)*
+- `spread` = **1.0197** ± 0.0027  *(runs: 1.022, 1.020, 1.017)*
+
+**Notes:** No convergence: spread=1.022>0.50. Thresholds: [0.049, 0.188, 0.464, 0.814, 1.072]. Initial value matters; no attractor at 0.54.
+
+---
+
 ## Cross-Cutting Observations
 
-**All SUPPORTED experiments:** exp_1_5, exp_2_6, exp_3_1, exp_3_5, exp_3_6, exp_4_1, exp_4_4, exp_4_7, exp_4_9, exp_5_2, exp_5_6, exp_6_1, exp_6_3, exp_7_1, exp_7_2, exp_7_9, exp_9_2, exp_9_4, exp_9_5, exp_11_3, exp_13_1, exp_13_2, exp_15_3, exp_16_3, exp_23_2, exp_23_3, exp_24_2, exp_25_1, exp_26_1, exp_29_1, exp_29_3, exp_30_1, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_4, exp_34_6, exp_35_2, exp_35_3, exp_36_3
+**All SUPPORTED experiments:** exp_1_5, exp_2_6, exp_3_1, exp_3_5, exp_3_6, exp_4_1, exp_4_4, exp_4_7, exp_4_9, exp_5_2, exp_5_6, exp_6_1, exp_6_3, exp_7_1, exp_7_2, exp_7_9, exp_9_2, exp_9_4, exp_9_5, exp_11_3, exp_13_1, exp_13_2, exp_15_3, exp_16_3, exp_23_2, exp_23_3, exp_24_2, exp_25_1, exp_26_1, exp_29_1, exp_29_3, exp_30_1, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_4, exp_34_6, exp_35_2, exp_35_3, exp_36_3, exp_37_3, exp_38_3
 
-**All REFUTED experiments:** exp_1_1, exp_1_2, exp_1_8, exp_2_2, exp_2_4, exp_2_5, exp_2_9, exp_3_2, exp_3_3, exp_3_4, exp_3_7, exp_4_2, exp_5_1, exp_5_4, exp_5_5, exp_5_7, exp_6_7, exp_7_5, exp_7_6, exp_7_7, exp_8_1, exp_8_3, exp_9_1, exp_10_2, exp_11_1, exp_11_2, exp_12_1, exp_14_1, exp_14_2, exp_14_3, exp_15_1, exp_15_2, exp_16_1, exp_17_1, exp_17_2, exp_17_4, exp_18_1, exp_19_1, exp_19_2, exp_19_3, exp_20_2, exp_20_3, exp_21_1, exp_21_2, exp_21_3, exp_21_4, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_4, exp_24_3, exp_24_4, exp_25_2, exp_25_3, exp_26_2, exp_26_3, exp_27_1, exp_27_3, exp_28_5, exp_30_2, exp_30_3, exp_31_1, exp_31_2, exp_33_1, exp_33_3, exp_34_1, exp_34_5, exp_34_7, exp_34_8, exp_34_9, exp_35_1, exp_36_1
+**All REFUTED experiments:** exp_1_1, exp_1_2, exp_1_8, exp_2_2, exp_2_4, exp_2_5, exp_2_9, exp_3_2, exp_3_3, exp_3_4, exp_3_7, exp_4_2, exp_5_1, exp_5_4, exp_5_5, exp_5_7, exp_6_7, exp_7_5, exp_7_6, exp_7_7, exp_8_1, exp_8_3, exp_9_1, exp_10_2, exp_11_1, exp_11_2, exp_12_1, exp_14_1, exp_14_2, exp_14_3, exp_15_1, exp_15_2, exp_16_1, exp_17_1, exp_17_2, exp_17_4, exp_18_1, exp_19_1, exp_19_2, exp_19_3, exp_20_2, exp_20_3, exp_21_1, exp_21_2, exp_21_3, exp_21_4, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_4, exp_24_3, exp_24_4, exp_25_2, exp_25_3, exp_26_2, exp_26_3, exp_27_1, exp_27_3, exp_28_5, exp_30_2, exp_30_3, exp_31_1, exp_31_2, exp_33_1, exp_33_3, exp_34_1, exp_34_5, exp_34_7, exp_34_8, exp_34_9, exp_35_1, exp_36_1, exp_38_1, exp_38_2, exp_39_3
 
-**Inconsistent across seeds (need more investigation):** exp_8_1, exp_8_2, exp_8_4, exp_9_4, exp_9_5, exp_10_1, exp_15_1, exp_15_2, exp_15_4, exp_17_1, exp_17_2, exp_17_4, exp_18_3, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_1, exp_23_2, exp_23_3, exp_23_4, exp_24_1, exp_25_2, exp_25_3, exp_26_1, exp_26_2, exp_26_3, exp_28_2, exp_28_4, exp_29_2, exp_29_3, exp_29_4, exp_30_1, exp_30_3, exp_30_4, exp_31_2, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_2, exp_33_4, exp_34_6, exp_35_3
+**Inconsistent across seeds (need more investigation):** exp_8_1, exp_8_2, exp_8_4, exp_9_4, exp_9_5, exp_10_1, exp_15_1, exp_15_2, exp_15_4, exp_17_1, exp_17_2, exp_17_4, exp_18_3, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_1, exp_23_2, exp_23_3, exp_23_4, exp_24_1, exp_25_2, exp_25_3, exp_26_1, exp_26_2, exp_26_3, exp_28_2, exp_28_4, exp_29_2, exp_29_3, exp_29_4, exp_30_1, exp_30_3, exp_30_4, exp_31_2, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_2, exp_33_4, exp_34_6, exp_35_3, exp_38_1, exp_38_2, exp_38_3
 
 **High-variance metrics (std > 0.05 — seed-sensitive, interpret carefully):**
 
