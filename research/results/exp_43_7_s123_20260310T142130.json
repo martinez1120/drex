@@ -1,0 +1,31 @@
+{
+  "experiment_id": "exp_43_7",
+  "hypothesis": "First freeze the threshold (train only model weights), then unfreeze (fine-tune threshold for 200 steps) reduces the equilibrium spread to <0.30 compared to joint training from the start (spread~1.022 from exp_39_3).",
+  "outcome": "REFUTED",
+  "metrics": {
+    "spread_joint": 0.9668,
+    "spread_two_phase": 1.0679,
+    "final_thresholds_joint": [
+      0.0974,
+      0.2825,
+      0.4916,
+      0.8038,
+      1.0642
+    ],
+    "final_thresholds_two_phase": [
+      0.0988,
+      0.2957,
+      0.4983,
+      0.8055,
+      1.1667
+    ],
+    "acc_joint": 0.2109,
+    "acc_two_phase": 0.2094
+  },
+  "notes": "Two-phase training does not help: spread_two_phase=1.068 >= spread_joint*0.8=0.773.",
+  "error": "",
+  "timestamp": "2026-03-10T14:21:30.353345+00:00",
+  "duration_seconds": 711.5132687500445,
+  "config": {},
+  "seed": 123
+}

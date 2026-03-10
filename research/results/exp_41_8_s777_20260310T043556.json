@@ -1,0 +1,46 @@
+{
+  "experiment_id": "exp_41_8",
+  "hypothesis": "Standard delta has an accuracy cliff at \u03c3\u22480.10 (rapid drop to near-chance) while EMA (\u03b1=0.95) pushes the cliff to \u03c3\u22650.30. Cliff defined as first \u03c3 where accuracy falls below 50% of clean accuracy.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_std_s000": 0.2356,
+    "acc_ema_s000": 0.2281,
+    "acc_std_s005": 0.205,
+    "acc_ema_s005": 0.2269,
+    "acc_std_s010": 0.2056,
+    "acc_ema_s010": 0.24,
+    "acc_std_s015": 0.2131,
+    "acc_ema_s015": 0.2331,
+    "acc_std_s020": 0.2119,
+    "acc_ema_s020": 0.2131,
+    "acc_std_s030": 0.2013,
+    "acc_ema_s030": 0.2344,
+    "acc_std_s050": 0.2075,
+    "acc_ema_s050": 0.2156,
+    "acc_std_s100": 0.2162,
+    "acc_ema_s100": 0.2062,
+    "cliff_std": -1.0,
+    "cliff_ema": -1.0,
+    "cliff_ratio": NaN
+  },
+  "notes": "cliff_std=inf, cliff_ema=inf, cliff_ratio=nan, clean acc: std=0.2356, ema=0.2281",
+  "error": "",
+  "timestamp": "2026-03-10T04:35:56.198662+00:00",
+  "duration_seconds": 68.85219533299096,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "steps": 600,
+    "noise_sigmas": [
+      0.0,
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.3,
+      0.5,
+      1.0
+    ]
+  },
+  "seed": 777
+}

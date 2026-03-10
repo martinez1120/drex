@@ -1,0 +1,22 @@
+{
+  "experiment_id": "exp_41_5",
+  "hypothesis": "A per-position learned alpha (one scalar per sequence position, initialized at 0.95 and optimized via gradient) provides no significant improvement over global alpha (< 2% gap), confirming that global alpha is sufficient and position-specific tuning is unnecessary.",
+  "outcome": "SUPPORTED",
+  "metrics": {
+    "acc_global": 0.2162,
+    "acc_per_pos": 0.2137,
+    "gap_per_pos_minus_global": -0.0025
+  },
+  "notes": "acc_global=0.2162, acc_per_pos=0.2137, gap=-0.0025",
+  "error": "",
+  "timestamp": "2026-03-10T02:54:22.123456+00:00",
+  "duration_seconds": 80.0713700830238,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "steps": 600,
+    "global_alpha": 0.95,
+    "seq_len": 24
+  },
+  "seed": 123
+}

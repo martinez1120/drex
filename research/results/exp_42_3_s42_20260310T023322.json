@@ -1,0 +1,25 @@
+{
+  "experiment_id": "exp_42_3",
+  "hypothesis": "Adding an orthogonality regularization loss (penalizing cosine similarity between semantic and episodic key projections) improves accuracy by >3% by forcing the two matrices to capture complementary information.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_baseline": 0.2651,
+    "acc_ortho": 0.2437,
+    "gap": -0.0214,
+    "ortho_weight": 0.01
+  },
+  "notes": "Orthogonal regularization hurts: baseline=0.265, ortho=0.244, gap=-0.021<-0.02.",
+  "error": "",
+  "timestamp": "2026-03-10T02:33:22.804405+00:00",
+  "duration_seconds": 85.92153383395635,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32,
+    "ortho_weight": 0.01
+  },
+  "seed": 42
+}

@@ -1,0 +1,46 @@
+{
+  "experiment_id": "exp_44_4",
+  "hypothesis": "The EMA+Split combination achieves a noise cliff (50% clean accuracy drop) at \u03c3\u22650.20 (post-training M noise), while standard delta has a cliff at \u03c3\u22640.10, confirming the combined system's robustness advantage at standard test conditions.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_std_s000": 0.2302,
+    "acc_ema_split_s000": 0.238,
+    "acc_std_s005": 0.2214,
+    "acc_ema_split_s005": 0.2583,
+    "acc_std_s010": 0.2328,
+    "acc_ema_split_s010": 0.2375,
+    "acc_std_s015": 0.2156,
+    "acc_ema_split_s015": 0.2432,
+    "acc_std_s020": 0.2266,
+    "acc_ema_split_s020": 0.2505,
+    "acc_std_s030": 0.2281,
+    "acc_ema_split_s030": 0.2276,
+    "acc_std_s050": 0.225,
+    "acc_ema_split_s050": 0.2203,
+    "cliff_std": 9999.0,
+    "cliff_ema_split": 9999.0
+  },
+  "notes": "EMA+Split is not more robust: cliff_ema_split=9.99 <= cliff_std=9.99. No robustness advantage.",
+  "error": "",
+  "timestamp": "2026-03-10T03:30:30.699447+00:00",
+  "duration_seconds": 416.25643987499643,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32,
+    "alpha": 0.95,
+    "eval_sigmas": [
+      0.0,
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.3,
+      0.5
+    ]
+  },
+  "seed": 777
+}

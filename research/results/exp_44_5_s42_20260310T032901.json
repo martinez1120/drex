@@ -1,0 +1,33 @@
+{
+  "experiment_id": "exp_44_5",
+  "hypothesis": "The best single mechanism from Phase 7-8 (EMA smoothing) already captures >60% of the combined improvement, and each additional mechanism (split memory, stable gate init) contributes diminishing but positive marginal gains (>1% each).",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_baseline": 0.2724,
+    "acc_ema": 0.2687,
+    "acc_split": 0.2219,
+    "acc_ema_split": 0.2557,
+    "acc_gate": 0.0333,
+    "acc_full": 0.0281,
+    "marginal_ema": -0.0036,
+    "marginal_split": -0.0505,
+    "marginal_ema_split": -0.013,
+    "combined_gain": -0.2443,
+    "fraction_from_ema": -36.0
+  },
+  "notes": "EMA is NOT the dominant mechanism: fraction_from_ema=-36.000<0.40. Split or gate is the primary contributor. combined_gain=-0.244.",
+  "error": "",
+  "timestamp": "2026-03-10T03:29:01.886457+00:00",
+  "duration_seconds": 1591.8837966669817,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32,
+    "alpha": 0.95,
+    "gate_thresh": 0.4
+  },
+  "seed": 42
+}

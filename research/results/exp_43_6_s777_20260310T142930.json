@@ -1,0 +1,32 @@
+{
+  "experiment_id": "exp_43_6",
+  "hypothesis": "Adding a soft write-rate regularization loss (lambda=0.1 x |wr - 0.5|^2) during training converges all initializations to write rate ~0.5 +/- 0.05 regardless of initial threshold, reducing equilibrium spread to <0.15.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "wr_reg": [
+      0.563,
+      0.5507,
+      0.5239,
+      0.4797,
+      0.0322
+    ],
+    "wr_unreg": [
+      0.5643,
+      0.5432,
+      0.5224,
+      0.4984,
+      0.029
+    ],
+    "spread_reg": 0.5308,
+    "spread_unreg": 0.5353,
+    "mean_wr_reg": 0.4299,
+    "acc_reg": 0.2284,
+    "acc_unreg": 0.2197
+  },
+  "notes": "Regularization does not help: spread_reg=0.531>=0.5.",
+  "error": "",
+  "timestamp": "2026-03-10T14:29:30.900018+00:00",
+  "duration_seconds": 700.2340359579539,
+  "config": {},
+  "seed": 777
+}

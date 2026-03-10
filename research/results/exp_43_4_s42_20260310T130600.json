@@ -1,0 +1,32 @@
+{
+  "experiment_id": "exp_43_4",
+  "hypothesis": "A hard threshold gate (binary 0/1) shows lower equilibrium write rate variance across random seeds than a soft sigmoid gate, because the discrete nature prevents smooth gradient-driven drift toward extreme values.",
+  "outcome": "SUPPORTED",
+  "metrics": {
+    "wr_hard_seeds": [
+      0.5351,
+      0.5308,
+      0.5351,
+      0.5343,
+      0.5379
+    ],
+    "wr_soft_seeds": [
+      0.5372,
+      0.5294,
+      0.5396,
+      0.5304,
+      0.5403
+    ],
+    "var_hard": 5e-06,
+    "var_soft": 2.1e-05,
+    "variance_ratio": 0.2447,
+    "mean_acc_hard": 0.2078,
+    "mean_acc_soft": 0.2078
+  },
+  "notes": "Hard gate has 2x lower variance: var_hard=0.000005, var_soft=0.000021, ratio=0.245<0.5.",
+  "error": "",
+  "timestamp": "2026-03-10T13:06:00.827019+00:00",
+  "duration_seconds": 705.0145920420764,
+  "config": {},
+  "seed": 42
+}

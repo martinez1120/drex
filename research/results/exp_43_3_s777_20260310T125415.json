@@ -1,0 +1,20 @@
+{
+  "experiment_id": "exp_43_3",
+  "hypothesis": "Different memory architectures converge to distinct write-rate equilibria: DeltaRule converges to wr\u22480.95, EnergyGated converges to wr\u22480.50, and SoftGatedDelta converges to an intermediate wr\u22480.70.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "wr_plain": 1.0,
+    "wr_energy": 0.5351,
+    "wr_soft": 0.631,
+    "acc_plain": 0.212,
+    "acc_energy": 0.2286,
+    "acc_soft": 0.2391,
+    "wr_spread": 0.4649
+  },
+  "notes": "Partial separation: |wr_energy-wr_soft|=0.096, spread=0.465. Differences present but not >0.15 threshold.",
+  "error": "",
+  "timestamp": "2026-03-10T12:54:15.744859+00:00",
+  "duration_seconds": 218.74917737499345,
+  "config": {},
+  "seed": 777
+}

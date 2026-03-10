@@ -76,10 +76,14 @@ def aggregate_metrics(runs: list[dict]) -> dict[str, Any]:
             continue
 
         # All numeric?
-        numeric = [v for v in values if isinstance(v, (int, float)) and not isinstance(v, bool)]
+        numeric = [v for v in values if isinstance(v, (int, float)) and not isinstance(v, bool)
+                   and not (isinstance(v, float) and (v != v or v == float('inf') or v == float('-inf')))]
         if len(numeric) == len(values):
             mean = statistics.mean(numeric)
-            std  = statistics.stdev(numeric) if len(numeric) > 1 else 0.0
+            try:
+                std  = statistics.stdev(numeric) if len(numeric) > 1 else 0.0
+            except (TypeError, ValueError, AttributeError):
+                std = 0.0
             agg[key] = {"mean": round(mean, 4), "std": round(std, 4), "values": numeric}
         else:
             agg[key] = {"values": values}
@@ -177,6 +181,10 @@ CATEGORY_NAMES = {
     "exp_37": "Category 37 — Robustness (Phase 7)",
     "exp_38": "Category 38 — Episodic/Semantic Architecture (Phase 7)",
     "exp_39": "Category 39 — Write Controller Adaptation (Phase 7)",
+    "exp_41": "Category 41 — EMA Write Mechanism Deep Characterization (Phase 8)",
+    "exp_42": "Category 42 — Episodic/Semantic Inductive Bias Design (Phase 8)",
+    "exp_43": "Category 43 — Write Gate Stability and Initialization (Phase 8)",
+    "exp_44": "Category 44 — Integration and Scale (Phase 8)",
 }
 
 

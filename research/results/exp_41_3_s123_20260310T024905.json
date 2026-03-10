@@ -1,0 +1,37 @@
+{
+  "experiment_id": "exp_41_3",
+  "hypothesis": "The accuracy gain from EMA (\u03b1=0.95) over standard delta increases monotonically with sequence length: the gain at SEQ_LEN=96 is >2\u00d7 the gain at SEQ_LEN=24. Longer sequences accumulate more noise/interference, making smoothing more beneficial.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "acc_std_L16": 0.2106,
+    "acc_ema_L16": 0.2175,
+    "gap_L16": 0.0069,
+    "acc_std_L24": 0.2131,
+    "acc_ema_L24": 0.2381,
+    "gap_L24": 0.025,
+    "acc_std_L48": 0.2188,
+    "acc_ema_L48": 0.1975,
+    "gap_L48": -0.0212,
+    "acc_std_L96": 0.2387,
+    "acc_ema_L96": 0.19,
+    "gap_L96": -0.0487,
+    "gain_ratio": -7.0909
+  },
+  "notes": "gaps by seq_len: {16: 0.006874999999999992, 24: 0.024999999999999994, 48: -0.02124999999999999, 96: -0.04874999999999999}, gain_ratio=-7.0909, all_non_negative=False",
+  "error": "",
+  "timestamp": "2026-03-10T02:49:05.280430+00:00",
+  "duration_seconds": 454.25830033398233,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "steps": 600,
+    "seq_lens": [
+      16,
+      24,
+      48,
+      96
+    ],
+    "alpha_ema": 0.95
+  },
+  "seed": 123
+}

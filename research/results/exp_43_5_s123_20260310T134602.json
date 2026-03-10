@@ -1,0 +1,23 @@
+{
+  "experiment_id": "exp_43_5",
+  "hypothesis": "Training the gate threshold with a 10x lower learning rate than model weights reduces the equilibrium spread (across initializations) from >1.0 (exp_39_3) to <0.30, stabilizing convergence by preventing rapid gate adaptation.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "spread_ratio_1_0": 0.9715,
+    "spread_ratio_0_1": 1.0708,
+    "reduction_factor": 0.9072,
+    "final_thresholds_ratio_0_1": [
+      0.0997,
+      0.2984,
+      0.4994,
+      0.7993,
+      1.1706
+    ]
+  },
+  "notes": "Low LR does not help: spread_low_lr=1.071 >= spread_full_lr*0.8=0.777.",
+  "error": "",
+  "timestamp": "2026-03-10T13:46:02.902878+00:00",
+  "duration_seconds": 614.6615261659026,
+  "config": {},
+  "seed": 123
+}

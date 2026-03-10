@@ -1,0 +1,29 @@
+{
+  "experiment_id": "exp_42_7",
+  "hypothesis": "The episodic/semantic split advantage (from exp_36_3 at SEQ_LEN=32) persists at SEQ_LEN=96: split outperforms unified by >3% even at 3x longer contexts, confirming scalability of the inductive bias.",
+  "outcome": "SUPPORTED",
+  "metrics": {
+    "acc_split_96": 0.1682,
+    "acc_unified_96": 0.1323,
+    "gap_96": 0.0359,
+    "acc_split_32": 0.2536,
+    "acc_unified_32": 0.212,
+    "gap_32": 0.0417
+  },
+  "notes": "Split advantage persists at long context: split_96=0.168, unified_96=0.132, gap_96=0.036>0.03 (gap_32=0.042 for reference).",
+  "error": "",
+  "timestamp": "2026-03-10T04:05:13.021131+00:00",
+  "duration_seconds": 1282.8832256670576,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len_short": 32,
+    "seq_len_long": 96,
+    "num_pairs_short": 5,
+    "num_pairs_long": 8,
+    "steps_short": 800,
+    "steps_long": 1000,
+    "batch": 32
+  },
+  "seed": 42
+}

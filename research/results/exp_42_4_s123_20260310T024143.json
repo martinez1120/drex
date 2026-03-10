@@ -1,0 +1,24 @@
+{
+  "experiment_id": "exp_42_4",
+  "hypothesis": "A learned attention gate over [sem_out, epi_out] (softmax weighting) outperforms simple concatenation by >5%, showing that dynamic read combination extracts more information than fixed 50/50 concatenation.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_concat": 0.2448,
+    "acc_gated": 0.25,
+    "acc_sum": 0.2328,
+    "gap_gated_over_concat": 0.0052
+  },
+  "notes": "Concat is competitive with gated: concat=0.245, gated=0.250, gap=0.005 (within 0.02).",
+  "error": "",
+  "timestamp": "2026-03-10T02:41:43.110192+00:00",
+  "duration_seconds": 180.41800679208245,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32
+  },
+  "seed": 123
+}

@@ -1,0 +1,26 @@
+{
+  "experiment_id": "exp_43_1",
+  "hypothesis": "The EnergyGated threshold has multiple stable equilibria: models initialized at different thresholds converge to distinct stable values (multi-stability confirmed), with the accuracy-maximizing equilibrium near threshold=0.3-0.5.",
+  "outcome": "SUPPORTED",
+  "metrics": {
+    "final_thresh_init005": 0.0494,
+    "final_thresh_init010": 0.0986,
+    "final_thresh_init020": 0.1886,
+    "final_thresh_init030": 0.2908,
+    "final_thresh_init040": 0.3859,
+    "final_thresh_init050": 0.4908,
+    "final_thresh_init070": 0.7045,
+    "final_thresh_init100": 0.9294,
+    "final_thresh_init150": 1.2282,
+    "spread": 1.1789,
+    "n_clusters": 6,
+    "best_thresh": 0.2908,
+    "best_acc": 0.2562
+  },
+  "notes": "Multi-stability confirmed: 6 distinct clusters found with spread=1.179>0.5 across 9 initializations.",
+  "error": "",
+  "timestamp": "2026-03-10T12:14:56.857199+00:00",
+  "duration_seconds": 382.40013750002254,
+  "config": {},
+  "seed": 777
+}

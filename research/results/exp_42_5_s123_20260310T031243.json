@@ -1,0 +1,24 @@
+{
+  "experiment_id": "exp_42_5",
+  "hypothesis": "A learned positional weight function (small MLP mapping position to scalar) outperforms linear recency (t/L) and uniform (1.0) on episodic writes by >3%, showing that the optimal temporal discount is not linear.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_linear": 0.2448,
+    "acc_sqrt": 0.2417,
+    "acc_learned": 0.2448,
+    "gap_learned_over_linear": 0.0
+  },
+  "notes": "Linear recency is sufficient: linear=0.245, learned=0.245, gap=0.000 (within 0.01).",
+  "error": "",
+  "timestamp": "2026-03-10T03:12:43.100128+00:00",
+  "duration_seconds": 602.0457522500074,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32
+  },
+  "seed": 123
+}

@@ -1,0 +1,25 @@
+{
+  "experiment_id": "exp_41_2",
+  "hypothesis": "Combining EMA smoothing (\u03b1=0.95) with the episodic/semantic split memory outperforms both EMA-alone and split-alone by >3%, showing the mechanisms are orthogonal and composable.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_standard": 0.2319,
+    "acc_ema": 0.2069,
+    "acc_split": 0.2131,
+    "acc_ema_split": 0.0344,
+    "gap_ema_over_split": -0.1788,
+    "gap_ema_over_ema": -0.1725
+  },
+  "notes": "acc_standard=0.2319, acc_ema=0.2069, acc_split=0.2131, acc_ema_split=0.0344, gap_over_split=-0.1788, gap_over_ema=-0.1725",
+  "error": "",
+  "timestamp": "2026-03-10T02:31:51.053179+00:00",
+  "duration_seconds": 81.88232383399736,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "half": 32,
+    "steps": 600,
+    "alpha": 0.95
+  },
+  "seed": 42
+}

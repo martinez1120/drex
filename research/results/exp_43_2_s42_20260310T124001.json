@@ -1,0 +1,33 @@
+{
+  "experiment_id": "exp_43_2",
+  "hypothesis": "The write rate trajectory is monotonically decreasing during training (model learns to write less over time as representations improve), not oscillating. Models initialized at high threshold (0.8) and low threshold (0.2) both show monotonically settling write rates by step 400.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "wr_A_s50": 0.5543,
+    "wr_B_s50": 0.499,
+    "wr_A_s100": 0.5532,
+    "wr_B_s100": 0.4893,
+    "wr_A_s200": 0.5531,
+    "wr_B_s200": 0.4794,
+    "wr_A_s300": 0.5558,
+    "wr_B_s300": 0.4666,
+    "wr_A_s400": 0.555,
+    "wr_B_s400": 0.4708,
+    "wr_A_s600": 0.5547,
+    "wr_B_s600": 0.4732,
+    "wr_A_s800": 0.5558,
+    "wr_B_s800": 0.4675,
+    "monotone_A": 0,
+    "monotone_B": 0,
+    "violations_A": 2,
+    "violations_B": 2,
+    "acc_A": 0.2234,
+    "acc_B": 0.2141
+  },
+  "notes": "Mixed results: violations A=2, B=2. Neither clearly monotone nor clearly oscillating.",
+  "error": "",
+  "timestamp": "2026-03-10T12:40:01.619241+00:00",
+  "duration_seconds": 105.72596433397848,
+  "config": {},
+  "seed": 42
+}

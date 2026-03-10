@@ -1,0 +1,25 @@
+{
+  "experiment_id": "exp_41_6",
+  "hypothesis": "EMA smoothing (\u03b1=0.95) reduces gradient variance at the embedding layer by >30% compared to standard delta, providing more stable training (lower embedding gradient std over the final 200 training steps).",
+  "outcome": "SUPPORTED",
+  "metrics": {
+    "mean_grad_std": 0.5286,
+    "mean_grad_ema": 0.0991,
+    "var_grad_std": 0.0053,
+    "var_grad_ema": 0.0004,
+    "std_ratio": 0.2856,
+    "acc_std": 0.2356,
+    "acc_ema": 0.2281
+  },
+  "notes": "std_ratio=0.2856, std_norms_std=0.0726, std_norms_ema=0.0207, acc_std=0.2356, acc_ema=0.2281",
+  "error": "",
+  "timestamp": "2026-03-10T03:23:29.234051+00:00",
+  "duration_seconds": 212.87325962493196,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "steps": 600,
+    "grad_window": 200
+  },
+  "seed": 777
+}

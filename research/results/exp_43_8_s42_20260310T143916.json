@@ -1,0 +1,26 @@
+{
+  "experiment_id": "exp_43_8",
+  "hypothesis": "Initializing the learnable threshold at 0.4 (the known accuracy-maximizing region from exp_39_1) reliably achieves >90% of the maximum possible write-gate accuracy, showing that good initialization is sufficient to solve the multi-stability problem without architectural changes.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "acc_init005": 0.225,
+    "wr_init005": 0.5914,
+    "acc_init020": 0.2437,
+    "wr_init020": 0.5561,
+    "acc_init040": 0.2313,
+    "wr_init040": 0.5503,
+    "acc_init080": 0.225,
+    "wr_init080": 0.5048,
+    "acc_init120": 0.2188,
+    "wr_init120": 0.0291,
+    "max_acc": 0.2437,
+    "acc_ratio_optimal": 0.9491,
+    "best_init": 0.2
+  },
+  "notes": "Init at 0.4 achieved acc_ratio_optimal=0.949 (need >=0.90). acc_040=0.231, max_acc=0.244. Margin over init=0.05: 0.006, over init=1.20: 0.013.",
+  "error": "",
+  "timestamp": "2026-03-10T14:39:16.669314+00:00",
+  "duration_seconds": 335.5772617079783,
+  "config": {},
+  "seed": 42
+}

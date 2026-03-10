@@ -1125,3 +1125,162 @@ When the energy gate threshold is a learnable parameter optimized jointly with m
 weights, it converges from any initial value {0.05, 0.20, 0.50, 0.80, 1.20} to the
 range [0.40, 0.55], confirming ~0.54 as a gradient-dynamics attractor.
 *Status: ✗ REFUTED (exp_39_3) — No convergence: spread=1.022, final thresholds stay near initialization [0.049, 0.188, 0.464, 0.814, 1.072]. System is multi-stable, not attracted to 0.54*
+
+## Category 41: EMA Write Mechanism Deep Characterization (Phase 8)
+
+**H-41.1 — EMA Accuracy Peaks at α ∈ [0.85, 0.95]**
+EMA accuracy peaks in the range α ∈ [0.85, 0.95] and drops at both extremes (α=0.5 too
+aggressive, α=0.99 nearly identical to standard). The optimal α gives >3% improvement
+over α=1.0 (standard delta).
+*Status: INCONCLUSIVE (inconsistent across seeds)*
+
+**H-41.2 — EMA + Episodic/Semantic Split Are Orthogonal Improvements**
+Combining EMA smoothing (α=0.95) with the episodic/semantic split memory outperforms
+both EMA-alone and split-alone by >3%, showing the mechanisms are orthogonal and composable.
+*Status: REFUTED*
+
+**H-41.3 — EMA Benefit Scales With Sequence Length**
+The accuracy gain from EMA (α=0.95) over standard delta increases monotonically with
+sequence length: the gain at SEQ_LEN=96 is >2× the gain at SEQ_LEN=24.
+*Status: INCONCLUSIVE*
+
+**H-41.4 — EMA Maintains Accuracy Under Adversarial Write-Time Noise**
+EMA (α=0.95) maintains >80% of clean accuracy under continuous write-time noise (σ=0.05
+on embeddings at each step), while standard delta drops to <50%.
+*Status: INCONCLUSIVE*
+
+**H-41.5 — Per-Position Learned Alpha Provides No Significant Improvement**
+A per-position learned alpha provides no significant improvement over global alpha
+(< 2% gap), confirming that global alpha is sufficient and position-specific tuning
+is unnecessary.
+*Status: SUPPORTED (inconsistent across seeds)*
+
+**H-41.6 — EMA Reduces Gradient Variance During Training**
+EMA smoothing (α=0.95) reduces gradient variance at the embedding layer by >30%
+compared to standard delta, providing more stable training.
+*Status: SUPPORTED*
+
+**H-41.7 — Optimal Alpha Differs Between Episodic and Semantic Matrices**
+The best (alpha_sem, alpha_epi) pair outperforms any shared alpha by >3%, with
+alpha_epi > alpha_sem (episodic needs more smoothing due to recency weighting).
+*Status: INCONCLUSIVE*
+
+**H-41.8 — EMA Pushes the Resilience Cliff to Higher Noise**
+Standard delta has an accuracy cliff at σ≈0.10 while EMA (α=0.95) pushes the cliff
+to σ≥0.30. Cliff defined as first σ where accuracy falls below 50% of clean accuracy.
+*Status: REFUTED*
+
+## Category 42: Episodic/Semantic Inductive Bias Design (Phase 8)
+
+**H-42.1 — Recency Weighting Is Critical for Episodic Matrix**
+The temporal recency weight ((t+1)/L) on episodic writes is critical: removing it
+drops accuracy by >5% relative to the full split model, showing temporal ordering
+is the key inductive bias.
+*Status: REFUTED (inconsistent across seeds)*
+
+**H-42.2 — Separate Key Projections Are Essential for Split Memory**
+Using separate key projections for episodic and semantic matrices is essential:
+sharing a single projection drops accuracy by >5%, showing the matrices need
+independent key spaces.
+*Status: INCONCLUSIVE (inconsistent across seeds)*
+
+**H-42.3 — Orthogonal Key Regularization Improves Split Memory**
+Adding an orthogonality regularization loss improves accuracy by >3% by forcing
+the two matrices to capture complementary information.
+*Status: INCONCLUSIVE (inconsistent across seeds)*
+
+**H-42.4 — Learned Attention Gate at Read Time Beats Concatenation**
+A learned attention gate over [sem_out, epi_out] outperforms simple concatenation
+by >5%, showing that dynamic read combination extracts more information.
+*Status: REFUTED*
+
+**H-42.5 — Learned Positional Weight Outperforms Linear Recency**
+A learned positional weight function outperforms linear recency (t/L) and uniform
+weighting on episodic writes by >3%, showing the optimal temporal discount is non-linear.
+*Status: REFUTED (inconsistent across seeds)*
+
+**H-42.6 — Semantic Matrix Drives the Split Memory Advantage**
+The split memory advantage comes primarily from the semantic matrix: semantic-only
+achieves within 3% of the full split, while episodic-only is >10% worse.
+*Status: INCONCLUSIVE*
+
+**H-42.7 — Episodic/Semantic Split Advantage Persists at Long Context**
+The episodic/semantic split advantage persists at SEQ_LEN=96: split outperforms
+unified by >3% even at 3× longer contexts.
+*Status: SUPPORTED (inconsistent across seeds)*
+
+**H-42.8 — Multi-Scale Episodic Memory (Fast+Slow) Improves Over Single Scale**
+Replacing the single episodic matrix with two matrices at different timescales
+(fast: linear recency, slow: sqrt recency) improves accuracy over single-scale
+episodic by >5%.
+*Status: INCONCLUSIVE*
+
+## Category 43: Write Gate Stability and Initialization (Phase 8)
+
+**H-43.1 — Write Gate Has Multiple Stable Equilibria (Multi-Stability Confirmed)**
+Learnable threshold models initialized at different values converge to distinct stable
+values (multi-stability confirmed), with the accuracy-maximizing equilibrium near 0.3-0.5.
+*Status: SUPPORTED*
+
+**H-43.2 — Write Rate Trajectory Is Monotonically Settling**
+The write rate trajectory is monotonically decreasing during training (model learns to
+write less over time as representations improve), not oscillating.
+*Status: INCONCLUSIVE (inconsistent across seeds)*
+
+**H-43.3 — Different Architectures Have Distinct Write Rate Attractors**
+DeltaRule, EnergyGated, and SoftGatedDelta converge to distinct write-rate equilibria
+(|wr_energy - wr_soft| > 0.15), showing architecture-specific attractors.
+*Status: INCONCLUSIVE*
+
+**H-43.4 — Hard Gate Has Lower Write Rate Variance Than Soft Gate**
+A hard threshold gate shows lower equilibrium write rate variance across seeds than
+a soft sigmoid gate (var_hard < var_soft × 0.5).
+*Status: SUPPORTED*
+
+**H-43.5 — Lower Gate Learning Rate Reduces Equilibrium Spread**
+Training the gate threshold with 10× lower LR reduces equilibrium spread to <0.30,
+stabilizing convergence by preventing rapid gate adaptation.
+*Status: REFUTED*
+
+**H-43.6 — Write Rate Regularization Converges All Seeds to Target Rate**
+Adding L2 regularization loss λ|wr - 0.5|² converges all initializations to write
+rate ≈ 0.5 ± 0.05, reducing spread to <0.15.
+*Status: REFUTED*
+
+**H-43.7 — Two-Phase Training Reduces Write Gate Spread**
+First freezing the threshold (train model only), then unfreezing reduces equilibrium
+spread to <0.30, compared to joint training (spread≈1.022 from exp_39_3).
+*Status: REFUTED*
+
+**H-43.8 — Initializing at Optimal Threshold (0.4) Achieves Near-Best Accuracy**
+Initializing the learnable threshold at 0.4 reliably achieves >90% of the maximum
+possible write-gate accuracy, showing that good initialization solves multi-stability.
+*Status: INCONCLUSIVE*
+
+## Category 44: Integration and Scale (Phase 8)
+
+**H-44.1 — Full System (EMA + Split + Gate) Beats All Partial Combinations**
+Combining EMA smoothing, episodic/semantic split, and well-initialized write gate
+outperforms all partial combinations by >3%, showing the mechanisms are orthogonal.
+*Status: REFUTED*
+
+**H-44.2 — EMA and Split Advantages Scale to Larger Models (H=128)**
+The EMA advantage over standard delta persists at HIDDEN_DIM=128: accuracy gap >2%,
+confirming EMA is not merely compensating for small-model overfitting.
+*Status: INCONCLUSIVE*
+
+**H-44.3 — Full System Maintains >70% Accuracy at SEQ_LEN=128**
+The EMA+Split combination maintains >70% accuracy at SEQ_LEN=128 with NUM_PAIRS=10,
+while standard delta drops below 50%.
+*Status: INCONCLUSIVE*
+
+**H-44.4 — Full System Noise Cliff at σ≥0.20 vs Standard Delta Cliff at σ≤0.10**
+The EMA+Split combination maintains accuracy above the cliff (50% of clean) until
+σ≥0.20, while standard delta has a cliff at σ≤0.10.
+*Status: REFUTED*
+
+**H-44.5 — EMA Captures >60% of Full Combined Improvement**
+The best single mechanism (EMA smoothing) captures >60% of the combined improvement,
+with each additional mechanism (split memory, stable gate) contributing diminishing
+but positive marginal gains (>1% each).
+*Status: INCONCLUSIVE (inconsistent across seeds)*

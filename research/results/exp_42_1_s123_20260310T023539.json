@@ -1,0 +1,24 @@
+{
+  "experiment_id": "exp_42_1",
+  "hypothesis": "The temporal recency weight ((t+1)/L) on episodic writes is critical: removing it drops accuracy by >5% relative to the full split model, showing that temporal ordering is the key inductive bias.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_recency": 0.2448,
+    "acc_no_recency": 0.2729,
+    "acc_unified": 0.2333,
+    "gap_recency_critical": -0.0281
+  },
+  "notes": "No recency is surprisingly better: with_recency=0.245, no_recency=0.273, gap=-0.028<0.0.",
+  "error": "",
+  "timestamp": "2026-03-10T02:35:39.494360+00:00",
+  "duration_seconds": 123.5973711250117,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32
+  },
+  "seed": 123
+}

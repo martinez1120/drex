@@ -1,0 +1,35 @@
+{
+  "experiment_id": "exp_44_2",
+  "hypothesis": "The EMA advantage (\u03b1=0.95) over standard delta persists at larger hidden dimension (HIDDEN_DIM=128): the accuracy gap is >2% at H=128, confirming that EMA is not merely compensating for small-model overfitting.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "acc_std_h64": 0.1276,
+    "acc_ema_h64": 0.1479,
+    "acc_split_h64": 0.1292,
+    "acc_ema_split_h64": 0.1099,
+    "acc_std_h128": 0.1255,
+    "acc_ema_h128": 0.1703,
+    "acc_split_h128": 0.1172,
+    "acc_ema_split_h128": 0.1719,
+    "gap_ema_h64": 0.0203,
+    "gap_ema_h128": 0.0448,
+    "gain_ratio": 0.4531
+  },
+  "notes": "EMA gap at H=128 is 0.045, positive but \u22640.02 threshold. Split advantage at H=128: -0.008. Cannot confirm scale-invariance of EMA benefit.",
+  "error": "",
+  "timestamp": "2026-03-10T04:26:59.853201+00:00",
+  "duration_seconds": 1188.9584944579983,
+  "config": {
+    "vocab_size": 128,
+    "hidden_dims": [
+      64,
+      128
+    ],
+    "seq_len": 32,
+    "num_pairs": 8,
+    "steps": 800,
+    "batch": 32,
+    "alpha": 0.95
+  },
+  "seed": 777
+}

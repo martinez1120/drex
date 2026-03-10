@@ -1,0 +1,39 @@
+{
+  "experiment_id": "exp_41_1",
+  "hypothesis": "EMA accuracy peaks in the range \u03b1 \u2208 [0.85, 0.95] and drops at both extremes (\u03b1=0.5 too aggressive smoothing, \u03b1=0.99 nearly identical to standard). The optimal \u03b1 gives >3% improvement over \u03b1=1.0 (standard delta).",
+  "outcome": "SUPPORTED",
+  "metrics": {
+    "acc_alpha_050": 0.2356,
+    "acc_alpha_070": 0.2356,
+    "acc_alpha_080": 0.2412,
+    "acc_alpha_085": 0.2581,
+    "acc_alpha_090": 0.2594,
+    "acc_alpha_095": 0.2206,
+    "acc_alpha_099": 0.0919,
+    "acc_alpha_100": 0.215,
+    "best_alpha": 0.9,
+    "best_acc": 0.2594,
+    "acc_standard": 0.215,
+    "gap_vs_standard": 0.0444
+  },
+  "notes": "Best alpha=0.9 with acc=0.2594, standard alpha=1.0 acc=0.215, gap=0.0444",
+  "error": "",
+  "timestamp": "2026-03-09T21:42:16.544639+00:00",
+  "duration_seconds": 241.31366362492554,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "steps": 600,
+    "alphas": [
+      0.5,
+      0.7,
+      0.8,
+      0.85,
+      0.9,
+      0.95,
+      0.99,
+      1.0
+    ]
+  },
+  "seed": 123
+}

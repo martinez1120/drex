@@ -1,0 +1,36 @@
+{
+  "experiment_id": "exp_41_4",
+  "hypothesis": "EMA (\u03b1=0.95) maintains >80% of clean accuracy under continuous write-time noise (\u03c3=0.05 on embeddings at each step), while standard delta drops to <50%. Noise injected during forward pass at every write step, not just at evaluation.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "acc_std_s000": 0.22,
+    "acc_ema_s000": 0.22,
+    "acc_std_s002": 0.22,
+    "acc_ema_s002": 0.2225,
+    "acc_std_s005": 0.2156,
+    "acc_ema_s005": 0.2369,
+    "acc_std_s010": 0.2037,
+    "acc_ema_s010": 0.2125,
+    "acc_std_s020": 0.2081,
+    "acc_ema_s020": 0.2225,
+    "ratio_std_005": 0.9801,
+    "ratio_ema_005": 1.0767
+  },
+  "notes": "ratio_ema_005=1.0767, ratio_std_005=0.9801, clean acc: std=0.22, ema=0.22",
+  "error": "",
+  "timestamp": "2026-03-10T02:54:22.258143+00:00",
+  "duration_seconds": 79.10685291700065,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "steps": 600,
+    "noise_sigmas": [
+      0.0,
+      0.02,
+      0.05,
+      0.1,
+      0.2
+    ]
+  },
+  "seed": 123
+}

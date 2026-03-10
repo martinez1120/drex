@@ -1,0 +1,29 @@
+{
+  "experiment_id": "exp_42_8",
+  "hypothesis": "Replacing the single episodic matrix with two episodic matrices at different timescales (fast: linear recency, slow: sqrt recency) improves accuracy over single-scale episodic by >5%, capturing both recent and distant temporal structure.",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "acc_single_scale": 0.2307,
+    "acc_multiscale": 0.2188,
+    "gap": -0.012,
+    "sem_dim": 32,
+    "epi_fast_dim": 16,
+    "epi_slow_dim": 16
+  },
+  "notes": "Multi-scale effect is below threshold: multiscale=0.219, single=0.231, gap=-0.012.",
+  "error": "",
+  "timestamp": "2026-03-10T03:25:56.424156+00:00",
+  "duration_seconds": 461.4608271670295,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32,
+    "sem_dim": 32,
+    "epi_fast_dim": 16,
+    "epi_slow_dim": 16
+  },
+  "seed": 777
+}

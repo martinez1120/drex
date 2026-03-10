@@ -1,19 +1,19 @@
 # drex Research — Master Results Report
 
-**Generated:** 2026-03-09 19:20 UTC
-**Experiments:** 176  |  **Seeds per experiment:** 0, 1, 2, 7, 13, 42, 99, 123, 777
-**Total runs evaluated:** 725
+**Generated:** 2026-03-10 14:51 UTC
+**Experiments:** 205  |  **Seeds per experiment:** 0, 1, 2, 7, 13, 42, 99, 123, 777
+**Total runs evaluated:** 909
 
 ## Overall Scoreboard
 
 | Outcome | Count | % |
 |---------|-------|---|
-| ✓ SUPPORTED    | 43    | 24% |
-| ~ INCONCLUSIVE | 57 | 32% |
-| ✗ REFUTED      | 76      | 43% |
+| ✓ SUPPORTED    | 48    | 23% |
+| ~ INCONCLUSIVE | 71 | 35% |
+| ✗ REFUTED      | 86      | 42% |
 | ! ERROR        | 0        | 0% |
 
-**Seed consistency:** 129/176 experiments gave the same verdict across all seeds. 47 inconsistent.
+**Seed consistency:** 149/205 experiments gave the same verdict across all seeds. 56 inconsistent.
 
 ## Summary Table
 
@@ -195,6 +195,35 @@
 | exp_39_1 | ~ INCONCLUSIVE | ✓ | acc_ts01=0.232±0.017 | Asymmetric: peak_wr=0.532, low_drop=0.209, high_drop=0.000. … |
 | exp_39_2 | ~ INCONCLUSIVE | ✓ | acc_n02=0.526±0.012 | Moderate variation: low=0.696, high=0.779, Δ=0.083. Non-mono… |
 | exp_39_3 | ✗ REFUTED | ✓ | acc_init005=0.235±0.016 | No convergence: spread=1.022>0.50. Thresholds: [0.049, 0.188… |
+| exp_41_1 | ~ INCONCLUSIVE | ⚠ ['SUPPORTED', 'SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE'] | acc_alpha_050=0.250±0.011 | Best alpha=0.9 with acc=0.2594, standard alpha=1.0 acc=0.215… |
+| exp_41_2 | ✗ REFUTED | ✓ | acc_ema=0.218±0.015 | acc_standard=0.2106, acc_ema=0.2106, acc_split=0.2131, acc_e… |
+| exp_41_3 | ~ INCONCLUSIVE | ✓ | acc_ema_L16=0.229±0.013 | gaps by seq_len: {16: 0.006874999999999992, 24: 0.0249999999… |
+| exp_41_4 | ~ INCONCLUSIVE | ✓ | acc_ema_s000=0.231±0.011 | ratio_ema_005=1.0767, ratio_std_005=0.9801, clean acc: std=0… |
+| exp_41_5 | ✓ SUPPORTED | ⚠ ['SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE'] | acc_global=0.220±0.005 | acc_global=0.2162, acc_per_pos=0.2137, gap=-0.0025… |
+| exp_41_6 | ✓ SUPPORTED | ✓ | acc_ema=0.231±0.011 | std_ratio=0.278, std_norms_std=0.0664, std_norms_ema=0.0185,… |
+| exp_41_7 | ~ INCONCLUSIVE | ✓ | acc_as070_ae070=0.169±0.029 | best_combo=(1.0, 1.0), best_acc=0.2319, acc_shared_095=0.036… |
+| exp_41_8 | ✗ REFUTED | ✓ | acc_ema_s000=0.231±0.011 | cliff_std=inf, cliff_ema=inf, cliff_ratio=nan, clean acc: st… |
+| exp_42_1 | ✗ REFUTED | ⚠ ['REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'REFUTED', 'REFUTED'] | acc_no_recency=0.251±0.019 | No recency is surprisingly better: with_recency=0.245, no_re… |
+| exp_42_2 | ~ INCONCLUSIVE | ⚠ ['INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'REFUTED', 'REFUTED'] | acc_separate=0.247±0.015 | Some advantage for separate keys but below threshold: separa… |
+| exp_42_3 | ~ INCONCLUSIVE | ⚠ ['INCONCLUSIVE', 'INCONCLUSIVE', 'REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE'] | acc_baseline=0.247±0.015 | Orthogonality effect is small: baseline=0.245, ortho=0.247, … |
+| exp_42_4 | ✗ REFUTED | ✓ | acc_concat=0.247±0.015 | Concat is competitive with gated: concat=0.245, gated=0.250,… |
+| exp_42_5 | ✗ REFUTED | ⚠ ['REFUTED', 'REFUTED', 'REFUTED', 'REFUTED', 'REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE'] | acc_learned=0.240±0.011 | Linear recency is sufficient: linear=0.245, learned=0.245, g… |
+| exp_42_6 | ~ INCONCLUSIVE | ✓ | acc_episodic_only=0.236±0.010 | Mixed results: split=0.235, sem_only=0.242, epi_only=0.225, … |
+| exp_42_7 | ✓ SUPPORTED | ⚠ ['SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE'] | acc_split_32=0.244±0.011 | Split advantage persists at long context: split_96=0.166, un… |
+| exp_42_8 | ~ INCONCLUSIVE | ✓ | acc_multiscale=0.237±0.014 | Multi-scale effect is below threshold: multiscale=0.250, sin… |
+| exp_43_1 | ✓ SUPPORTED | ✓ | best_acc=0.249±0.013 | Multi-stability confirmed: 6 distinct clusters found with sp… |
+| exp_43_2 | ~ INCONCLUSIVE | ⚠ ['REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE'] | acc_A=0.221±0.009 | Trajectories oscillate: violations A=1, B=3 (>2 for at least… |
+| exp_43_3 | ~ INCONCLUSIVE | ✓ | acc_energy=0.236±0.027 | Partial separation: |wr_energy-wr_soft|=0.100, spread=0.473.… |
+| exp_43_4 | ✓ SUPPORTED | ✓ | mean_acc_hard=0.208±0.000 | Hard gate has 2x lower variance: var_hard=0.000005, var_soft… |
+| exp_43_5 | ✗ REFUTED | ✓ | reduction_factor=0.898±0.007 | Low LR does not help: spread_low_lr=1.071 >= spread_full_lr*… |
+| exp_43_6 | ✗ REFUTED | ✓ | acc_reg=0.221±0.008 | Regularization does not help: spread_reg=0.528>=0.5.… |
+| exp_43_7 | ✗ REFUTED | ✓ | acc_joint=0.219±0.008 | Two-phase training does not help: spread_two_phase=1.068 >= … |
+| exp_43_8 | ~ INCONCLUSIVE | ✓ | acc_init005=0.230±0.012 | Init at 0.4 achieved acc_ratio_optimal=0.825 (need >=0.90). … |
+| exp_44_1 | ✗ REFUTED | ✓ | acc_baseline=0.232±0.036 | Full combination hurts: gap=-0.234<-0.03. acc_full=0.027, be… |
+| exp_44_2 | ~ INCONCLUSIVE | ✓ | acc_ema_h128=0.168±0.009 | EMA gap at H=128 is 0.033, positive but ≤0.02 threshold. Spl… |
+| exp_44_3 | ~ INCONCLUSIVE | ✓ | acc_ema=0.166±0.008 | acc_ema_split=0.153 (threshold 0.70), acc_std=0.131 (thresho… |
+| exp_44_4 | ✗ REFUTED | ✓ | acc_ema_split_s000=0.247±0.008 | EMA+Split is not more robust: cliff_ema_split=9.99 <= cliff_… |
+| exp_44_5 | ~ INCONCLUSIVE | ⚠ ['INCONCLUSIVE', 'REFUTED', 'INCONCLUSIVE'] | acc_baseline=0.232±0.036 | fraction_from_ema=542.000 (threshold >0.60). marginal_ema_sp… |
 
 ---
 
@@ -3835,13 +3864,605 @@
 
 ---
 
+### Category 41 — EMA Write Mechanism Deep Characterization (Phase 8)
+*2 supported / 2 refuted / 4 inconclusive / 0 error*
+
+#### exp_41_1  ~ INCONCLUSIVE ⚠ inconsistent across seeds ['SUPPORTED', 'SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE']
+**Hypothesis:** EMA accuracy peaks in the range α ∈ [0.85, 0.95] and drops at both extremes (α=0.5 too aggressive smoothing, α=0.99 nearly identical to standard). The optimal α gives >3% improvement over α=1.0 (standard delta).
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 225s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_alpha_050` = **0.2496** ± 0.0113  *(runs: 0.236, 0.236, 0.253, 0.253, 0.260, 0.260)*
+- `acc_alpha_070` = **0.2481** ± 0.0097  *(runs: 0.236, 0.236, 0.253, 0.253, 0.256, 0.256)*
+- `acc_alpha_080` = **0.2441** ± 0.0114  *(runs: 0.241, 0.241, 0.233, 0.233, 0.258, 0.258)*
+- `acc_alpha_085` = **0.2452** ± 0.0107  *(runs: 0.258, 0.258, 0.234, 0.234, 0.243, 0.243)*
+- `acc_alpha_090` = **0.2467** ± 0.0143  *(runs: 0.259, 0.259, 0.229, 0.229, 0.252, 0.252)*
+- `acc_alpha_095` = **0.2231** ± 0.0054  *(runs: 0.221, 0.221, 0.219, 0.219, 0.230, 0.230)*
+- `acc_alpha_099` = **0.0786** ± 0.0169  *(runs: 0.092, 0.092, 0.057, 0.057, 0.087, 0.087)*
+- `acc_alpha_100` = **0.2131** ± 0.0061  *(runs: 0.215, 0.215, 0.206, 0.206, 0.219, 0.219)*
+- `acc_standard` = **0.2131** ± 0.0061  *(runs: 0.215, 0.215, 0.206, 0.206, 0.219, 0.219)*
+- `best_acc` = **0.2575** ± 0.0034  *(runs: 0.259, 0.259, 0.253, 0.253, 0.260, 0.260)*
+- `best_alpha` = **0.6333** ± 0.2066  *(runs: 0.900, 0.900, 0.500, 0.500, 0.500, 0.500)*
+- `gap_vs_standard` = **0.0444** ± 0.0028  *(runs: 0.044, 0.044, 0.048, 0.048, 0.041, 0.041)*
+
+**Notes:** Best alpha=0.9 with acc=0.2594, standard alpha=1.0 acc=0.215, gap=0.0444
+
+---
+#### exp_41_2  ✗ REFUTED
+**Hypothesis:** Combining EMA smoothing (α=0.95) with the episodic/semantic split memory outperforms both EMA-alone and split-alone by >3%, showing the mechanisms are orthogonal and composable.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 92s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema` = **0.2185** ± 0.0152  *(runs: 0.211, 0.211, 0.207, 0.207, 0.238, 0.238)*
+- `acc_ema_split` = **0.0308** ± 0.0029  *(runs: 0.028, 0.028, 0.034, 0.034, 0.030, 0.030)*
+- `acc_split` = **0.2204** ± 0.0113  *(runs: 0.213, 0.213, 0.213, 0.213, 0.235, 0.235)*
+- `acc_standard` = **0.2190** ± 0.0102  *(runs: 0.211, 0.211, 0.232, 0.232, 0.214, 0.214)*
+- `gap_ema_over_ema` = **-0.1877** ± 0.0164  *(runs: -0.182, -0.182, -0.172, -0.172, -0.208, -0.208)*
+- `gap_ema_over_split` = **-0.1896** ± 0.0122  *(runs: -0.185, -0.185, -0.179, -0.179, -0.205, -0.205)*
+
+**Notes:** acc_standard=0.2106, acc_ema=0.2106, acc_split=0.2131, acc_ema_split=0.0281, gap_over_split=-0.185, gap_over_ema=-0.1825
+
+---
+#### exp_41_3  ~ INCONCLUSIVE
+**Hypothesis:** The accuracy gain from EMA (α=0.95) over standard delta increases monotonically with sequence length: the gain at SEQ_LEN=96 is >2× the gain at SEQ_LEN=24. Longer sequences accumulate more noise/interference, making smoothing more beneficial.
+
+**Runs:** 8 (seeds: [123, 123, 123, 42, 42, 777, 777, 777])  |  **Avg duration:** 552s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_L16` = **0.2285** ± 0.0132  *(runs: 0.217, 0.217, 0.217, 0.221, 0.221, 0.244, 0.244, 0.244)*
+- `acc_ema_L24` = **0.2343** ± 0.0125  *(runs: 0.238, 0.238, 0.238, 0.214, 0.214, 0.244, 0.244, 0.244)*
+- `acc_ema_L48` = **0.2049** ± 0.0080  *(runs: 0.198, 0.198, 0.198, 0.202, 0.202, 0.214, 0.214, 0.214)*
+- `acc_ema_L96` = **0.2157** ± 0.0220  *(runs: 0.190, 0.190, 0.190, 0.239, 0.239, 0.226, 0.226, 0.226)*
+- `acc_std_L16` = **0.2174** ± 0.0092  *(runs: 0.211, 0.211, 0.211, 0.232, 0.232, 0.214, 0.214, 0.214)*
+- `acc_std_L24` = **0.2205** ± 0.0063  *(runs: 0.213, 0.213, 0.213, 0.223, 0.223, 0.226, 0.226, 0.226)*
+- `acc_std_L48` = **0.2149** ± 0.0065  *(runs: 0.219, 0.219, 0.219, 0.204, 0.204, 0.218, 0.218, 0.218)*
+- `acc_std_L96` = **0.2246** ± 0.0136  *(runs: 0.239, 0.239, 0.239, 0.226, 0.226, 0.209, 0.209, 0.209)*
+- `gain_ratio` = **30.3565** ± 62.3729  *(runs: -7.091, -7.091, -7.091, 131.250, 131.250, 0.542, 0.542, 0.542)*
+- `gap_L16` = **0.0112** ± 0.0172  *(runs: 0.007, 0.007, 0.007, -0.011, -0.011, 0.030, 0.030, 0.030)*
+- `gap_L24` = **0.0138** ± 0.0143  *(runs: 0.025, 0.025, 0.025, -0.009, -0.009, 0.018, 0.018, 0.018)*
+- `gap_L48` = **-0.0100** ± 0.0093  *(runs: -0.021, -0.021, -0.021, -0.003, -0.003, -0.004, -0.004, -0.004)*
+- `gap_L96` = **-0.0089** ± 0.0330  *(runs: -0.049, -0.049, -0.049, 0.013, 0.013, 0.016, 0.016, 0.016)*
+
+**Notes:** gaps by seq_len: {16: 0.006874999999999992, 24: 0.024999999999999994, 48: -0.02124999999999999, 96: -0.04874999999999999}, gain_ratio=-7.0909, all_non_negative=False
+
+---
+#### exp_41_4  ~ INCONCLUSIVE
+**Hypothesis:** EMA (α=0.95) maintains >80% of clean accuracy under continuous write-time noise (σ=0.05 on embeddings at each step), while standard delta drops to <50%. Noise injected during forward pass at every write step, not just at evaluation.
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 87s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_s000` = **0.2308** ± 0.0108  *(runs: 0.220, 0.220, 0.220, 0.244, 0.244, 0.244, 0.228, 0.228, 0.228)*
+- `acc_ema_s002` = **0.2308** ± 0.0090  *(runs: 0.223, 0.223, 0.223, 0.242, 0.242, 0.242, 0.228, 0.228, 0.228)*
+- `acc_ema_s005` = **0.2333** ± 0.0078  *(runs: 0.237, 0.237, 0.237, 0.240, 0.240, 0.240, 0.223, 0.223, 0.223)*
+- `acc_ema_s010` = **0.2283** ± 0.0119  *(runs: 0.212, 0.212, 0.212, 0.235, 0.235, 0.235, 0.237, 0.237, 0.237)*
+- `acc_ema_s020` = **0.2338** ± 0.0121  *(runs: 0.223, 0.223, 0.223, 0.229, 0.229, 0.229, 0.249, 0.249, 0.249)*
+- `acc_std_s000` = **0.2273** ± 0.0068  *(runs: 0.220, 0.220, 0.220, 0.226, 0.226, 0.226, 0.236, 0.236, 0.236)*
+- `acc_std_s002` = **0.2131** ± 0.0099  *(runs: 0.220, 0.220, 0.220, 0.200, 0.200, 0.200, 0.219, 0.219, 0.219)*
+- `acc_std_s005` = **0.2077** ± 0.0070  *(runs: 0.216, 0.216, 0.216, 0.199, 0.199, 0.199, 0.208, 0.208, 0.208)*
+- `acc_std_s010` = **0.2191** ± 0.0170  *(runs: 0.204, 0.204, 0.204, 0.241, 0.241, 0.241, 0.212, 0.212, 0.212)*
+- `acc_std_s020` = **0.2158** ± 0.0089  *(runs: 0.208, 0.208, 0.208, 0.228, 0.228, 0.228, 0.212, 0.212, 0.212)*
+- `ratio_ema_005` = **1.0123** ± 0.0483  *(runs: 1.077, 1.077, 1.077, 0.982, 0.982, 0.982, 0.978, 0.978, 0.978)*
+- `ratio_std_005` = **0.9149** ± 0.0489  *(runs: 0.980, 0.980, 0.980, 0.881, 0.881, 0.881, 0.883, 0.883, 0.883)*
+
+**Notes:** ratio_ema_005=1.0767, ratio_std_005=0.9801, clean acc: std=0.22, ema=0.22
+
+---
+#### exp_41_5  ✓ SUPPORTED ⚠ inconsistent across seeds ['SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE']
+**Hypothesis:** A per-position learned alpha (one scalar per sequence position, initialized at 0.95 and optimized via gradient) provides no significant improvement over global alpha (< 2% gap), confirming that global alpha is sufficient and position-specific tuning is unnecessary.
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 185s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_global` = **0.2196** ± 0.0050  *(runs: 0.216, 0.216, 0.216, 0.226, 0.226, 0.226, 0.216, 0.216, 0.216)*
+- `acc_per_pos` = **0.2260** ± 0.0140  *(runs: 0.214, 0.214, 0.214, 0.220, 0.220, 0.220, 0.244, 0.244, 0.244)*
+- `gap_per_pos_minus_global` = **0.0064** ± 0.0163  *(runs: -0.003, -0.003, -0.003, -0.006, -0.006, -0.006, 0.028, 0.028, 0.028)*
+
+**Notes:** acc_global=0.2162, acc_per_pos=0.2137, gap=-0.0025
+
+---
+#### exp_41_6  ✓ SUPPORTED
+**Hypothesis:** EMA smoothing (α=0.95) reduces gradient variance at the embedding layer by >30% compared to standard delta, providing more stable training (lower embedding gradient std over the final 200 training steps).
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 180s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema` = **0.2308** ± 0.0108  *(runs: 0.220, 0.220, 0.220, 0.244, 0.244, 0.244, 0.228, 0.228, 0.228)*
+- `acc_std` = **0.2273** ± 0.0068  *(runs: 0.220, 0.220, 0.220, 0.226, 0.226, 0.226, 0.236, 0.236, 0.236)*
+- `mean_grad_ema` = **0.0949** ± 0.0042  *(runs: 0.096, 0.096, 0.096, 0.089, 0.089, 0.089, 0.099, 0.099, 0.099)*
+- `mean_grad_std` = **0.5311** ± 0.0072  *(runs: 0.524, 0.524, 0.524, 0.540, 0.540, 0.540, 0.529, 0.529, 0.529)*
+- `std_ratio` = **0.2700** ± 0.0180  *(runs: 0.278, 0.278, 0.278, 0.246, 0.246, 0.246, 0.286, 0.286, 0.286)*
+- `var_grad_ema` = **0.0003** ± 0.0001  *(runs: 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000)*
+- `var_grad_std` = **0.0047** ± 0.0004  *(runs: 0.004, 0.004, 0.004, 0.004, 0.004, 0.004, 0.005, 0.005, 0.005)*
+
+**Notes:** std_ratio=0.278, std_norms_std=0.0664, std_norms_ema=0.0185, acc_std=0.22, acc_ema=0.22
+
+---
+#### exp_41_7  ~ INCONCLUSIVE
+**Hypothesis:** The optimal EMA alpha differs between episodic and semantic matrices: the best (alpha_sem, alpha_epi) pair outperforms any shared alpha by >3%, with alpha_epi > alpha_sem (episodic needs more smoothing due to recency weighting).
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 1448s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_as070_ae070` = **0.1692** ± 0.0292  *(runs: 0.169, 0.169, 0.169, 0.203, 0.203, 0.203, 0.136, 0.136, 0.136)*
+- `acc_as070_ae085` = **0.1502** ± 0.0225  *(runs: 0.133, 0.133, 0.133, 0.180, 0.180, 0.180, 0.138, 0.138, 0.138)*
+- `acc_as070_ae095` = **0.1452** ± 0.0173  *(runs: 0.168, 0.168, 0.168, 0.139, 0.139, 0.139, 0.129, 0.129, 0.129)*
+- `acc_as070_ae100` = **0.1681** ± 0.0254  *(runs: 0.172, 0.172, 0.172, 0.195, 0.195, 0.195, 0.137, 0.137, 0.137)*
+- `acc_as085_ae070` = **0.0558** ± 0.0246  *(runs: 0.045, 0.045, 0.045, 0.034, 0.034, 0.034, 0.088, 0.088, 0.088)*
+- `acc_as085_ae085` = **0.0602** ± 0.0136  *(runs: 0.058, 0.058, 0.058, 0.046, 0.046, 0.046, 0.077, 0.077, 0.077)*
+- `acc_as085_ae095` = **0.0567** ± 0.0222  *(runs: 0.083, 0.083, 0.083, 0.056, 0.056, 0.056, 0.031, 0.031, 0.031)*
+- `acc_as085_ae100` = **0.1273** ± 0.0125  *(runs: 0.111, 0.111, 0.111, 0.136, 0.136, 0.136, 0.135, 0.135, 0.135)*
+- `acc_as095_ae070` = **0.0398** ± 0.0045  *(runs: 0.034, 0.034, 0.034, 0.043, 0.043, 0.043, 0.043, 0.043, 0.043)*
+- `acc_as095_ae085` = **0.0313** ± 0.0060  *(runs: 0.024, 0.024, 0.024, 0.037, 0.037, 0.037, 0.033, 0.033, 0.033)*
+- `acc_as095_ae095` = **0.0298** ± 0.0049  *(runs: 0.028, 0.028, 0.028, 0.036, 0.036, 0.036, 0.026, 0.026, 0.026)*
+- `acc_as095_ae100` = **0.0740** ± 0.0186  *(runs: 0.062, 0.062, 0.062, 0.099, 0.099, 0.099, 0.061, 0.061, 0.061)*
+- `acc_as100_ae070` = **0.2042** ± 0.0026  *(runs: 0.202, 0.202, 0.202, 0.207, 0.207, 0.207, 0.203, 0.203, 0.203)*
+- `acc_as100_ae085` = **0.2086** ± 0.0140  *(runs: 0.227, 0.227, 0.227, 0.196, 0.196, 0.196, 0.203, 0.203, 0.203)*
+- `acc_as100_ae095` = **0.2044** ± 0.0101  *(runs: 0.201, 0.201, 0.201, 0.195, 0.195, 0.195, 0.217, 0.217, 0.217)*
+- `acc_as100_ae100` = **0.2136** ± 0.0140  *(runs: 0.232, 0.232, 0.232, 0.207, 0.207, 0.207, 0.201, 0.201, 0.201)*
+- `acc_shared_095` = **0.0340** ± 0.0023  *(runs: 0.037, 0.037, 0.037, 0.032, 0.032, 0.032, 0.033, 0.033, 0.033)*
+- `best_alpha_epi` = **0.8833** ± 0.1392  *(runs: 1.000, 1.000, 1.000, 0.700, 0.700, 0.700, 0.950, 0.950, 0.950)*
+- `best_alpha_sem` = **1.0000**  *(stable across seeds)*
+- `gap_diff_over_shared` = **0.1850** ± 0.0084  *(runs: 0.195, 0.195, 0.195, 0.176, 0.176, 0.176, 0.184, 0.184, 0.184)*
+
+**Notes:** best_combo=(1.0, 1.0), best_acc=0.2319, acc_shared_095=0.0369, gap=0.195
+
+---
+#### exp_41_8  ✗ REFUTED
+**Hypothesis:** Standard delta has an accuracy cliff at σ≈0.10 (rapid drop to near-chance) while EMA (α=0.95) pushes the cliff to σ≥0.30. Cliff defined as first σ where accuracy falls below 50% of clean accuracy.
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 130s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_s000` = **0.2308** ± 0.0108  *(runs: 0.220, 0.220, 0.220, 0.244, 0.244, 0.244, 0.228, 0.228, 0.228)*
+- `acc_ema_s005` = **0.2250** ± 0.0106  *(runs: 0.236, 0.236, 0.236, 0.212, 0.212, 0.212, 0.227, 0.227, 0.227)*
+- `acc_ema_s010` = **0.2339** ± 0.0081  *(runs: 0.223, 0.223, 0.223, 0.239, 0.239, 0.239, 0.240, 0.240, 0.240)*
+- `acc_ema_s015` = **0.2248** ± 0.0130  *(runs: 0.207, 0.207, 0.207, 0.234, 0.234, 0.234, 0.233, 0.233, 0.233)*
+- `acc_ema_s020` = **0.2294** ± 0.0125  *(runs: 0.241, 0.241, 0.241, 0.234, 0.234, 0.234, 0.213, 0.213, 0.213)*
+- `acc_ema_s030` = **0.2225** ± 0.0089  *(runs: 0.217, 0.217, 0.217, 0.216, 0.216, 0.216, 0.234, 0.234, 0.234)*
+- `acc_ema_s050` = **0.2321** ± 0.0159  *(runs: 0.229, 0.229, 0.229, 0.252, 0.252, 0.252, 0.216, 0.216, 0.216)*
+- `acc_ema_s100` = **0.2102** ± 0.0033  *(runs: 0.211, 0.211, 0.211, 0.214, 0.214, 0.214, 0.206, 0.206, 0.206)*
+- `acc_std_s000` = **0.2273** ± 0.0068  *(runs: 0.220, 0.220, 0.220, 0.226, 0.226, 0.226, 0.236, 0.236, 0.236)*
+- `acc_std_s005` = **0.2175** ± 0.0124  *(runs: 0.233, 0.233, 0.233, 0.214, 0.214, 0.214, 0.205, 0.205, 0.205)*
+- `acc_std_s010` = **0.2112** ± 0.0109  *(runs: 0.203, 0.203, 0.203, 0.226, 0.226, 0.226, 0.206, 0.206, 0.206)*
+- `acc_std_s015` = **0.2098** ± 0.0111  *(runs: 0.221, 0.221, 0.221, 0.196, 0.196, 0.196, 0.213, 0.213, 0.213)*
+- `acc_std_s020` = **0.2144** ± 0.0057  *(runs: 0.222, 0.222, 0.222, 0.209, 0.209, 0.209, 0.212, 0.212, 0.212)*
+- `acc_std_s030` = **0.2148** ± 0.0106  *(runs: 0.218, 0.218, 0.218, 0.225, 0.225, 0.225, 0.201, 0.201, 0.201)*
+- `acc_std_s050` = **0.2121** ± 0.0035  *(runs: 0.214, 0.214, 0.214, 0.215, 0.215, 0.215, 0.207, 0.207, 0.207)*
+- `acc_std_s100` = **0.2100** ± 0.0047  *(runs: 0.207, 0.207, 0.207, 0.206, 0.206, 0.206, 0.216, 0.216, 0.216)*
+- `cliff_ema` = **-1.0000**  *(stable across seeds)*
+- `cliff_ratio` = [nan, nan, nan, nan, nan, nan, nan, nan, nan]
+- `cliff_std` = **-1.0000**  *(stable across seeds)*
+
+**Notes:** cliff_std=inf, cliff_ema=inf, cliff_ratio=nan, clean acc: std=0.22, ema=0.22
+
+---
+
+### Category 42 — Episodic/Semantic Inductive Bias Design (Phase 8)
+*1 supported / 3 refuted / 4 inconclusive / 0 error*
+
+#### exp_42_1  ✗ REFUTED ⚠ inconsistent across seeds ['REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'REFUTED', 'REFUTED']
+**Hypothesis:** The temporal recency weight ((t+1)/L) on episodic writes is critical: removing it drops accuracy by >5% relative to the full split model, showing that temporal ordering is the key inductive bias.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 164s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_no_recency` = **0.2509** ± 0.0193  *(runs: 0.273, 0.273, 0.230, 0.230, 0.250, 0.250)*
+- `acc_recency` = **0.2469** ± 0.0155  *(runs: 0.245, 0.245, 0.265, 0.265, 0.231, 0.231)*
+- `acc_unified` = **0.2273** ± 0.0051  *(runs: 0.233, 0.233, 0.227, 0.227, 0.222, 0.222)*
+- `gap_recency_critical` = **-0.0040** ± 0.0308  *(runs: -0.028, -0.028, 0.035, 0.035, -0.019, -0.019)*
+
+**Notes:** No recency is surprisingly better: with_recency=0.245, no_recency=0.273, gap=-0.028<0.0.
+
+---
+#### exp_42_2  ~ INCONCLUSIVE ⚠ inconsistent across seeds ['INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'REFUTED', 'REFUTED']
+**Hypothesis:** Using separate key projections for episodic and semantic matrices (two distinct Linear layers) is essential: sharing a single projection for both drops accuracy by >5%, showing that the matrices need independent key spaces.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 92s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_separate` = **0.2469** ± 0.0155  *(runs: 0.245, 0.245, 0.265, 0.265, 0.231, 0.231)*
+- `acc_shared` = **0.2233** ± 0.0054  *(runs: 0.225, 0.225, 0.229, 0.229, 0.217, 0.217)*
+- `gap` = **0.0236** ± 0.0103  *(runs: 0.020, 0.020, 0.036, 0.036, 0.014, 0.014)*
+
+**Notes:** Some advantage for separate keys but below threshold: separate=0.245, shared=0.224, gap=0.020.
+
+---
+#### exp_42_3  ~ INCONCLUSIVE ⚠ inconsistent across seeds ['INCONCLUSIVE', 'INCONCLUSIVE', 'REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE']
+**Hypothesis:** Adding an orthogonality regularization loss (penalizing cosine similarity between semantic and episodic key projections) improves accuracy by >3% by forcing the two matrices to capture complementary information.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 101s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_baseline` = **0.2469** ± 0.0155  *(runs: 0.245, 0.245, 0.265, 0.265, 0.231, 0.231)*
+- `acc_ortho` = **0.2363** ± 0.0141  *(runs: 0.247, 0.247, 0.244, 0.244, 0.218, 0.218)*
+- `gap` = **-0.0106** ± 0.0106  *(runs: 0.002, 0.002, -0.021, -0.021, -0.013, -0.013)*
+- `ortho_weight` = **0.0100**  *(stable across seeds)*
+
+**Notes:** Orthogonality effect is small: baseline=0.245, ortho=0.247, gap=0.002.
+
+---
+#### exp_42_4  ✗ REFUTED
+**Hypothesis:** A learned attention gate over [sem_out, epi_out] (softmax weighting) outperforms simple concatenation by >5%, showing that dynamic read combination extracts more information than fixed 50/50 concatenation.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 188s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_concat` = **0.2469** ± 0.0155  *(runs: 0.245, 0.245, 0.265, 0.265, 0.231, 0.231)*
+- `acc_gated` = **0.2457** ± 0.0048  *(runs: 0.250, 0.250, 0.247, 0.247, 0.240, 0.240)*
+- `acc_sum` = **0.2365** ± 0.0172  *(runs: 0.233, 0.233, 0.257, 0.257, 0.219, 0.219)*
+- `gap_gated_over_concat` = **-0.0012** ± 0.0129  *(runs: 0.005, 0.005, -0.018, -0.018, 0.009, 0.009)*
+
+**Notes:** Concat is competitive with gated: concat=0.245, gated=0.250, gap=0.005 (within 0.02).
+
+---
+#### exp_42_5  ✗ REFUTED ⚠ inconsistent across seeds ['REFUTED', 'REFUTED', 'REFUTED', 'REFUTED', 'REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE']
+**Hypothesis:** A learned positional weight function (small MLP mapping position to scalar) outperforms linear recency (t/L) and uniform (1.0) on episodic writes by >3%, showing that the optimal temporal discount is not linear.
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 472s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_learned` = **0.2403** ± 0.0105  *(runs: 0.245, 0.245, 0.245, 0.227, 0.227, 0.227, 0.249, 0.249, 0.249)*
+- `acc_linear` = **0.2469** ± 0.0150  *(runs: 0.245, 0.245, 0.245, 0.265, 0.265, 0.265, 0.231, 0.231, 0.231)*
+- `acc_sqrt` = **0.2377** ± 0.0167  *(runs: 0.242, 0.242, 0.242, 0.255, 0.255, 0.255, 0.217, 0.217, 0.217)*
+- `gap_learned_over_linear` = **-0.0066** ± 0.0253  *(runs: 0.000, 0.000, 0.000, -0.038, -0.038, -0.038, 0.019, 0.019, 0.019)*
+
+**Notes:** Linear recency is sufficient: linear=0.245, learned=0.245, gap=0.000 (within 0.01).
+
+---
+#### exp_42_6  ~ INCONCLUSIVE
+**Hypothesis:** The split memory advantage comes primarily from the semantic matrix: semantic-only achieves within 3% of the full split, while episodic-only is much worse (>10% gap vs split).
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 350s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_episodic_only` = **0.2361** ± 0.0097  *(runs: 0.225, 0.225, 0.225, 0.236, 0.236, 0.236, 0.247, 0.247, 0.247)*
+- `acc_semantic_only` = **0.2304** ± 0.0093  *(runs: 0.242, 0.242, 0.242, 0.229, 0.229, 0.229, 0.220, 0.220, 0.220)*
+- `acc_split` = **0.2379** ± 0.0066  *(runs: 0.235, 0.235, 0.235, 0.232, 0.232, 0.232, 0.246, 0.246, 0.246)*
+- `gap_epi_vs_sem` = **-0.0057** ± 0.0190  *(runs: 0.017, 0.017, 0.017, -0.007, -0.007, -0.007, -0.027, -0.027, -0.027)*
+- `gap_sem_vs_split` = **0.0074** ± 0.0144  *(runs: -0.006, -0.006, -0.006, 0.003, 0.003, 0.003, 0.026, 0.026, 0.026)*
+
+**Notes:** Mixed results: split=0.235, sem_only=0.242, epi_only=0.225, gap_sem_vs_split=-0.006, gap_epi_vs_sem=0.017.
+
+---
+#### exp_42_7  ✓ SUPPORTED ⚠ inconsistent across seeds ['SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE']
+**Hypothesis:** The episodic/semantic split advantage (from exp_36_3 at SEQ_LEN=32) persists at SEQ_LEN=96: split outperforms unified by >3% even at 3x longer contexts, confirming scalability of the inductive bias.
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 1342s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_split_32` = **0.2437** ± 0.0115  *(runs: 0.229, 0.229, 0.229, 0.254, 0.254, 0.254, 0.249, 0.249, 0.249)*
+- `acc_split_96` = **0.1623** ± 0.0073  *(runs: 0.166, 0.166, 0.166, 0.168, 0.168, 0.168, 0.153, 0.153, 0.153)*
+- `acc_unified_32` = **0.2259** ± 0.0115  *(runs: 0.227, 0.227, 0.227, 0.212, 0.212, 0.212, 0.238, 0.238, 0.238)*
+- `acc_unified_96` = **0.1377** ± 0.0113  *(runs: 0.128, 0.128, 0.128, 0.132, 0.132, 0.132, 0.153, 0.153, 0.153)*
+- `gap_32` = **0.0179** ± 0.0183  *(runs: 0.002, 0.002, 0.002, 0.042, 0.042, 0.042, 0.010, 0.010, 0.010)*
+- `gap_96` = **0.0246** ± 0.0185  *(runs: 0.038, 0.038, 0.038, 0.036, 0.036, 0.036, 0.000, 0.000, 0.000)*
+
+**Notes:** Split advantage persists at long context: split_96=0.166, unified_96=0.128, gap_96=0.038>0.03 (gap_32=0.002 for reference).
+
+---
+#### exp_42_8  ~ INCONCLUSIVE
+**Hypothesis:** Replacing the single episodic matrix with two episodic matrices at different timescales (fast: linear recency, slow: sqrt recency) improves accuracy over single-scale episodic by >5%, capturing both recent and distant temporal structure.
+
+**Runs:** 9 (seeds: [123, 123, 123, 42, 42, 42, 777, 777, 777])  |  **Avg duration:** 258s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_multiscale` = **0.2375** ± 0.0143  *(runs: 0.250, 0.250, 0.250, 0.244, 0.244, 0.244, 0.219, 0.219, 0.219)*
+- `acc_single_scale` = **0.2469** ± 0.0150  *(runs: 0.245, 0.245, 0.245, 0.265, 0.265, 0.265, 0.231, 0.231, 0.231)*
+- `epi_fast_dim` = **16.0000**  *(stable across seeds)*
+- `epi_slow_dim` = **16.0000**  *(stable across seeds)*
+- `gap` = **-0.0094** ± 0.0117  *(runs: 0.005, 0.005, 0.005, -0.021, -0.021, -0.021, -0.012, -0.012, -0.012)*
+- `sem_dim` = **32.0000**  *(stable across seeds)*
+
+**Notes:** Multi-scale effect is below threshold: multiscale=0.250, single=0.245, gap=0.005.
+
+---
+
+### Category 43 — Write Gate Stability and Initialization (Phase 8)
+*2 supported / 3 refuted / 3 inconclusive / 0 error*
+
+#### exp_43_1  ✓ SUPPORTED
+**Hypothesis:** The EnergyGated threshold has multiple stable equilibria: models initialized at different thresholds converge to distinct stable values (multi-stability confirmed), with the accuracy-maximizing equilibrium near threshold=0.3-0.5.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 384s
+
+**Metrics (mean ± std across seeds):**
+
+- `best_acc` = **0.2495** ± 0.0130  *(runs: 0.233, 0.233, 0.259, 0.259, 0.256, 0.256)*
+- `best_thresh` = **0.3892** ± 0.0868  *(runs: 0.392, 0.392, 0.485, 0.485, 0.291, 0.291)*
+- `final_thresh_init005` = **0.0491** ± 0.0007  *(runs: 0.050, 0.050, 0.048, 0.048, 0.049, 0.049)*
+- `final_thresh_init010` = **0.0974** ± 0.0010  *(runs: 0.097, 0.097, 0.097, 0.097, 0.099, 0.099)*
+- `final_thresh_init020` = **0.1911** ± 0.0021  *(runs: 0.191, 0.191, 0.193, 0.193, 0.189, 0.189)*
+- `final_thresh_init030` = **0.2916** ± 0.0007  *(runs: 0.292, 0.292, 0.292, 0.292, 0.291, 0.291)*
+- `final_thresh_init040` = **0.3896** ± 0.0029  *(runs: 0.392, 0.392, 0.391, 0.391, 0.386, 0.386)*
+- `final_thresh_init050` = **0.4902** ± 0.0046  *(runs: 0.495, 0.495, 0.485, 0.485, 0.491, 0.491)*
+- `final_thresh_init070` = **0.7079** ± 0.0065  *(runs: 0.703, 0.703, 0.716, 0.716, 0.705, 0.705)*
+- `final_thresh_init100` = **0.9329** ± 0.0069  *(runs: 0.942, 0.942, 0.928, 0.928, 0.929, 0.929)*
+- `final_thresh_init150` = **1.3338** ± 0.1284  *(runs: 1.276, 1.276, 1.497, 1.497, 1.228, 1.228)*
+- `n_clusters` = **5.3333** ± 1.0328  *(runs: 6.000, 6.000, 4.000, 4.000, 6.000, 6.000)*
+- `spread` = **1.2848** ± 0.1290  *(runs: 1.226, 1.226, 1.449, 1.449, 1.179, 1.179)*
+
+**Notes:** Multi-stability confirmed: 6 distinct clusters found with spread=1.226>0.5 across 9 initializations.
+
+---
+#### exp_43_2  ~ INCONCLUSIVE ⚠ inconsistent across seeds ['REFUTED', 'REFUTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE', 'INCONCLUSIVE']
+**Hypothesis:** The write rate trajectory is monotonically decreasing during training (model learns to write less over time as representations improve), not oscillating. Models initialized at high threshold (0.8) and low threshold (0.2) both show monotonically settling write rates by step 400.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 100s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_A` = **0.2208** ± 0.0093  *(runs: 0.209, 0.209, 0.223, 0.223, 0.230, 0.230)*
+- `acc_B` = **0.2214** ± 0.0056  *(runs: 0.225, 0.225, 0.214, 0.214, 0.225, 0.225)*
+- `monotone_A` = **0.3333** ± 0.5164  *(runs: 1.000, 1.000, 0.000, 0.000, 0.000, 0.000)*
+- `monotone_B` = **0.3333** ± 0.5164  *(runs: 0.000, 0.000, 0.000, 0.000, 1.000, 1.000)*
+- `violations_A` = **1.6667** ± 0.5164  *(runs: 1.000, 1.000, 2.000, 2.000, 2.000, 2.000)*
+- `violations_B` = **2.0000** ± 0.8944  *(runs: 3.000, 3.000, 2.000, 2.000, 1.000, 1.000)*
+- `wr_A_s100` = **0.5549** ± 0.0019  *(runs: 0.557, 0.557, 0.553, 0.553, 0.554, 0.554)*
+- `wr_A_s200` = **0.5556** ± 0.0029  *(runs: 0.559, 0.559, 0.553, 0.553, 0.554, 0.554)*
+- `wr_A_s300` = **0.5565** ± 0.0034  *(runs: 0.561, 0.561, 0.556, 0.556, 0.553, 0.553)*
+- `wr_A_s400` = **0.5564** ± 0.0019  *(runs: 0.559, 0.559, 0.555, 0.555, 0.555, 0.555)*
+- `wr_A_s50` = **0.5557** ± 0.0013  *(runs: 0.557, 0.557, 0.554, 0.554, 0.556, 0.556)*
+- `wr_A_s600` = **0.5555** ± 0.0026  *(runs: 0.559, 0.559, 0.555, 0.555, 0.553, 0.553)*
+- `wr_A_s800` = **0.5556** ± 0.0019  *(runs: 0.558, 0.558, 0.556, 0.556, 0.553, 0.553)*
+- `wr_B_s100` = **0.4983** ± 0.0089  *(runs: 0.509, 0.509, 0.489, 0.489, 0.497, 0.497)*
+- `wr_B_s200` = **0.4890** ± 0.0144  *(runs: 0.507, 0.507, 0.479, 0.479, 0.480, 0.480)*
+- `wr_B_s300` = **0.4843** ± 0.0193  *(runs: 0.508, 0.508, 0.467, 0.467, 0.478, 0.478)*
+- `wr_B_s400` = **0.4844** ± 0.0186  *(runs: 0.508, 0.508, 0.471, 0.471, 0.474, 0.474)*
+- `wr_B_s50` = **0.5045** ± 0.0043  *(runs: 0.508, 0.508, 0.499, 0.499, 0.507, 0.507)*
+- `wr_B_s600` = **0.4859** ± 0.0178  *(runs: 0.509, 0.509, 0.473, 0.473, 0.476, 0.476)*
+- `wr_B_s800` = **0.4828** ± 0.0196  *(runs: 0.508, 0.508, 0.468, 0.468, 0.473, 0.473)*
+
+**Notes:** Trajectories oscillate: violations A=1, B=3 (>2 for at least one).
+
+---
+#### exp_43_3  ~ INCONCLUSIVE
+**Hypothesis:** Different memory architectures converge to distinct write-rate equilibria: DeltaRule converges to wr≈0.95, EnergyGated converges to wr≈0.50, and SoftGatedDelta converges to an intermediate wr≈0.70.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 206s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_energy` = **0.2364** ± 0.0270  *(runs: 0.211, 0.211, 0.270, 0.270, 0.229, 0.229)*
+- `acc_plain` = **0.2373** ± 0.0247  *(runs: 0.267, 0.267, 0.233, 0.233, 0.212, 0.212)*
+- `acc_soft` = **0.2422** ± 0.0057  *(runs: 0.249, 0.249, 0.238, 0.238, 0.239, 0.239)*
+- `wr_energy` = **0.5346** ± 0.0065  *(runs: 0.527, 0.527, 0.542, 0.542, 0.535, 0.535)*
+- `wr_plain` = **1.0000**  *(stable across seeds)*
+- `wr_soft` = **0.6358** ± 0.0103  *(runs: 0.627, 0.627, 0.649, 0.649, 0.631, 0.631)*
+- `wr_spread` = **0.4654** ± 0.0065  *(runs: 0.473, 0.473, 0.458, 0.458, 0.465, 0.465)*
+
+**Notes:** Partial separation: |wr_energy-wr_soft|=0.100, spread=0.473. Differences present but not >0.15 threshold.
+
+---
+#### exp_43_4  ✓ SUPPORTED
+**Hypothesis:** A hard threshold gate (binary 0/1) shows lower equilibrium write rate variance across random seeds than a soft sigmoid gate, because the discrete nature prevents smooth gradient-driven drift toward extreme values.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 581s
+
+**Metrics (mean ± std across seeds):**
+
+- `mean_acc_hard` = **0.2078**  *(stable across seeds)*
+- `mean_acc_soft` = **0.2078**  *(stable across seeds)*
+- `var_hard` = **0.0000**  *(stable across seeds)*
+- `var_soft` = **0.0000**  *(stable across seeds)*
+- `variance_ratio` = **0.2447**  *(stable across seeds)*
+- `wr_hard_seeds` = [[0.5351, 0.5308, 0.5351, 0.5343, 0.5379], [0.5351, 0.5308, 0.5351, 0.5343, 0.5379], [0.5351, 0.5308, 0.5351, 0.5343, 0.5379], [0.5351, 0.5308, 0.5351, 0.5343, 0.5379], [0.5351, 0.5308, 0.5351, 0.5343, 0.5379], [0.5351, 0.5308, 0.5351, 0.5343, 0.5379]]
+- `wr_soft_seeds` = [[0.5372, 0.5294, 0.5396, 0.5304, 0.5403], [0.5372, 0.5294, 0.5396, 0.5304, 0.5403], [0.5372, 0.5294, 0.5396, 0.5304, 0.5403], [0.5372, 0.5294, 0.5396, 0.5304, 0.5403], [0.5372, 0.5294, 0.5396, 0.5304, 0.5403], [0.5372, 0.5294, 0.5396, 0.5304, 0.5403]]
+
+**Notes:** Hard gate has 2x lower variance: var_hard=0.000005, var_soft=0.000021, ratio=0.245<0.5.
+
+---
+#### exp_43_5  ✗ REFUTED
+**Hypothesis:** Training the gate threshold with a 10x lower learning rate than model weights reduces the equilibrium spread (across initializations) from >1.0 (exp_39_3) to <0.30, stabilizing convergence by preventing rapid gate adaptation.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 634s
+
+**Metrics (mean ± std across seeds):**
+
+- `final_thresholds_ratio_0_1` = [[0.0997, 0.2984, 0.4994, 0.7993, 1.1706], [0.0997, 0.2984, 0.4994, 0.7993, 1.1706], [0.0996, 0.2991, 0.4997, 0.8004, 1.1809], [0.0996, 0.2991, 0.4997, 0.8004, 1.1809], [0.0997, 0.2981, 0.4993, 0.7985, 1.1746], [0.0997, 0.2981, 0.4993, 0.7985, 1.1746]]
+- `reduction_factor` = **0.8982** ± 0.0070  *(runs: 0.907, 0.907, 0.893, 0.893, 0.894, 0.894)*
+- `spread_ratio_0_1` = **1.0757** ± 0.0047  *(runs: 1.071, 1.071, 1.081, 1.081, 1.075, 1.075)*
+- `spread_ratio_1_0` = **0.9662** ± 0.0045  *(runs: 0.972, 0.972, 0.966, 0.966, 0.961, 0.961)*
+
+**Notes:** Low LR does not help: spread_low_lr=1.071 >= spread_full_lr*0.8=0.777.
+
+---
+#### exp_43_6  ✗ REFUTED
+**Hypothesis:** Adding a soft write-rate regularization loss (lambda=0.1 x |wr - 0.5|^2) during training converges all initializations to write rate ~0.5 +/- 0.05 regardless of initial threshold, reducing equilibrium spread to <0.15.
+
+**Runs:** 6 (seeds: [123, 123, 42, 42, 777, 777])  |  **Avg duration:** 633s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_reg` = **0.2211** ± 0.0077  *(runs: 0.212, 0.212, 0.223, 0.223, 0.228, 0.228)*
+- `acc_unreg` = **0.2281** ± 0.0108  *(runs: 0.223, 0.223, 0.242, 0.242, 0.220, 0.220)*
+- `mean_wr_reg` = **0.4298** ± 0.0038  *(runs: 0.434, 0.434, 0.425, 0.425, 0.430, 0.430)*
+- `spread_reg` = **0.5300** ± 0.0017  *(runs: 0.528, 0.528, 0.531, 0.531, 0.531, 0.531)*
+- `spread_unreg` = **0.5380** ± 0.0027  *(runs: 0.537, 0.537, 0.541, 0.541, 0.535, 0.535)*
+- `wr_reg` = [[0.5649, 0.5495, 0.5259, 0.4922, 0.037], [0.5649, 0.5495, 0.5259, 0.4922, 0.037], [0.5632, 0.5556, 0.5221, 0.4549, 0.0318], [0.5632, 0.5556, 0.5221, 0.4549, 0.0318], [0.563, 0.5507, 0.5239, 0.4797, 0.0322], [0.563, 0.5507, 0.5239, 0.4797, 0.0322]]
+- `wr_unreg` = [[0.5637, 0.5468, 0.5172, 0.507, 0.0262], [0.5637, 0.5468, 0.5172, 0.507, 0.0262], [0.5667, 0.5412, 0.5334, 0.4977, 0.0254], [0.5667, 0.5412, 0.5334, 0.4977, 0.0254], [0.5643, 0.5432, 0.5224, 0.4984, 0.029], [0.5643, 0.5432, 0.5224, 0.4984, 0.029]]
+
+**Notes:** Regularization does not help: spread_reg=0.528>=0.5.
+
+---
+#### exp_43_7  ✗ REFUTED
+**Hypothesis:** First freeze the threshold (train only model weights), then unfreeze (fine-tune threshold for 200 steps) reduces the equilibrium spread to <0.30 compared to joint training from the start (spread~1.022 from exp_39_3).
+
+**Runs:** 5 (seeds: [123, 123, 42, 42, 777])  |  **Avg duration:** 670s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_joint` = **0.2194** ± 0.0078  *(runs: 0.211, 0.211, 0.224, 0.224, 0.227)*
+- `acc_two_phase` = **0.2127** ± 0.0066  *(runs: 0.209, 0.209, 0.220, 0.220, 0.205)*
+- `final_thresholds_joint` = [[0.0974, 0.2825, 0.4916, 0.8038, 1.0642], [0.0974, 0.2825, 0.4916, 0.8038, 1.0642], [0.0965, 0.2856, 0.4928, 0.8245, 1.0621], [0.0965, 0.2856, 0.4928, 0.8245, 1.0621], [0.0979, 0.2842, 0.4985, 0.8043, 1.064]]
+- `final_thresholds_two_phase` = [[0.0988, 0.2957, 0.4983, 0.8055, 1.1667], [0.0988, 0.2957, 0.4983, 0.8055, 1.1667], [0.099, 0.2949, 0.4964, 0.8025, 1.1858], [0.099, 0.2949, 0.4964, 0.8025, 1.1858], [0.0993, 0.2976, 0.4961, 0.8067, 1.1726]]
+- `spread_joint` = **0.9662** ± 0.0006  *(runs: 0.967, 0.967, 0.966, 0.966, 0.966)*
+- `spread_two_phase` = **1.0765** ± 0.0096  *(runs: 1.068, 1.068, 1.087, 1.087, 1.073)*
+
+**Notes:** Two-phase training does not help: spread_two_phase=1.068 >= spread_joint*0.8=0.773.
+
+---
+#### exp_43_8  ~ INCONCLUSIVE
+**Hypothesis:** Initializing the learnable threshold at 0.4 (the known accuracy-maximizing region from exp_39_1) reliably achieves >90% of the maximum possible write-gate accuracy, showing that good initialization is sufficient to solve the multi-stability problem without architectural changes.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 342s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_init005` = **0.2297** ± 0.0124  *(runs: 0.220, 0.225, 0.244)*
+- `acc_init020` = **0.2208** ± 0.0199  *(runs: 0.211, 0.244, 0.208)*
+- `acc_init040` = **0.2229** ± 0.0145  *(runs: 0.206, 0.231, 0.231)*
+- `acc_init080` = **0.2208** ± 0.0191  *(runs: 0.200, 0.225, 0.237)*
+- `acc_init120` = **0.2386** ± 0.0172  *(runs: 0.250, 0.219, 0.247)*
+- `acc_ratio_optimal` = **0.9036** ± 0.0685  *(runs: 0.825, 0.949, 0.937)*
+- `best_init` = **0.8667** ± 0.5774  *(runs: 1.200, 0.200, 1.200)*
+- `max_acc` = **0.2469** ± 0.0032  *(runs: 0.250, 0.244, 0.247)*
+- `wr_init005` = **0.5922** ± 0.0008  *(runs: 0.593, 0.591, 0.592)*
+- `wr_init020` = **0.5560** ± 0.0012  *(runs: 0.555, 0.556, 0.557)*
+- `wr_init040` = **0.5422** ± 0.0072  *(runs: 0.537, 0.550, 0.540)*
+- `wr_init080` = **0.5000** ± 0.0059  *(runs: 0.493, 0.505, 0.502)*
+- `wr_init120` = **0.0283** ± 0.0021  *(runs: 0.026, 0.029, 0.030)*
+
+**Notes:** Init at 0.4 achieved acc_ratio_optimal=0.825 (need >=0.90). acc_040=0.206, max_acc=0.250. Margin over init=0.05: -0.014, over init=1.20: -0.044.
+
+---
+
+### Category 44 — Integration and Scale (Phase 8)
+*0 supported / 2 refuted / 3 inconclusive / 0 error*
+
+#### exp_44_1  ✗ REFUTED
+**Hypothesis:** Combining the three Phase 7-8 positive findings — EMA smoothing (α=0.95), episodic/semantic split memory, and a well-initialized write gate (thresh=0.4) — outperforms all partial combinations by >3%, showing the mechanisms are orthogonal.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 1402s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_baseline` = **0.2316** ± 0.0356  *(runs: 0.207, 0.272, 0.216)*
+- `acc_ema` = **0.2578** ± 0.0128  *(runs: 0.261, 0.269, 0.244)*
+- `acc_ema_gate` = **0.0290** ± 0.0025  *(runs: 0.027, 0.028, 0.032)*
+- `acc_ema_split` = **0.2450** ± 0.0129  *(runs: 0.238, 0.260, 0.237)*
+- `acc_full` = **0.0307** ± 0.0036  *(runs: 0.027, 0.033, 0.033)*
+- `acc_gate` = **0.0318** ± 0.0052  *(runs: 0.027, 0.037, 0.032)*
+- `acc_split` = **0.2330** ± 0.0097  *(runs: 0.240, 0.222, 0.237)*
+- `acc_split_gate` = **0.0314** ± 0.0008  *(runs: 0.031, 0.031, 0.032)*
+- `gap_full_vs_best_partial` = **-0.2271** ± 0.0140  *(runs: -0.234, -0.236, -0.211)*
+
+**Notes:** Full combination hurts: gap=-0.234<-0.03. acc_full=0.027, best_partial=0.261. Mechanisms have negative interactions when combined.
+
+---
+#### exp_44_2  ~ INCONCLUSIVE
+**Hypothesis:** The EMA advantage (α=0.95) over standard delta persists at larger hidden dimension (HIDDEN_DIM=128): the accuracy gap is >2% at H=128, confirming that EMA is not merely compensating for small-model overfitting.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 1690s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_h128` = **0.1679** ± 0.0091  *(runs: 0.175, 0.158, 0.170)*
+- `acc_ema_h64` = **0.1396** ± 0.0095  *(runs: 0.129, 0.142, 0.148)*
+- `acc_ema_split_h128` = **0.1731** ± 0.0021  *(runs: 0.175, 0.172, 0.172)*
+- `acc_ema_split_h64` = **0.1085** ± 0.0095  *(runs: 0.117, 0.098, 0.110)*
+- `acc_split_h128` = **0.1292** ± 0.0105  *(runs: 0.133, 0.137, 0.117)*
+- `acc_split_h64` = **0.1280** ± 0.0021  *(runs: 0.129, 0.126, 0.129)*
+- `acc_std_h128` = **0.1352** ± 0.0088  *(runs: 0.143, 0.138, 0.126)*
+- `acc_std_h64` = **0.1316** ± 0.0037  *(runs: 0.135, 0.132, 0.128)*
+- `gain_ratio` = **0.2475** ± 0.3649  *(runs: -0.174, 0.463, 0.453)*
+- `gap_ema_h128` = **0.0326** ± 0.0123  *(runs: 0.033, 0.020, 0.045)*
+- `gap_ema_h64` = **0.0080** ± 0.0131  *(runs: -0.006, 0.009, 0.020)*
+
+**Notes:** EMA gap at H=128 is 0.033, positive but ≤0.02 threshold. Split advantage at H=128: -0.009. Cannot confirm scale-invariance of EMA benefit.
+
+---
+#### exp_44_3  ~ INCONCLUSIVE
+**Hypothesis:** The EMA+Split combination maintains >70% accuracy at SEQ_LEN=128 with NUM_PAIRS=10, while the standard delta rule drops below 50%. Long contexts benefit most from both EMA (smoothing accumulated interference) and episodic/semantic split (temporal structure increasingly important).
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 2163s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema` = **0.1661** ± 0.0084  *(runs: 0.158, 0.165, 0.175)*
+- `acc_ema_split` = **0.1636** ± 0.0222  *(runs: 0.153, 0.189, 0.149)*
+- `acc_split` = **0.1531** ± 0.0263  *(runs: 0.133, 0.183, 0.144)*
+- `acc_std` = **0.1354** ± 0.0086  *(runs: 0.131, 0.145, 0.130)*
+- `gap_ema_split_vs_std` = **0.0281** ± 0.0136  *(runs: 0.022, 0.044, 0.019)*
+
+**Notes:** acc_ema_split=0.153 (threshold 0.70), acc_std=0.131 (threshold 0.50). gap=0.022. Neither condition fully met.
+
+---
+#### exp_44_4  ✗ REFUTED
+**Hypothesis:** The EMA+Split combination achieves a noise cliff (50% clean accuracy drop) at σ≥0.20 (post-training M noise), while standard delta has a cliff at σ≤0.10, confirming the combined system's robustness advantage at standard test conditions.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 560s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_split_s000` = **0.2470** ± 0.0080  *(runs: 0.250, 0.253, 0.238)*
+- `acc_ema_split_s005` = **0.2521** ± 0.0075  *(runs: 0.244, 0.254, 0.258)*
+- `acc_ema_split_s010` = **0.2476** ± 0.0114  *(runs: 0.245, 0.260, 0.237)*
+- `acc_ema_split_s015` = **0.2443** ± 0.0074  *(runs: 0.252, 0.237, 0.243)*
+- `acc_ema_split_s020` = **0.2401** ± 0.0095  *(runs: 0.232, 0.238, 0.251)*
+- `acc_ema_split_s030` = **0.2342** ± 0.0106  *(runs: 0.229, 0.246, 0.228)*
+- `acc_ema_split_s050` = **0.2298** ± 0.0105  *(runs: 0.228, 0.241, 0.220)*
+- `acc_std_s000` = **0.2292** ± 0.0297  *(runs: 0.199, 0.258, 0.230)*
+- `acc_std_s005` = **0.2360** ± 0.0308  *(runs: 0.215, 0.271, 0.221)*
+- `acc_std_s010` = **0.2420** ± 0.0335  *(runs: 0.214, 0.279, 0.233)*
+- `acc_std_s015` = **0.2406** ± 0.0323  *(runs: 0.229, 0.277, 0.216)*
+- `acc_std_s020` = **0.2458** ± 0.0485  *(runs: 0.210, 0.301, 0.227)*
+- `acc_std_s030` = **0.2415** ± 0.0297  *(runs: 0.221, 0.276, 0.228)*
+- `acc_std_s050` = **0.2347** ± 0.0235  *(runs: 0.218, 0.262, 0.225)*
+- `cliff_ema_split` = **9999.0000**  *(stable across seeds)*
+- `cliff_std` = **9999.0000**  *(stable across seeds)*
+
+**Notes:** EMA+Split is not more robust: cliff_ema_split=9.99 <= cliff_std=9.99. No robustness advantage.
+
+---
+#### exp_44_5  ~ INCONCLUSIVE ⚠ inconsistent across seeds ['INCONCLUSIVE', 'REFUTED', 'INCONCLUSIVE']
+**Hypothesis:** The best single mechanism from Phase 7-8 (EMA smoothing) already captures >60% of the combined improvement, and each additional mechanism (split memory, stable gate init) contributes diminishing but positive marginal gains (>1% each).
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 1130s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_baseline` = **0.2316** ± 0.0356  *(runs: 0.207, 0.272, 0.216)*
+- `acc_ema` = **0.2578** ± 0.0128  *(runs: 0.261, 0.269, 0.244)*
+- `acc_ema_split` = **0.2474** ± 0.0106  *(runs: 0.235, 0.256, 0.251)*
+- `acc_full` = **0.0290** ± 0.0025  *(runs: 0.027, 0.028, 0.032)*
+- `acc_gate` = **0.0323** ± 0.0009  *(runs: 0.032, 0.033, 0.032)*
+- `acc_split` = **0.2330** ± 0.0097  *(runs: 0.240, 0.222, 0.237)*
+- `combined_gain` = **-0.2026** ± 0.0361  *(runs: -0.180, -0.244, -0.184)*
+- `fraction_from_ema` = **262.3333** ± 289.4518  *(runs: 542.000, -36.000, 281.000)*
+- `marginal_ema` = **0.0262** ± 0.0289  *(runs: 0.054, -0.004, 0.028)*
+- `marginal_ema_split` = **-0.0104** ± 0.0166  *(runs: -0.025, -0.013, 0.007)*
+- `marginal_split` = **0.0014** ± 0.0453  *(runs: 0.033, -0.051, 0.021)*
+
+**Notes:** fraction_from_ema=542.000 (threshold >0.60). marginal_ema_split=-0.025 (threshold >0.01). gate_contrib=-0.208 (threshold >0.01). Not all three conditions met for SUPPORTED.
+
+---
+
 ## Cross-Cutting Observations
 
-**All SUPPORTED experiments:** exp_1_5, exp_2_6, exp_3_1, exp_3_5, exp_3_6, exp_4_1, exp_4_4, exp_4_7, exp_4_9, exp_5_2, exp_5_6, exp_6_1, exp_6_3, exp_7_1, exp_7_2, exp_7_9, exp_9_2, exp_9_4, exp_9_5, exp_11_3, exp_13_1, exp_13_2, exp_15_3, exp_16_3, exp_23_2, exp_23_3, exp_24_2, exp_25_1, exp_26_1, exp_29_1, exp_29_3, exp_30_1, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_4, exp_34_6, exp_35_2, exp_35_3, exp_36_3, exp_37_3, exp_38_3
+**All SUPPORTED experiments:** exp_1_5, exp_2_6, exp_3_1, exp_3_5, exp_3_6, exp_4_1, exp_4_4, exp_4_7, exp_4_9, exp_5_2, exp_5_6, exp_6_1, exp_6_3, exp_7_1, exp_7_2, exp_7_9, exp_9_2, exp_9_4, exp_9_5, exp_11_3, exp_13_1, exp_13_2, exp_15_3, exp_16_3, exp_23_2, exp_23_3, exp_24_2, exp_25_1, exp_26_1, exp_29_1, exp_29_3, exp_30_1, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_4, exp_34_6, exp_35_2, exp_35_3, exp_36_3, exp_37_3, exp_38_3, exp_41_5, exp_41_6, exp_42_7, exp_43_1, exp_43_4
 
-**All REFUTED experiments:** exp_1_1, exp_1_2, exp_1_8, exp_2_2, exp_2_4, exp_2_5, exp_2_9, exp_3_2, exp_3_3, exp_3_4, exp_3_7, exp_4_2, exp_5_1, exp_5_4, exp_5_5, exp_5_7, exp_6_7, exp_7_5, exp_7_6, exp_7_7, exp_8_1, exp_8_3, exp_9_1, exp_10_2, exp_11_1, exp_11_2, exp_12_1, exp_14_1, exp_14_2, exp_14_3, exp_15_1, exp_15_2, exp_16_1, exp_17_1, exp_17_2, exp_17_4, exp_18_1, exp_19_1, exp_19_2, exp_19_3, exp_20_2, exp_20_3, exp_21_1, exp_21_2, exp_21_3, exp_21_4, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_4, exp_24_3, exp_24_4, exp_25_2, exp_25_3, exp_26_2, exp_26_3, exp_27_1, exp_27_3, exp_28_5, exp_30_2, exp_30_3, exp_31_1, exp_31_2, exp_33_1, exp_33_3, exp_34_1, exp_34_5, exp_34_7, exp_34_8, exp_34_9, exp_35_1, exp_36_1, exp_38_1, exp_38_2, exp_39_3
+**All REFUTED experiments:** exp_1_1, exp_1_2, exp_1_8, exp_2_2, exp_2_4, exp_2_5, exp_2_9, exp_3_2, exp_3_3, exp_3_4, exp_3_7, exp_4_2, exp_5_1, exp_5_4, exp_5_5, exp_5_7, exp_6_7, exp_7_5, exp_7_6, exp_7_7, exp_8_1, exp_8_3, exp_9_1, exp_10_2, exp_11_1, exp_11_2, exp_12_1, exp_14_1, exp_14_2, exp_14_3, exp_15_1, exp_15_2, exp_16_1, exp_17_1, exp_17_2, exp_17_4, exp_18_1, exp_19_1, exp_19_2, exp_19_3, exp_20_2, exp_20_3, exp_21_1, exp_21_2, exp_21_3, exp_21_4, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_4, exp_24_3, exp_24_4, exp_25_2, exp_25_3, exp_26_2, exp_26_3, exp_27_1, exp_27_3, exp_28_5, exp_30_2, exp_30_3, exp_31_1, exp_31_2, exp_33_1, exp_33_3, exp_34_1, exp_34_5, exp_34_7, exp_34_8, exp_34_9, exp_35_1, exp_36_1, exp_38_1, exp_38_2, exp_39_3, exp_41_2, exp_41_8, exp_42_1, exp_42_4, exp_42_5, exp_43_5, exp_43_6, exp_43_7, exp_44_1, exp_44_4
 
-**Inconsistent across seeds (need more investigation):** exp_8_1, exp_8_2, exp_8_4, exp_9_4, exp_9_5, exp_10_1, exp_15_1, exp_15_2, exp_15_4, exp_17_1, exp_17_2, exp_17_4, exp_18_3, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_1, exp_23_2, exp_23_3, exp_23_4, exp_24_1, exp_25_2, exp_25_3, exp_26_1, exp_26_2, exp_26_3, exp_28_2, exp_28_4, exp_29_2, exp_29_3, exp_29_4, exp_30_1, exp_30_3, exp_30_4, exp_31_2, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_2, exp_33_4, exp_34_6, exp_35_3, exp_38_1, exp_38_2, exp_38_3
+**Inconsistent across seeds (need more investigation):** exp_8_1, exp_8_2, exp_8_4, exp_9_4, exp_9_5, exp_10_1, exp_15_1, exp_15_2, exp_15_4, exp_17_1, exp_17_2, exp_17_4, exp_18_3, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_1, exp_23_2, exp_23_3, exp_23_4, exp_24_1, exp_25_2, exp_25_3, exp_26_1, exp_26_2, exp_26_3, exp_28_2, exp_28_4, exp_29_2, exp_29_3, exp_29_4, exp_30_1, exp_30_3, exp_30_4, exp_31_2, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_2, exp_33_4, exp_34_6, exp_35_3, exp_38_1, exp_38_2, exp_38_3, exp_41_1, exp_41_5, exp_42_1, exp_42_2, exp_42_3, exp_42_5, exp_42_7, exp_43_2, exp_44_5
 
 **High-variance metrics (std > 0.05 — seed-sensitive, interpret carefully):**
 

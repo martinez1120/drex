@@ -1,0 +1,23 @@
+{
+  "experiment_id": "exp_42_2",
+  "hypothesis": "Using separate key projections for episodic and semantic matrices (two distinct Linear layers) is essential: sharing a single projection for both drops accuracy by >5%, showing that the matrices need independent key spaces.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "acc_separate": 0.2307,
+    "acc_shared": 0.2167,
+    "gap": 0.0141
+  },
+  "notes": "Shared keys are competitive: separate=0.231, shared=0.217, gap=0.014 (within 0.02).",
+  "error": "",
+  "timestamp": "2026-03-10T02:31:56.367714+00:00",
+  "duration_seconds": 72.44011841597967,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32
+  },
+  "seed": 777
+}

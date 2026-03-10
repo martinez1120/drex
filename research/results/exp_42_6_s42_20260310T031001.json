@@ -1,0 +1,25 @@
+{
+  "experiment_id": "exp_42_6",
+  "hypothesis": "The split memory advantage comes primarily from the semantic matrix: semantic-only achieves within 3% of the full split, while episodic-only is much worse (>10% gap vs split).",
+  "outcome": "INCONCLUSIVE",
+  "metrics": {
+    "acc_split": 0.2318,
+    "acc_semantic_only": 0.2292,
+    "acc_episodic_only": 0.2359,
+    "gap_sem_vs_split": 0.0026,
+    "gap_epi_vs_sem": -0.0068
+  },
+  "notes": "Mixed results: split=0.232, sem_only=0.229, epi_only=0.236, gap_sem_vs_split=0.003, gap_epi_vs_sem=-0.007.",
+  "error": "",
+  "timestamp": "2026-03-10T03:10:01.700203+00:00",
+  "duration_seconds": 467.1903024580097,
+  "config": {
+    "vocab_size": 64,
+    "hidden_dim": 64,
+    "seq_len": 32,
+    "num_pairs": 5,
+    "steps": 800,
+    "batch": 32
+  },
+  "seed": 42
+}
