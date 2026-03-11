@@ -295,3 +295,78 @@ Next priorities:
 1. Investigate whether wr=0.96 for EMA+gate is functionally different from no gate at all
 2. Explore adaptive/learned gate thresholds that account for EMA persistence
 3. Consider sequence-position-dependent thresholds for short vs. long sequence regimes
+
+---
+
+## Phase 10 — EMA-Gate Threshold Calibration (Category 46)
+*2026-03-11*
+
+### Phase 10 Results Summary (18 runs, 6 experiments × 3 seeds)
+
+| Exp    | Outcome      | Key finding |
+|--------|--------------|-------------|
+| 46_1   | SUPPORTED    | thresh*=0.70 is the best universal candidate; wr_L32≈0.61, wr_L96≈0.20 (2/3 seeds). |
+| 46_2   | REFUTED      | Velocity gate deadlock: M=0 init → vp=0 → velocity=0 → wr=0.000, 3/3 seeds. |
+| 46_3   | REFUTED      | Position schedule achieves wr targets at L=32 (thresh_max=1.5/2.0) but accuracy collapses to ~0.03. |
+| 46_4   | INCONCLUSIVE | wr_L96 healthy (≈0.198–0.200) but gate gain at L=32 ≤ 0.005 (thresh* insufficient at standard density). |
+| 46_5   | REFUTED      | Gate advantage non-monotone with ρ; negative at ρ=0.12 in 2/3 seeds. No capacity-pressure scaling. |
+| 46_6   | REFUTED      | wr_L32≈0.81 (bootstrap problem persists); gain_L96 ratio=0.875–0.983 (< 1.02 target). |
+
+### Key Learnings
+
+**thresh*=0.70 is the best candidate, but only marginally**: exp_46_1 found thresh*=0.70
+achieves write-rate targets at both lengths (wr_L32≈0.61, wr_L96≈0.20) in 2/3 seeds.
+Seed 42 remained INCONCLUSIVE — no single threshold simultaneously satisfied both length
+targets with accuracy ≥0.97×EMA. The threshold calibration problem is real but barely
+solvable at the standard task density.
+
+**Velocity gate is broken by design**: exp_46_2 revealed a fatal structural flaw:
+the memory matrix M initialises to zeros, so vp = M @ k_norm = 0, making velocity
+‖vp_t − vp_{t-1}‖/‖k‖ = 0 for the first step and essentially throughout a short sequence.
+The gate never fires (wr=0.000) across all 8 configs and all 3 seeds. This is not a
+hyperparameter issue — the zero-init deadlock is intrinsic to the design.
+
+**Position schedule trades accuracy for write-rate control**: exp_46_3 revealed a
+fundamental tradeoff. thresh_max=1.5 and 2.0 successfully push wr_L32 into [0.20, 0.60],
+but at the cost of accuracy collapsing from ~0.26 to ~0.03 (near random). The high early
+threshold blocks too many informative writes during the critical bootstrap phase, causing
+the memory to remain empty and the retrieval to fail.
+
+**The gate adds no measurable value at standard task density**: exp_46_4 confirmed that
+thresh*=0.70 produces healthy wr at L=96 (≈0.20) but the accuracy gain of the gate over
+EMA-alone is consistently ≤0.005 (range: −0.027 to +0.005 across seeds). The task density
+(ρ=0.078, N=5 pairs, H=64) is too easy for the gate's write selectivity to confer genuine
+benefits. This suggests the gate's value is density-conditional.
+
+**Gate advantage does not scale monotonically with interference density**: exp_46_5
+tested ρ ∈ {0.08, 0.12, 0.19, 0.31, 0.50, 0.75}. In 2/3 seeds, the advantage went
+negative at ρ=0.12 or ρ=0.19, violating the monotone hypothesis. This is unexpected:
+the gate should be most useful under the highest memory pressure, but the relationship
+appears non-monotone in practice. The gate may be disrupting useful early writes at
+intermediate densities before the memory pressure is high enough to require selectivity.
+
+**Root problem: the EMA bootstrap at L=32 is still unsolved**: exp_46_6 confirmed the
+persistent failure mode. The calibrated full system (EMA + split + gate, thresh*=0.70)
+achieves wr_L32≈0.81 across all seeds — well above the [0.20, 0.70] target. This means
+the EMA keeps ‖k−vp‖ large throughout the short sequence (since vp hasn't convergied),
+so the gate fires almost universally regardless of thresh*. The Phase 10 calibration
+effort did not solve the sequence-length-dependent write-rate problem.
+
+### Phase 11 Direction
+
+The threshold calibration approach is fundamentally limited. The core problem is that
+EMA persistence (α=0.95) at short sequences (L=32) keeps ‖k−vp‖ ≈ ‖k‖, making the
+relative-norm gate fire near-universally. A fixed scalar threshold cannot solve this.
+
+Next investigation directions:
+1. **Length-adaptive decay**: Replace fixed α=0.95 with α = f(L) or a per-position
+   schedule, so the EMA converges faster at shorter sequences and reduces the bootstrap
+   problem. The EMA itself (not the gate) may need to be the target of calibration.
+2. **Learned gate threshold**: Train a lightweight MLP to predict the gate threshold
+   conditioned on EMA state or sequence position, rather than using a fixed scalar.
+3. **Hard capacity constraints**: Instead of a gate, try a "memory budget" mechanism
+   that enforces a fixed number of writes per sequence (e.g., top-k by gate score),
+   making the write-rate constraint hard rather than soft.
+4. **Higher-density benchmarks**: The current task (ρ=0.078) may be too easy. Move to
+   ρ≥0.30 as the primary test case where gate selectivity has non-trivial consequences
+   for accuracy.

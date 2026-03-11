@@ -1,19 +1,19 @@
 # drex Research — Master Results Report
 
-**Generated:** 2026-03-10 19:37 UTC
-**Experiments:** 211  |  **Seeds per experiment:** 0, 1, 2, 7, 13, 42, 99, 123, 777
-**Total runs evaluated:** 940
+**Generated:** 2026-03-11 16:23 UTC
+**Experiments:** 217  |  **Seeds per experiment:** 0, 1, 2, 7, 13, 42, 99, 123, 777
+**Total runs evaluated:** 959
 
 ## Overall Scoreboard
 
 | Outcome | Count | % |
 |---------|-------|---|
-| ✓ SUPPORTED    | 51    | 24% |
-| ~ INCONCLUSIVE | 72 | 34% |
-| ✗ REFUTED      | 88      | 42% |
+| ✓ SUPPORTED    | 52    | 24% |
+| ~ INCONCLUSIVE | 73 | 34% |
+| ✗ REFUTED      | 92      | 42% |
 | ! ERROR        | 0        | 0% |
 
-**Seed consistency:** 155/211 experiments gave the same verdict across all seeds. 56 inconsistent.
+**Seed consistency:** 159/217 experiments gave the same verdict across all seeds. 58 inconsistent.
 
 ## Summary Table
 
@@ -230,6 +230,12 @@
 | exp_45_4 | ✗ REFUTED | ✓ | acc_matrix_mean_ema_gate=0.028±0.002 | corrected_stable=False, broken_collapsed=True. The corrected… |
 | exp_45_5 | ✓ SUPPORTED | ✓ | acc_ema_split=0.251±0.004 | CONFIRMED: acc_full=0.2641 is 1.070x acc_ema_split (0.2469),… |
 | exp_45_6 | ✗ REFUTED | ✓ | acc_baseline_h128_s32=0.229±0.006 | all_wr_ok=False, all_acc_ok=False. Gate write rate collapsed… |
+| exp_46_1 | ✓ SUPPORTED | ⚠ ['SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'SUPPORTED'] | acc_ema_ref_L32=0.254±0.007 | Universal thresh* found: [0.7]. Best candidate: thresh*=0.7.… |
+| exp_46_2 | ✗ REFUTED | ✓ | acc_ema_ref_L32=0.252±0.007 | Velocity gate FAILED to achieve wr ∈ [0.20, 0.60] at both le… |
+| exp_46_3 | ✗ REFUTED | ✓ | acc_ema_pos_tmax1.0_L32=0.263±0.008 | No thresh_max in {1.0, 1.5, 2.0} achieves healthy wr AND acc… |
+| exp_46_4 | ~ INCONCLUSIVE | ✓ | acc_baseline_L32=0.232±0.036 | wr at L=96 is healthy (0.198) but gate does not improve accu… |
+| exp_46_5 | ✗ REFUTED | ⚠ ['REFUTED', 'INCONCLUSIVE', 'REFUTED'] | acc_ema_H32_N10=0.034±0.008 | Gate advantage is neither universally positive nor monotone … |
+| exp_46_6 | ✗ REFUTED | ✓ | acc_ema_split_L32=0.238±0.004 | Failed criteria: gain_L96 ratio=0.875 < 1.02; wr_L32=0.811 o… |
 
 ---
 
@@ -4659,13 +4665,307 @@
 
 ---
 
+### Category 46 — EMA-Gate Threshold Calibration (Phase 10)
+*1 supported / 4 refuted / 1 inconclusive / 0 error*
+
+#### exp_46_1  ✓ SUPPORTED ⚠ inconsistent across seeds ['SUPPORTED', 'INCONCLUSIVE', 'INCONCLUSIVE', 'SUPPORTED']
+**Hypothesis:** There exists a universal threshold thresh* such that EMA+gate achieves write rate in [0.20, 0.70] at SEQ_LEN=32 AND [0.15, 0.50] at SEQ_LEN=96 using the same threshold, with accuracy ≥ EMA-alone × 0.97 at both lengths.
+
+**Runs:** 4 (seeds: [123, 42, 42, 777])  |  **Avg duration:** 1560s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_ref_L32` = **0.2535** ± 0.0068  *(runs: 0.247, 0.259, 0.259, 0.248)*
+- `acc_ema_ref_L96` = **0.2566** ± 0.0076  *(runs: 0.262, 0.260, 0.260, 0.245)*
+- `acc_thresh0.4_L32` = **0.2589** ± 0.0082  *(runs: 0.269, 0.252, 0.252, 0.263)*
+- `acc_thresh0.4_L96` = **0.2565** ± 0.0029  *(runs: 0.253, 0.259, 0.259, 0.255)*
+- `acc_thresh0.7_L32` = **0.2578** ± 0.0085  *(runs: 0.249, 0.265, 0.265, 0.252)*
+- `acc_thresh0.7_L96` = **0.2486** ± 0.0088  *(runs: 0.261, 0.242, 0.242, 0.249)*
+- `acc_thresh0.9_L32` = **0.2624** ± 0.0114  *(runs: 0.279, 0.259, 0.259, 0.252)*
+- `acc_thresh0.9_L96` = **0.2461** ± 0.0018  *(runs: 0.246, 0.247, 0.247, 0.244)*
+- `acc_thresh1.2_L32` = **0.0294** ± 0.0039  *(runs: 0.033, 0.026, 0.026, 0.032)*
+- `acc_thresh1.2_L96` = **0.0305** ± 0.0038  *(runs: 0.026, 0.030, 0.030, 0.035)*
+- `acc_thresh1.5_L32` = **0.0277** ± 0.0041  *(runs: 0.026, 0.025, 0.025, 0.034)*
+- `acc_thresh1.5_L96` = **0.0331** ± 0.0051  *(runs: 0.028, 0.037, 0.037, 0.029)*
+- `acc_thresh1.8_L32` = **0.0281** ± 0.0037  *(runs: 0.032, 0.025, 0.025, 0.030)*
+- `acc_thresh1.8_L96` = **0.0312** ± 0.0044  *(runs: 0.037, 0.030, 0.030, 0.027)*
+- `acc_thresh2.5_L32` = **0.0318** ± 0.0060  *(runs: 0.037, 0.027, 0.027, 0.036)*
+- `acc_thresh2.5_L96` = **0.0321** ± 0.0008  *(runs: 0.032, 0.033, 0.033, 0.031)*
+- `n_universal` = **0.5000** ± 0.5774  *(runs: 1.000, 0.000, 0.000, 1.000)*
+- `ratio_thresh0.4_L32` = **1.0222** ± 0.0592  *(runs: 1.086, 0.972, 0.972, 1.059)*
+- `ratio_thresh0.4_L96` = **1.0001** ± 0.0299  *(runs: 0.968, 0.996, 0.996, 1.040)*
+- `ratio_thresh0.7_L32` = **1.0168** ± 0.0074  *(runs: 1.006, 1.022, 1.022, 1.017)*
+- `ratio_thresh0.7_L96` = **0.9692** ± 0.0436  *(runs: 0.998, 0.932, 0.932, 1.015)*
+- `ratio_thresh0.9_L32` = **1.0358** ± 0.0609  *(runs: 1.126, 1.000, 1.000, 1.017)*
+- `ratio_thresh0.9_L96` = **0.9594** ± 0.0235  *(runs: 0.940, 0.952, 0.952, 0.994)*
+- `ratio_thresh1.2_L32` = **0.1164** ± 0.0186  *(runs: 0.135, 0.100, 0.100, 0.130)*
+- `ratio_thresh1.2_L96` = **0.1191** ± 0.0186  *(runs: 0.100, 0.116, 0.116, 0.144)*
+- `ratio_thresh1.5_L32` = **0.1097** ± 0.0182  *(runs: 0.105, 0.098, 0.098, 0.137)*
+- `ratio_thresh1.5_L96` = **0.1288** ± 0.0185  *(runs: 0.108, 0.144, 0.144, 0.119)*
+- `ratio_thresh1.8_L32` = **0.1113** ± 0.0175  *(runs: 0.131, 0.096, 0.096, 0.122)*
+- `ratio_thresh1.8_L96` = **0.1215** ± 0.0148  *(runs: 0.143, 0.116, 0.116, 0.110)*
+- `ratio_thresh2.5_L32` = **0.1259** ± 0.0272  *(runs: 0.152, 0.102, 0.102, 0.147)*
+- `ratio_thresh2.5_L96` = **0.1254** ± 0.0026  *(runs: 0.121, 0.126, 0.126, 0.127)*
+- `thresholds_ok_at_L32` = [[0.7, 0.9], [0.7, 0.9], [0.7, 0.9], [0.7, 0.9]]
+- `thresholds_ok_at_L96` = [[0.7], [0.4], [0.4], [0.4, 0.7]]
+- `universal_thresh_candidates` = [[0.7], [], [], [0.7]]
+- `wr_thresh0.4_L32` = **0.9656** ± 0.0012  *(runs: 0.964, 0.965, 0.965, 0.967)*
+- `wr_thresh0.4_L96` = **0.3149** ± 0.0010  *(runs: 0.314, 0.315, 0.315, 0.316)*
+- `wr_thresh0.7_L32` = **0.6083** ± 0.0019  *(runs: 0.610, 0.609, 0.609, 0.606)*
+- `wr_thresh0.7_L96` = **0.1981** ± 0.0014  *(runs: 0.200, 0.197, 0.197, 0.198)*
+- `wr_thresh0.9_L32` = **0.3458** ± 0.0269  *(runs: 0.372, 0.323, 0.323, 0.366)*
+- `wr_thresh0.9_L96` = **0.1033** ± 0.0090  *(runs: 0.108, 0.107, 0.107, 0.090)*
+- `wr_thresh1.2_L32` = **0.0000**  *(stable across seeds)*
+- `wr_thresh1.2_L96` = **0.0000**  *(stable across seeds)*
+- `wr_thresh1.5_L32` = **0.0000**  *(stable across seeds)*
+- `wr_thresh1.5_L96` = **0.0000**  *(stable across seeds)*
+- `wr_thresh1.8_L32` = **0.0000**  *(stable across seeds)*
+- `wr_thresh1.8_L96` = **0.0000**  *(stable across seeds)*
+- `wr_thresh2.5_L32` = **0.0000**  *(stable across seeds)*
+- `wr_thresh2.5_L96` = **0.0000**  *(stable across seeds)*
+
+**Notes:** Universal thresh* found: [0.7]. Best candidate: thresh*=0.7. wr at L=32=0.610, wr at L=96=0.200. Use thresh*=0.7 for exp_46_4.
+
+---
+#### exp_46_2  ✗ REFUTED
+**Hypothesis:** A velocity gate (‖vp_t − vp_{t-1}‖ / ‖k‖ ≥ thresh_v) achieves write rate in [0.20, 0.60] under EMA at both SEQ_LEN=32 and SEQ_LEN=96, providing EMA-agnostic gate selectivity that the error gate lacks at L=32.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 755s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_ref_L32` = **0.2516** ± 0.0068  *(runs: 0.247, 0.259, 0.248)*
+- `acc_ema_ref_L96` = **0.2556** ± 0.0089  *(runs: 0.262, 0.260, 0.245)*
+- `acc_ema_split_velocity_L32` = **0.0305** ± 0.0040  *(runs: 0.033, 0.026, 0.032)*
+- `acc_ema_split_velocity_L96` = **0.0305** ± 0.0047  *(runs: 0.026, 0.030, 0.035)*
+- `acc_ema_velocity_L32` = **0.0323** ± 0.0009  *(runs: 0.032, 0.033, 0.032)*
+- `acc_ema_velocity_L96` = **0.0290** ± 0.0025  *(runs: 0.027, 0.028, 0.032)*
+- `acc_ok_ema_split_velocity_L32` = [False, False, False]
+- `acc_ok_ema_split_velocity_L96` = [False, False, False]
+- `acc_ok_ema_velocity_L32` = [False, False, False]
+- `acc_ok_ema_velocity_L96` = [False, False, False]
+- `acc_ok_split_velocity_L32` = [False, False, False]
+- `acc_ok_split_velocity_L96` = [False, False, False]
+- `acc_ok_velocity_gate_L32` = [False, False, False]
+- `acc_ok_velocity_gate_L96` = [False, False, False]
+- `acc_split_velocity_L32` = **0.0314** ± 0.0008  *(runs: 0.031, 0.031, 0.032)*
+- `acc_split_velocity_L96` = **0.0307** ± 0.0036  *(runs: 0.027, 0.033, 0.033)*
+- `acc_velocity_gate_L32` = **0.0306** ± 0.0035  *(runs: 0.033, 0.032, 0.027)*
+- `acc_velocity_gate_L96` = **0.0318** ± 0.0052  *(runs: 0.027, 0.037, 0.032)*
+- `ema_velocity_wr_both_lengths_ok` = [False, False, False]
+- `ratio_ema_split_velocity_L32` = **0.1218** ± 0.0187  *(runs: 0.135, 0.100, 0.130)*
+- `ratio_ema_split_velocity_L96` = **0.1201** ± 0.0226  *(runs: 0.100, 0.116, 0.144)*
+- `ratio_ema_velocity_L32` = **0.1284** ± 0.0002  *(runs: 0.128, 0.129, 0.128)*
+- `ratio_ema_velocity_L96` = **0.1138** ± 0.0138  *(runs: 0.104, 0.108, 0.130)*
+- `ratio_split_velocity_L32` = **0.1250** ± 0.0049  *(runs: 0.124, 0.120, 0.130)*
+- `ratio_split_velocity_L96` = **0.1206** ± 0.0168  *(runs: 0.102, 0.126, 0.134)*
+- `ratio_velocity_gate_L32` = **0.1214** ± 0.0138  *(runs: 0.135, 0.122, 0.107)*
+- `ratio_velocity_gate_L96` = **0.1245** ± 0.0208  *(runs: 0.102, 0.142, 0.130)*
+- `wr_ema_split_velocity_L32` = **0.0000**  *(stable across seeds)*
+- `wr_ema_split_velocity_L96` = **0.0000**  *(stable across seeds)*
+- `wr_ema_velocity_L32` = **0.0000**  *(stable across seeds)*
+- `wr_ema_velocity_L96` = **0.0000**  *(stable across seeds)*
+- `wr_ok_ema_split_velocity_L32` = [False, False, False]
+- `wr_ok_ema_split_velocity_L96` = [False, False, False]
+- `wr_ok_ema_velocity_L32` = [False, False, False]
+- `wr_ok_ema_velocity_L96` = [False, False, False]
+- `wr_ok_split_velocity_L32` = [False, False, False]
+- `wr_ok_split_velocity_L96` = [False, False, False]
+- `wr_ok_velocity_gate_L32` = [False, False, False]
+- `wr_ok_velocity_gate_L96` = [False, False, False]
+- `wr_split_velocity_L32` = **0.0000**  *(stable across seeds)*
+- `wr_split_velocity_L96` = **0.0000**  *(stable across seeds)*
+- `wr_velocity_gate_L32` = **0.0000**  *(stable across seeds)*
+- `wr_velocity_gate_L96` = **0.0000**  *(stable across seeds)*
+
+**Notes:** Velocity gate FAILED to achieve wr ∈ [0.20, 0.60] at both lengths. wr(ema+vel, L=32)=0.000, wr(ema+vel, L=96)=0.000. Velocity signal does not provide length-agnostic selectivity.
+
+---
+#### exp_46_3  ✗ REFUTED
+**Hypothesis:** A position-conditioned threshold schedule thresh(t) = thresh_min + (thresh_max − thresh_min) × (1 − t/L) achieves write rate in [0.20, 0.60] at SEQ_LEN=32 under EMA while retaining wr in [0.15, 0.50] at SEQ_LEN=96, for at least one thresh_max ∈ {1.0, 1.5, 2.0}.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 1046s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_pos_tmax1.0_L32` = **0.2625** ± 0.0083  *(runs: 0.271, 0.254, 0.263)*
+- `acc_ema_pos_tmax1.0_L96` = **0.2146** ± 0.0077  *(runs: 0.210, 0.210, 0.223)*
+- `acc_ema_pos_tmax1.5_L32` = **0.0344** ± 0.0009  *(runs: 0.033, 0.035, 0.035)*
+- `acc_ema_pos_tmax1.5_L96` = **0.0321** ± 0.0066  *(runs: 0.038, 0.025, 0.033)*
+- `acc_ema_pos_tmax2.0_L32` = **0.0361** ± 0.0021  *(runs: 0.034, 0.035, 0.038)*
+- `acc_ema_pos_tmax2.0_L96` = **0.0316** ± 0.0045  *(runs: 0.027, 0.035, 0.033)*
+- `acc_ema_ref_L32` = **0.2516** ± 0.0068  *(runs: 0.247, 0.259, 0.248)*
+- `acc_ema_ref_L96` = **0.2556** ± 0.0089  *(runs: 0.262, 0.260, 0.245)*
+- `acc_ema_split_pos_tmax1.0_L32` = **0.2408** ± 0.0072  *(runs: 0.235, 0.249, 0.238)*
+- `acc_ema_split_pos_tmax1.0_L96` = **0.1880** ± 0.0045  *(runs: 0.193, 0.186, 0.185)*
+- `acc_ema_split_pos_tmax1.5_L32` = **0.0320** ± 0.0021  *(runs: 0.030, 0.032, 0.034)*
+- `acc_ema_split_pos_tmax1.5_L96` = **0.0295** ± 0.0067  *(runs: 0.022, 0.032, 0.034)*
+- `acc_ema_split_pos_tmax2.0_L32` = **0.0302** ± 0.0016  *(runs: 0.030, 0.029, 0.032)*
+- `acc_ema_split_pos_tmax2.0_L96` = **0.0333** ± 0.0060  *(runs: 0.038, 0.027, 0.035)*
+- `acc_ok_ema_pos_tmax1.0_L32` = [True, True, True]
+- `acc_ok_ema_pos_tmax1.0_L96` = [False, False, False]
+- `acc_ok_ema_pos_tmax1.5_L32` = [False, False, False]
+- `acc_ok_ema_pos_tmax1.5_L96` = [False, False, False]
+- `acc_ok_ema_pos_tmax2.0_L32` = [False, False, False]
+- `acc_ok_ema_pos_tmax2.0_L96` = [False, False, False]
+- `any_universal_thresh_max` = [False, False, False]
+- `ratio_ema_pos_tmax1.0_L32` = **1.0445** ± 0.0587  *(runs: 1.095, 0.980, 1.059)*
+- `ratio_ema_pos_tmax1.0_L96` = **0.8411** ± 0.0605  *(runs: 0.803, 0.810, 0.911)*
+- `ratio_ema_pos_tmax1.5_L32` = **0.1367** ± 0.0036  *(runs: 0.135, 0.135, 0.141)*
+- `ratio_ema_pos_tmax1.5_L96` = **0.1258** ± 0.0261  *(runs: 0.145, 0.096, 0.136)*
+- `ratio_ema_pos_tmax2.0_L32` = **0.1436** ± 0.0103  *(runs: 0.139, 0.137, 0.155)*
+- `ratio_ema_pos_tmax2.0_L96` = **0.1239** ± 0.0194  *(runs: 0.102, 0.136, 0.134)*
+- `wr_ema_pos_tmax1.0_L32` = **0.8754** ± 0.0022  *(runs: 0.875, 0.874, 0.878)*
+- `wr_ema_pos_tmax1.0_L96` = **0.2910** ± 0.0022  *(runs: 0.289, 0.293, 0.291)*
+- `wr_ema_pos_tmax1.5_L32` = **0.4839**  *(stable across seeds)*
+- `wr_ema_pos_tmax1.5_L96` = **0.2000**  *(stable across seeds)*
+- `wr_ema_pos_tmax2.0_L32` = **0.3548**  *(stable across seeds)*
+- `wr_ema_pos_tmax2.0_L96` = **0.1895**  *(stable across seeds)*
+- `wr_ema_split_pos_tmax1.0_L32` = **0.9378** ± 0.0021  *(runs: 0.935, 0.940, 0.938)*
+- `wr_ema_split_pos_tmax1.0_L96` = **0.4236** ± 0.0016  *(runs: 0.425, 0.423, 0.422)*
+- `wr_ema_split_pos_tmax1.5_L32` = **0.5000**  *(stable across seeds)*
+- `wr_ema_split_pos_tmax1.5_L96` = **0.2316**  *(stable across seeds)*
+- `wr_ema_split_pos_tmax2.0_L32` = **0.3548**  *(stable across seeds)*
+- `wr_ema_split_pos_tmax2.0_L96` = **0.2105**  *(stable across seeds)*
+- `wr_ok_ema_pos_tmax1.0_L32` = [False, False, False]
+- `wr_ok_ema_pos_tmax1.0_L96` = [True, True, True]
+- `wr_ok_ema_pos_tmax1.5_L32` = [True, True, True]
+- `wr_ok_ema_pos_tmax1.5_L96` = [True, True, True]
+- `wr_ok_ema_pos_tmax2.0_L32` = [True, True, True]
+- `wr_ok_ema_pos_tmax2.0_L96` = [True, True, True]
+
+**Notes:** No thresh_max in {1.0, 1.5, 2.0} achieves healthy wr AND accuracy ≥ 0.97 ×EMA at both lengths. Position schedule insufficient to solve bootstrap problem.
+
+---
+#### exp_46_4  ~ INCONCLUSIVE
+**Hypothesis:** Using calibrated threshold thresh* in the full 2³ ablation: acc(ema_gate) > acc(ema) + 0.005 at SEQ_LEN=32, confirming the gate adds genuine value beyond EMA alone; wr(ema_gate, L=96) ∈ [0.15, 0.50], confirming no over-suppression at long context.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 1121s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_baseline_L32` = **0.2316** ± 0.0356  *(runs: 0.207, 0.272, 0.216)*
+- `acc_baseline_L96` = **0.2222** ± 0.0068  *(runs: 0.216, 0.229, 0.222)*
+- `acc_ema_L32` = **0.2580** ± 0.0125  *(runs: 0.261, 0.269, 0.244)*
+- `acc_ema_L96` = **0.2436** ± 0.0094  *(runs: 0.240, 0.236, 0.254)*
+- `acc_ema_gate_L32` = **0.2509** ± 0.0098  *(runs: 0.262, 0.242, 0.249)*
+- `acc_ema_gate_L96` = **0.2599** ± 0.0069  *(runs: 0.268, 0.255, 0.257)*
+- `acc_ema_split_L32` = **0.2384** ± 0.0047  *(runs: 0.235, 0.244, 0.236)*
+- `acc_ema_split_L96` = **0.2241** ± 0.0181  *(runs: 0.243, 0.222, 0.207)*
+- `acc_full_L32` = **0.2363** ± 0.0062  *(runs: 0.241, 0.229, 0.239)*
+- `acc_full_L96` = **0.2422** ± 0.0038  *(runs: 0.239, 0.246, 0.241)*
+- `acc_gate_L32` = **0.2226** ± 0.0042  *(runs: 0.222, 0.227, 0.219)*
+- `acc_gate_L96` = **0.2071** ± 0.0021  *(runs: 0.207, 0.205, 0.209)*
+- `acc_split_L32` = **0.2255** ± 0.0027  *(runs: 0.225, 0.229, 0.223)*
+- `acc_split_L96` = **0.2120** ± 0.0214  *(runs: 0.213, 0.233, 0.190)*
+- `acc_split_gate_L32` = **0.2932** ± 0.0591  *(runs: 0.354, 0.235, 0.291)*
+- `acc_split_gate_L96` = **0.2854** ± 0.0157  *(runs: 0.270, 0.284, 0.302)*
+- `calib_thresh_used` = **0.7000**  *(stable across seeds)*
+- `gain_ema_gate_L32` = **-0.0071** ± 0.0170  *(runs: 0.001, -0.027, 0.005)*
+- `gain_full_vs_ema_split_L32` = **-0.0021** ± 0.0109  *(runs: 0.006, -0.015, 0.003)*
+- `gain_full_vs_ema_split_L96` = **0.0181** ± 0.0198  *(runs: -0.004, 0.025, 0.034)*
+- `gate_adds_value_L32` = [False, False, False]
+- `wr_baseline_L32` = **0.0000**  *(stable across seeds)*
+- `wr_baseline_L96` = **0.0000**  *(stable across seeds)*
+- `wr_ema_L32` = **0.0000**  *(stable across seeds)*
+- `wr_ema_L96` = **0.0000**  *(stable across seeds)*
+- `wr_ema_gate_L32` = **0.6080** ± 0.0045  *(runs: 0.613, 0.604, 0.608)*
+- `wr_ema_gate_L96` = **0.1984** ± 0.0010  *(runs: 0.198, 0.198, 0.200)*
+- `wr_ema_split_L32` = **0.0000**  *(stable across seeds)*
+- `wr_ema_split_L96` = **0.0000**  *(stable across seeds)*
+- `wr_full_L32` = **0.8199** ± 0.0148  *(runs: 0.836, 0.816, 0.808)*
+- `wr_full_L96` = **0.4211**  *(stable across seeds)*
+- `wr_gate_L32` = **0.3708** ± 0.0088  *(runs: 0.361, 0.375, 0.377)*
+- `wr_gate_L96` = **0.1197** ± 0.0005  *(runs: 0.119, 0.119, 0.120)*
+- `wr_ok_L96` = [True, True, True]
+- `wr_split_L32` = **0.0000**  *(stable across seeds)*
+- `wr_split_L96` = **0.0000**  *(stable across seeds)*
+- `wr_split_gate_L32` = **0.4123** ± 0.0017  *(runs: 0.410, 0.413, 0.413)*
+- `wr_split_gate_L96` = **0.1579**  *(stable across seeds)*
+
+**Notes:** wr at L=96 is healthy (0.198) but gate does not improve accuracy: gain=+0.0005 ≤ 0.005. thresh*=0.7 may still be too high or task is too easy.
+
+---
+#### exp_46_5  ✗ REFUTED ⚠ inconsistent across seeds ['REFUTED', 'INCONCLUSIVE', 'REFUTED']
+**Hypothesis:** The gate accuracy advantage (acc(EMA+gate) − acc(EMA-alone)) is positive and increases monotonically with interference density ρ = N_pairs/H across ρ ∈ {0.08, 0.12, 0.19, 0.31, 0.50, 0.75}.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 364s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_H32_N10` = **0.0340** ± 0.0082  *(runs: 0.025, 0.041, 0.036)*
+- `acc_ema_H32_N16` = **0.0215** ± 0.0017  *(runs: 0.020, 0.021, 0.023)*
+- `acc_ema_H32_N24` = **0.0160** ± 0.0027  *(runs: 0.013, 0.017, 0.018)*
+- `acc_ema_H64_N12` = **0.0931** ± 0.0071  *(runs: 0.096, 0.085, 0.098)*
+- `acc_ema_H64_N5` = **0.1997** ± 0.0083  *(runs: 0.207, 0.191, 0.202)*
+- `acc_ema_H64_N8` = **0.1273** ± 0.0040  *(runs: 0.131, 0.123, 0.127)*
+- `acc_gate_H32_N10` = **0.0412** ± 0.0143  *(runs: 0.027, 0.055, 0.042)*
+- `acc_gate_H32_N16` = **0.0231** ± 0.0024  *(runs: 0.023, 0.025, 0.021)*
+- `acc_gate_H32_N24` = **0.0212** ± 0.0027  *(runs: 0.018, 0.023, 0.022)*
+- `acc_gate_H64_N12` = **0.0925** ± 0.0060  *(runs: 0.098, 0.093, 0.086)*
+- `acc_gate_H64_N5` = **0.2085** ± 0.0092  *(runs: 0.213, 0.198, 0.214)*
+- `acc_gate_H64_N8` = **0.1373** ± 0.0116  *(runs: 0.125, 0.148, 0.139)*
+- `advantage_H32_N10` = **0.0071** ± 0.0064  *(runs: 0.002, 0.014, 0.006)*
+- `advantage_H32_N16` = **0.0016** ± 0.0038  *(runs: 0.003, 0.005, -0.003)*
+- `advantage_H32_N24` = **0.0052** ± 0.0016  *(runs: 0.005, 0.007, 0.004)*
+- `advantage_H64_N12` = **-0.0005** ± 0.0099  *(runs: 0.002, 0.008, -0.011)*
+- `advantage_H64_N5` = **0.0089** ± 0.0032  *(runs: 0.007, 0.007, 0.013)*
+- `advantage_H64_N8` = **0.0101** ± 0.0155  *(runs: -0.006, 0.025, 0.012)*
+- `advantages` = [[0.0068, -0.0063, 0.0021, 0.0016, 0.0026, 0.0052], [0.0073, 0.0245, 0.0078, 0.0141, 0.0047, 0.0068], [0.0125, 0.012, -0.0115, 0.0057, -0.0026, 0.0036]]
+- `all_positive` = [False, True, False]
+- `calib_thresh_used` = **0.7000**  *(stable across seeds)*
+- `monotone_trend` = [False, False, False]
+- `n_monotonic_pairs` = **4.0000**  *(stable across seeds)*
+- `rho_H32_N10` = **0.3130**  *(stable across seeds)*
+- `rho_H32_N16` = **0.5000**  *(stable across seeds)*
+- `rho_H32_N24` = **0.7500**  *(stable across seeds)*
+- `rho_H64_N12` = **0.1880**  *(stable across seeds)*
+- `rho_H64_N5` = **0.0780**  *(stable across seeds)*
+- `rho_H64_N8` = **0.1250**  *(stable across seeds)*
+- `rhos` = [[0.078, 0.125, 0.188, 0.313, 0.5, 0.75], [0.078, 0.125, 0.188, 0.313, 0.5, 0.75], [0.078, 0.125, 0.188, 0.313, 0.5, 0.75]]
+- `total_rho_pairs` = **5.0000**  *(stable across seeds)*
+- `wr_gate_H32_N10` = **0.8055** ± 0.0301  *(runs: 0.794, 0.783, 0.840)*
+- `wr_gate_H32_N16` = **0.9567** ± 0.0062  *(runs: 0.964, 0.955, 0.951)*
+- `wr_gate_H32_N24` = **0.9658** ± 0.0280  *(runs: 0.955, 0.945, 0.998)*
+- `wr_gate_H64_N12` = **0.9986** ± 0.0017  *(runs: 1.000, 0.999, 0.997)*
+- `wr_gate_H64_N5` = **0.6022** ± 0.0059  *(runs: 0.606, 0.595, 0.605)*
+- `wr_gate_H64_N8` = **0.7949** ± 0.0022  *(runs: 0.792, 0.796, 0.796)*
+
+**Notes:** Gate advantage is neither universally positive nor monotone with ρ. advantages=[0.006770833333333337, -0.0062500000000000056, 0.002083333333333326, 0.001562499999999998, 0.0026041666666666644, 0.005208333333333334]. Write selectivity does not scale with capacity pressure at thresh*.
+
+---
+#### exp_46_6  ✗ REFUTED
+**Hypothesis:** The calibrated full system (EMA+split+gate, thresh*=CALIB_THRESH) achieves acc_full ≥ acc_ema_split × 1.02 at SEQ_LEN=96 AND wr ∈ [0.20, 0.70] at SEQ_LEN=32 AND wr ∈ [0.15, 0.50] at SEQ_LEN=96 on all three seeds.
+
+**Runs:** 3 (seeds: [123, 42, 777])  |  **Avg duration:** 288s
+
+**Metrics (mean ± std across seeds):**
+
+- `acc_ema_split_L32` = **0.2380** ± 0.0043  *(runs: 0.239, 0.242, 0.233)*
+- `acc_ema_split_L96` = **0.2549** ± 0.0029  *(runs: 0.257, 0.252, 0.256)*
+- `acc_full_L32` = **0.2444** ± 0.0051  *(runs: 0.247, 0.238, 0.247)*
+- `acc_full_L96` = **0.2370** ± 0.0113  *(runs: 0.225, 0.247, 0.238)*
+- `all_criteria_met` = [False, False, False]
+- `calib_thresh_used` = **0.7000**  *(stable across seeds)*
+- `gain_ok_L96` = [False, False, False]
+- `ratio_L32` = **1.0274** ± 0.0372  *(runs: 1.035, 0.987, 1.060)*
+- `ratio_L96` = **0.9302** ± 0.0545  *(runs: 0.875, 0.983, 0.933)*
+- `wr_full_L32` = **0.8110** ± 0.0023  *(runs: 0.811, 0.813, 0.809)*
+- `wr_full_L96` = **0.4211**  *(stable across seeds)*
+- `wr_ok_L32` = [False, False, False]
+- `wr_ok_L96` = [True, True, True]
+
+**Notes:** Failed criteria: gain_L96 ratio=0.875 < 1.02; wr_L32=0.811 outside (0.2, 0.7)
+
+---
+
 ## Cross-Cutting Observations
 
-**All SUPPORTED experiments:** exp_1_5, exp_2_6, exp_3_1, exp_3_5, exp_3_6, exp_4_1, exp_4_4, exp_4_7, exp_4_9, exp_5_2, exp_5_6, exp_6_1, exp_6_3, exp_7_1, exp_7_2, exp_7_9, exp_9_2, exp_9_4, exp_9_5, exp_11_3, exp_13_1, exp_13_2, exp_15_3, exp_16_3, exp_23_2, exp_23_3, exp_24_2, exp_25_1, exp_26_1, exp_29_1, exp_29_3, exp_30_1, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_4, exp_34_6, exp_35_2, exp_35_3, exp_36_3, exp_37_3, exp_38_3, exp_41_5, exp_41_6, exp_42_7, exp_43_1, exp_43_4, exp_45_1, exp_45_2, exp_45_5
+**All SUPPORTED experiments:** exp_1_5, exp_2_6, exp_3_1, exp_3_5, exp_3_6, exp_4_1, exp_4_4, exp_4_7, exp_4_9, exp_5_2, exp_5_6, exp_6_1, exp_6_3, exp_7_1, exp_7_2, exp_7_9, exp_9_2, exp_9_4, exp_9_5, exp_11_3, exp_13_1, exp_13_2, exp_15_3, exp_16_3, exp_23_2, exp_23_3, exp_24_2, exp_25_1, exp_26_1, exp_29_1, exp_29_3, exp_30_1, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_4, exp_34_6, exp_35_2, exp_35_3, exp_36_3, exp_37_3, exp_38_3, exp_41_5, exp_41_6, exp_42_7, exp_43_1, exp_43_4, exp_45_1, exp_45_2, exp_45_5, exp_46_1
 
-**All REFUTED experiments:** exp_1_1, exp_1_2, exp_1_8, exp_2_2, exp_2_4, exp_2_5, exp_2_9, exp_3_2, exp_3_3, exp_3_4, exp_3_7, exp_4_2, exp_5_1, exp_5_4, exp_5_5, exp_5_7, exp_6_7, exp_7_5, exp_7_6, exp_7_7, exp_8_1, exp_8_3, exp_9_1, exp_10_2, exp_11_1, exp_11_2, exp_12_1, exp_14_1, exp_14_2, exp_14_3, exp_15_1, exp_15_2, exp_16_1, exp_17_1, exp_17_2, exp_17_4, exp_18_1, exp_19_1, exp_19_2, exp_19_3, exp_20_2, exp_20_3, exp_21_1, exp_21_2, exp_21_3, exp_21_4, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_4, exp_24_3, exp_24_4, exp_25_2, exp_25_3, exp_26_2, exp_26_3, exp_27_1, exp_27_3, exp_28_5, exp_30_2, exp_30_3, exp_31_1, exp_31_2, exp_33_1, exp_33_3, exp_34_1, exp_34_5, exp_34_7, exp_34_8, exp_34_9, exp_35_1, exp_36_1, exp_38_1, exp_38_2, exp_39_3, exp_41_2, exp_41_8, exp_42_1, exp_42_4, exp_42_5, exp_43_5, exp_43_6, exp_43_7, exp_44_1, exp_44_4, exp_45_4, exp_45_6
+**All REFUTED experiments:** exp_1_1, exp_1_2, exp_1_8, exp_2_2, exp_2_4, exp_2_5, exp_2_9, exp_3_2, exp_3_3, exp_3_4, exp_3_7, exp_4_2, exp_5_1, exp_5_4, exp_5_5, exp_5_7, exp_6_7, exp_7_5, exp_7_6, exp_7_7, exp_8_1, exp_8_3, exp_9_1, exp_10_2, exp_11_1, exp_11_2, exp_12_1, exp_14_1, exp_14_2, exp_14_3, exp_15_1, exp_15_2, exp_16_1, exp_17_1, exp_17_2, exp_17_4, exp_18_1, exp_19_1, exp_19_2, exp_19_3, exp_20_2, exp_20_3, exp_21_1, exp_21_2, exp_21_3, exp_21_4, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_4, exp_24_3, exp_24_4, exp_25_2, exp_25_3, exp_26_2, exp_26_3, exp_27_1, exp_27_3, exp_28_5, exp_30_2, exp_30_3, exp_31_1, exp_31_2, exp_33_1, exp_33_3, exp_34_1, exp_34_5, exp_34_7, exp_34_8, exp_34_9, exp_35_1, exp_36_1, exp_38_1, exp_38_2, exp_39_3, exp_41_2, exp_41_8, exp_42_1, exp_42_4, exp_42_5, exp_43_5, exp_43_6, exp_43_7, exp_44_1, exp_44_4, exp_45_4, exp_45_6, exp_46_2, exp_46_3, exp_46_5, exp_46_6
 
-**Inconsistent across seeds (need more investigation):** exp_8_1, exp_8_2, exp_8_4, exp_9_4, exp_9_5, exp_10_1, exp_15_1, exp_15_2, exp_15_4, exp_17_1, exp_17_2, exp_17_4, exp_18_3, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_1, exp_23_2, exp_23_3, exp_23_4, exp_24_1, exp_25_2, exp_25_3, exp_26_1, exp_26_2, exp_26_3, exp_28_2, exp_28_4, exp_29_2, exp_29_3, exp_29_4, exp_30_1, exp_30_3, exp_30_4, exp_31_2, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_2, exp_33_4, exp_34_6, exp_35_3, exp_38_1, exp_38_2, exp_38_3, exp_41_1, exp_41_5, exp_42_1, exp_42_2, exp_42_3, exp_42_5, exp_42_7, exp_43_2, exp_44_5
+**Inconsistent across seeds (need more investigation):** exp_8_1, exp_8_2, exp_8_4, exp_9_4, exp_9_5, exp_10_1, exp_15_1, exp_15_2, exp_15_4, exp_17_1, exp_17_2, exp_17_4, exp_18_3, exp_22_1, exp_22_2, exp_22_4, exp_22_5, exp_23_1, exp_23_2, exp_23_3, exp_23_4, exp_24_1, exp_25_2, exp_25_3, exp_26_1, exp_26_2, exp_26_3, exp_28_2, exp_28_4, exp_29_2, exp_29_3, exp_29_4, exp_30_1, exp_30_3, exp_30_4, exp_31_2, exp_32_1, exp_32_2, exp_32_3, exp_32_4, exp_33_2, exp_33_4, exp_34_6, exp_35_3, exp_38_1, exp_38_2, exp_38_3, exp_41_1, exp_41_5, exp_42_1, exp_42_2, exp_42_3, exp_42_5, exp_42_7, exp_43_2, exp_44_5, exp_46_1, exp_46_5
 
 **High-variance metrics (std > 0.05 — seed-sensitive, interpret carefully):**
 

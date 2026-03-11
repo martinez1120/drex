@@ -1,0 +1,26 @@
+{
+  "experiment_id": "exp_46_6",
+  "hypothesis": "The calibrated full system (EMA+split+gate, thresh*=CALIB_THRESH) achieves acc_full \u2265 acc_ema_split \u00d7 1.02 at SEQ_LEN=96 AND wr \u2208 [0.20, 0.70] at SEQ_LEN=32 AND wr \u2208 [0.15, 0.50] at SEQ_LEN=96 on all three seeds.",
+  "outcome": "REFUTED",
+  "metrics": {
+    "calib_thresh_used": 0.7,
+    "acc_ema_split_L32": 0.2391,
+    "acc_full_L32": 0.2474,
+    "wr_full_L32": 0.8112,
+    "ratio_L32": 1.0349,
+    "wr_ok_L32": false,
+    "acc_ema_split_L96": 0.2573,
+    "acc_full_L96": 0.225,
+    "wr_full_L96": 0.4211,
+    "ratio_L96": 0.8745,
+    "gain_ok_L96": false,
+    "wr_ok_L96": true,
+    "all_criteria_met": false
+  },
+  "notes": "Failed criteria: gain_L96 ratio=0.875 < 1.02; wr_L32=0.811 outside (0.2, 0.7)",
+  "error": "",
+  "timestamp": "2026-03-11T16:13:10.116610+00:00",
+  "duration_seconds": 290.3927445469999,
+  "config": {},
+  "seed": 123
+}

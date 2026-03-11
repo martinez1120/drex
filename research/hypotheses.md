@@ -1337,7 +1337,7 @@ write rate in [0.20, 0.70] at SEQ_LEN=32 AND [0.15, 0.50] at SEQ_LEN=96,
 with accuracy ≥ EMA-alone × 0.97 at both lengths. A universal thresh* would
 allow a single fixed threshold to serve both short-context and long-context regimes
 without per-deployment re-tuning.
-*Status: UNTESTED (exp_46_1)*
+*Status: SUPPORTED (exp_46_1) — 2/3 seeds; thresh*=0.70 is the best universal candidate (wr_L32≈0.61, wr_L96≈0.20). Seed 42 INCONCLUSIVE (no single wr-OK threshold at both lengths). Majority: SUPPORTED.*
 
 **H-46.2 — Velocity Gate Achieves EMA-Agnostic Selectivity at Both Lengths**
 A velocity gate conditioned on ‖vp_t − vp_{t-1}‖ / ‖k‖ ≥ thresh_v achieves
@@ -1345,7 +1345,7 @@ write rate in [0.20, 0.60] under EMA at both SEQ_LEN=32 and SEQ_LEN=96, unlike
 the error gate which gives wr≈0.96 at L=32 because vp≈0 throughout the short
 sequence. The velocity signal is EMA-agnostic because it tracks how fast the
 memory prediction is changing, not how far from zero it is.
-*Status: UNTESTED (exp_46_2)*
+*Status: REFUTED (exp_46_2) — 3/3 seeds unanimous. Velocity gate deadlock: M initialized zeros → vp=0 → velocity=0 → gate never fires → wr=0.000 for all configs.*
 
 **H-46.3 — Position-Conditioned Schedule Solves Bootstrap Problem**
 A deterministic position-conditioned threshold schedule
@@ -1355,14 +1355,14 @@ wr in [0.15, 0.50] at SEQ_LEN=96, for at least one thresh_max ∈ {1.0, 1.5, 2.0
 The schedule compensates for the bootstrap problem (vp≈0 at early positions)
 without any learned parameters, directly addressing the L-dependency observed
 in exp_45_6.
-*Status: UNTESTED (exp_46_3)*
+*Status: REFUTED (exp_46_3) — 3/3 seeds unanimous. thresh_max=1.5/2.0 achieves wr targets at L=32 but accuracy collapses to near-random (~0.03). Position schedule trades wr control for complete accuracy loss.*
 
 **H-46.4 — Calibrated Gate Adds Genuine Accuracy Beyond EMA Alone**
 Using the calibrated threshold thresh* in the full 2³ ablation achieves
 acc(EMA+gate) > acc(EMA-alone) + 0.005 at SEQ_LEN=32, confirming thresh* enables
 the gate to add genuine value beyond EMA alone; and wr(EMA+gate, L=96) ∈ [0.15, 0.50],
 confirming no over-suppression at long context.
-*Status: UNTESTED (exp_46_4)*
+*Status: INCONCLUSIVE (exp_46_4) — 3/3 seeds. wr at L=96 is healthy (≈0.198–0.200) but gate accuracy gain at L=32 is ≤0.005 (ranging from −0.027 to +0.005). thresh*=0.70 insufficient to demonstrate gate utility at standard task density.*
 
 **H-46.5 — Gate Advantage Increases Monotonically With Interference Density ρ**
 The gate accuracy advantage (acc(EMA+gate, thresh*) − acc(EMA-alone)) is positive
@@ -1370,7 +1370,7 @@ and increases monotonically with interference density ρ = N_pairs / H across
 ρ ∈ {0.08, 0.12, 0.19, 0.31, 0.50, 0.75}. Write selectivity is most valuable
 when the memory matrix is under high capacity pressure, and adds negligible benefit
 at the standard low-density task (ρ=0.078, the N=5, H=64 baseline).
-*Status: UNTESTED (exp_46_5)*
+*Status: REFUTED (exp_46_5) — 2/3 seeds REFUTED, 1 INCONCLUSIVE. Gate advantage not universally positive across ρ (negative at ρ=0.12 and ρ=0.19 in 2 seeds) and non-monotone. No clear capacity-pressure scaling.*
 
 **H-46.6 — Calibrated Full System Is Seed-Stable at Both Lengths**
 The calibrated full system (EMA + split + gate, thresh*) achieves
@@ -1378,4 +1378,4 @@ acc_full ≥ acc_ema_split × 1.02 at SEQ_LEN=96 AND wr ∈ [0.20, 0.70] at L=32
 AND wr ∈ [0.15, 0.50] at SEQ_LEN=96 on all three seeds (42, 123, 777),
 confirming that Phase 10's calibrated system is seed-stable and not
 sensitive to random initialisation.
-*Status: UNTESTED (exp_46_6)*
+*Status: REFUTED (exp_46_6) — 3/3 seeds unanimous. wr_L32≈0.81 (exceeds target [0.20, 0.70]) and gain_L96 ratio=0.875–0.983 (below 1.02 threshold). The bootstrap wr problem persists at L=32 even with calibrated thresh*.*
