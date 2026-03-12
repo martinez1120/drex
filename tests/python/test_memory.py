@@ -617,3 +617,94 @@ class TestMemoryModuleNullGateAblation:
         # The outputs should differ because g_null multiplies by values in (0,1)
         assert not torch.allclose(out_on, out_off)
 
+
+# ---------------------------------------------------------------------------
+# MemoryModule — Phase 16 CPU-backend write loop
+# ---------------------------------------------------------------------------
+
+
+class TestMemoryModuleCpuBackend:
+    """
+    The sequential recurrence loop runs on CPU inside torch.no_grad() with
+    detached key tensors.  This avoids:
+      1. MPS/CUDA per-kernel-launch latency (each small bmm costs ~1-3 ms on MPS).
+      2. Autograd graph construction through L-1 sequential assignments.
+
+    Gradient signal to sem_proj/epi_proj comes exclusively from the read path
+    (qns = normalize(sem_proj(q)), r_sem = M_sem @ qns) below the loop, which is
+    the primary learning signal for memory retrieval quality.
+    """
+
+    def test_output_device_matches_input(self, device):
+        """Output tensor must live on the same device as the input."""
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(2, 16, 32, device=dev)
+        out = mem(x)
+        assert out.device.type == dev.type
+
+    def test_backward_through_cpu_loop(self, device):
+        """Gradients must flow from the final output back through the read path.
+
+        With the detached write loop, gradient flows only through the query
+        (x[:, -1, :]) via the read projection.  backward() must not raise and
+        x.grad must be non-NaN on the correct device.
+        """
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(2, 16, 32, device=dev, requires_grad=True)
+        out = mem(x)
+        out.sum().backward()
+        assert x.grad is not None
+        assert not torch.isnan(x.grad).any()
+        assert x.grad.device.type == dev.type
+
+    def test_param_grads_through_cpu_loop(self, device):
+        """Projection weights must receive gradients via the read path.
+
+        sem_proj/epi_proj are trained through the read query (qns, qne) rather
+        than through the detached write loop.
+        """
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(2, 16, 32, device=dev)
+        mem(x).sum().backward()
+        grads = {n: p.grad for n, p in mem.named_parameters() if p.grad is not None}
+        # Projections receive gradient through read path (qns = normalize(sem_proj(q)))
+        assert any("sem_proj" in n for n in grads), "sem_proj missing grad"
+        assert any("epi_proj" in n for n in grads), "epi_proj missing grad"
+
+    def test_write_rate_unchanged_by_device_move(self, device):
+        """Write rate must be the same regardless of whether the input is on CPU or
+        the configured device (both paths run the loop on CPU)."""
+        torch.manual_seed(0)
+        mem_dev = MemoryModule(d_model=32).to(torch.device(device))
+        torch.manual_seed(0)
+        mem_cpu = MemoryModule(d_model=32)  # stays on CPU
+
+        x_base = torch.randn(2, 32, 32)
+        x_dev  = x_base.to(torch.device(device))
+
+        with torch.no_grad():
+            mem_dev(x_dev)
+            mem_cpu(x_base)
+        assert abs(mem_dev.last_write_rate() - mem_cpu.last_write_rate()) < 1e-5
+
+    def test_no_nan_long_sequence(self, device):
+        """L=256 (many loop iterations) must not produce NaN on any device."""
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(2, 256, 32, device=dev)
+        out = mem(x)
+        assert not torch.isnan(out).any()
+        assert not torch.isinf(out).any()
+
+    def test_single_token_no_loop(self, device):
+        """L=1 skips the loop entirely; no tensors are moved to CPU."""
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(2, 1, 32, device=dev)
+        out = mem(x)
+        assert out.device.type == dev.type
+        assert not torch.isnan(out).any()
+        assert mem.last_write_rate() == 0.0

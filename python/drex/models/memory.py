@@ -410,7 +410,7 @@ class MemoryModule(nn.Module):
         M_epi = torch.zeros(B, d_half, d_half, device=device)
 
         if L > 1:
-            # ── Vectorised pre-computation ─────────────────────────────────
+            # ── Vectorised pre-computation (GPU) ───────────────────────────
             # Batch all key projections and normalizations in two kernel launches
             # instead of 4*(L-1) individual calls.  Shapes: (B, L-1, d_half)
             ks_all  = self.sem_proj(x[:, :-1, :])
@@ -422,40 +422,65 @@ class MemoryModule(nn.Module):
             ref_s_all = self.gate_thresh * ks_all.norm(dim=-1)
             ref_e_all = self.gate_thresh * ke_all.norm(dim=-1)
 
-            fires: list[torch.Tensor] = []   # (B,) tensors; stacked for single GPU sync
+            # ── Sequential recurrence on CPU (detached) ─────────────────────
+            # Detach key tensors and run the write loop inside torch.no_grad().
+            # This eliminates two overhead sources:
+            #   1. MPS/CUDA per-kernel-launch latency for tiny sequential bmm ops
+            #      (each MPS kernel costs ~1-3 ms; L=512 → 511 launches per layer).
+            #   2. Autograd graph construction for L-1 sequential tensor assignments
+            #      (building O(L) grad-fn nodes on each forward is ~1.7 ms/iter on CPU).
+            # Together these caused a 20× throughput regression at segment_len=512
+            # (543 tok/s vs 11,700 for baseline).  With detached write the loop
+            # cost is O(L × plain bmm) — no graph construction overhead.
+            # Gradient signal to sem_proj/epi_proj reaches the parameters through
+            # the read path (qns, qne at the query position below), which is
+            # the primary learning signal for memory retrieval quality.
+            cpu = torch.device("cpu")
+            M_sem = M_sem.to(cpu)
+            M_epi = M_epi.to(cpu)
+            kns_c   = kns_all.detach().to(cpu)   # (B, L-1, d_half) — no grad
+            kne_c   = kne_all.detach().to(cpu)
+            ks_c    = ks_all.detach().to(cpu)
+            ke_c    = ke_all.detach().to(cpu)
+            ref_s_c = ref_s_all.detach().to(cpu)  # (B, L-1)
+            ref_e_c = ref_e_all.detach().to(cpu)
 
-            # ── Sequential recurrence (cross-step M dependency) ────────────
-            # Each step reads M_{t-1} to compute vps/vpe, so the loop cannot be
-            # eliminated.  All other work has been moved above.
-            for t in range(L - 1):
-                kns_t = kns_all[:, t]   # (B, d_half)
-                kne_t = kne_all[:, t]
-                ks_t  = ks_all[:, t]
-                ke_t  = ke_all[:, t]
+            fires: list[torch.Tensor] = []
 
-                # Read from previous-step matrices
-                vps = torch.bmm(M_sem, kns_t.unsqueeze(-1)).squeeze(-1)   # (B, d_half)
-                vpe = torch.bmm(M_epi, kne_t.unsqueeze(-1)).squeeze(-1)
+            with torch.no_grad():
+                for t in range(L - 1):
+                    kns_t = kns_c[:, t]   # (B, d_half)
+                    kne_t = kne_c[:, t]
+                    ks_t  = ks_c[:, t]
+                    ke_t  = ke_c[:, t]
 
-                # OR-gate: fire if either branch error exceeds its reference
-                err_s = (ks_t - vps).norm(dim=-1)   # (B,)
-                err_e = (ke_t - vpe).norm(dim=-1)
-                fire = (
-                    (err_s >= ref_s_all[:, t]) | (err_e >= ref_e_all[:, t])
-                ).float()
-                fires.append(fire)
+                    # Read from previous-step matrices
+                    vps = torch.bmm(M_sem, kns_t.unsqueeze(-1)).squeeze(-1)   # (B, d_half)
+                    vpe = torch.bmm(M_epi, kne_t.unsqueeze(-1)).squeeze(-1)
 
-                # Outer-product delta-rule update
-                g3 = fire[:, None, None]   # (B, 1, 1)
-                Delta_s = torch.bmm((ks_t - vps).unsqueeze(-1), kns_t.unsqueeze(1))
-                Delta_e = torch.bmm((ke_t - vpe).unsqueeze(-1), kne_t.unsqueeze(1))
+                    # OR-gate: fire if either branch error exceeds its reference
+                    err_s = (ks_t - vps).norm(dim=-1)   # (B,)
+                    err_e = (ke_t - vpe).norm(dim=-1)
+                    fire = (
+                        (err_s >= ref_s_c[:, t]) | (err_e >= ref_e_c[:, t])
+                    ).float()
+                    fires.append(fire)
 
-                w_t = (t + 1) / L   # recency weight ∈ (0, 1]
-                M_sem = M_sem + (1.0 - a) * g3 * Delta_s
-                M_epi = M_epi + (1.0 - a) * w_t * g3 * Delta_e
+                    # Outer-product delta-rule update
+                    g3 = fire[:, None, None]   # (B, 1, 1)
+                    Delta_s = torch.bmm((ks_t - vps).unsqueeze(-1), kns_t.unsqueeze(1))
+                    Delta_e = torch.bmm((ke_t - vpe).unsqueeze(-1), kne_t.unsqueeze(1))
 
-            # Single GPU sync replaces L-1 syncs from the original loop
-            fires_t = torch.stack(fires, dim=1)   # (B, L-1)
+                    w_t = (t + 1) / L   # recency weight ∈ (0, 1]
+                    M_sem = M_sem + (1.0 - a) * g3 * Delta_s
+                    M_epi = M_epi + (1.0 - a) * w_t * g3 * Delta_e
+
+            # Move accumulated matrices back to original device for the read phase
+            M_sem = M_sem.to(device)
+            M_epi = M_epi.to(device)
+
+            # All fires are on CPU — stack+sum requires no GPU sync
+            fires_t = torch.stack(fires, dim=1)   # (B, L-1) on CPU
             self._last_write_rate = fires_t.sum().item() / max(B * (L - 1), 1)
         else:
             self._last_write_rate = 0.0
