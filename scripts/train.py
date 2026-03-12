@@ -293,13 +293,24 @@ def train(args: argparse.Namespace) -> None:
         l3_compress=args.l3_compress,
         use_episodic_memory=args.use_episodic_memory,
         episodic_gate_thresh=args.episodic_gate_thresh,
+        use_null_gate=not args.no_null_gate,
+        full_seq_residual=args.full_seq_residual,
+        memory_last_layer_only=args.memory_last_layer_only,
     )
     model = DrexTransformer(config).to(device)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Model: {n_params:,} trainable parameters", flush=True)
     if config.use_episodic_memory:
+        flags = []
+        if not config.use_null_gate:
+            flags.append("no-null-gate")
+        if config.full_seq_residual:
+            flags.append("full-seq-residual")
+        if config.memory_last_layer_only:
+            flags.append("last-layer-only")
+        flag_str = "  [" + ", ".join(flags) + "]" if flags else ""
         print(
-            f"Episodic memory: enabled  gate_thresh={config.episodic_gate_thresh}",
+            f"Episodic memory: enabled  gate_thresh={config.episodic_gate_thresh}{flag_str}",
             flush=True,
         )
 
@@ -525,6 +536,21 @@ def _parser() -> argparse.ArgumentParser:
         type=float,
         default=0.70,
         help="OR-gate threshold for MemoryModule write gate",
+    )
+    p.add_argument(
+        "--no-null-gate",
+        action="store_true",
+        help="Ablation: disable the null retrieval gate in MemoryModule (§12.2)",
+    )
+    p.add_argument(
+        "--full-seq-residual",
+        action="store_true",
+        help="Ablation: broadcast memory residual to all token positions (default: last only)",
+    )
+    p.add_argument(
+        "--memory-last-layer-only",
+        action="store_true",
+        help="Ablation: attach MemoryModule only to the final transformer layer",
     )
 
     # Infrastructure

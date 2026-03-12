@@ -298,7 +298,12 @@ wr converges to [0.10, 0.85] by ~step 1000. Then proceed with 50k runs.
 
 - [ ] Write paper draft (arXiv format)
 - [ ] Add related work section (Infini-Attention, Titans, Mamba, RWKV)
-- [ ] Add ablation experiments to elevate §12.2 medium-confidence components
+- [x] Add ablation experiments to elevate §12.2 medium-confidence components
+      → Phase 16 micro-ablations complete (see §12.2 in ARCHITECTURE_FINDINGS.md):
+         null gate: keep (+0.30 ppl without it); full-seq-residual: better (−0.26 ppl);
+         last-layer-only: same quality at 2.7× throughput; flags added to train.py + tests
+- [ ] **[FOLLOW-UP]** Multi-seed (≥3) + 2k-step validation for full-seq-residual and
+      last-layer-only before promoting either to production default
 - [ ] Review with researcher collaborator; check arXiv endorsement
 - [ ] Submit to arXiv (cs.LG + cs.CL)
 
@@ -309,6 +314,8 @@ wr converges to [0.10, 0.85] by ~step 1000. Then proceed with 50k runs.
 | Item | Priority | Description |
 |---|---|---|
 | **Write loop CPU backend** | **HIGH — blocks Exp B** | Move `M_sem`/`M_epi` to CPU for the sequential write loop; move results back to GPU for the read. Avoids MPS per-kernel-launch overhead. Measured: 20× slowdown at seg_len=512 (543 vs 11,700 tok/s). |
+| **Last-layer-only memory** | **HIGH — candidate default** | Ablated: same val_ppl (2.33) as all-layers at 500 steps, 9.8% fewer params, 2.7× faster throughput (partly resolves MPS bottleneck). Needs ≥3-seed + 2k-step confirmation before changing production config. `--memory-last-layer-only` flag added. |
+| **Full-sequence residual** | **Medium-High — upgrade candidate** | Ablated: val_ppl 2.07 vs 2.33 baseline (−0.26) at no throughput cost. Needs ≥3-seed + 2k-step confirmation. `--full-seq-residual` flag added. |
 | Multi-dataset training | Medium | Extend train.py to support source mixing (TinyStories + Wikipedia tokenized) with a weighted sampler. |
 | BABILong distractor density parameter | Low | Add `--distractor-density` to eval_babilong.py to control filler fraction, enabling isolation of memory capacity vs. retrieval precision. |
 | Full matrix-recurrence parallelization | Low | Replace the remaining sequential `for t` loop with a parallel scan; requires approximation or custom kernel. |

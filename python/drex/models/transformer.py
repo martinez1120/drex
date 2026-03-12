@@ -42,6 +42,10 @@ class DrexConfig:
     l3_compress: bool = False
     use_episodic_memory: bool = False   # enable MemoryModule per layer (Phase 13)
     episodic_gate_thresh: float = 0.70  # OR-gate threshold (exp_48_1, Phase 12)
+    # Ablation flags (Phase 16 — §12.2 medium-confidence components)
+    use_null_gate: bool = True          # null retrieval gate in MemoryModule
+    full_seq_residual: bool = False     # apply memory residual to all positions (default: last only)
+    memory_last_layer_only: bool = False  # restrict MemoryModule to the final layer only
 
 
 class FeedForward(nn.Module):
@@ -80,15 +84,29 @@ class DrexLayer(nn.Module):
         self.norm1 = nn.LayerNorm(config.d_model)
         self.norm2 = nn.LayerNorm(config.d_model)
 
-        # Episodic/semantic memory module (optional, Phase 13)
+        # Episodic/semantic memory module (optional, Phase 13).
+        # When memory_last_layer_only=True, only the last layer (layer_idx == n_layers-1)
+        # gets a MemoryModule — all other layers behave as baseline.
+        _this_layer_has_mem = (
+            config.use_episodic_memory
+            and (
+                not config.memory_last_layer_only
+                or layer_idx == config.n_layers - 1
+            )
+        )
+        self._full_seq_residual: bool = config.full_seq_residual
         self.episodic_mem: Optional[MemoryModule] = (
-            MemoryModule(config.d_model, gate_thresh=config.episodic_gate_thresh)
-            if config.use_episodic_memory
+            MemoryModule(
+                config.d_model,
+                gate_thresh=config.episodic_gate_thresh,
+                use_null_gate=config.use_null_gate,
+            )
+            if _this_layer_has_mem
             else None
         )
         self.norm_mem: Optional[nn.LayerNorm] = (
             nn.LayerNorm(config.d_model)
-            if config.use_episodic_memory
+            if _this_layer_has_mem
             else None
         )
 
@@ -105,12 +123,16 @@ class DrexLayer(nn.Module):
         # Pre-norm + residual for feed-forward
         x = x + self.ff(self.norm2(x))
 
-        # Episodic/semantic memory: read from accumulated context;
-        # add retrieval as a residual at the last (query) token position.
+        # Episodic/semantic memory: read from accumulated context and inject as residual.
+        # Default: add retrieval only at the last (query) token position.
+        # full_seq_residual=True: broadcast the same retrieval vector to all positions.
         if self.episodic_mem is not None and self.norm_mem is not None:
             mem_r = self.episodic_mem(self.norm_mem(x))   # (B, d_model)
-            x = x.clone()
-            x[:, -1] = x[:, -1] + mem_r
+            if self._full_seq_residual:
+                x = x + mem_r.unsqueeze(1)                # broadcast → (B, S, d_model)
+            else:
+                x = x.clone()
+                x[:, -1] = x[:, -1] + mem_r
 
         new_state = LayerState(memory=new_memory, step=layer_state.step + 1)
 

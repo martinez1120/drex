@@ -544,3 +544,76 @@ class TestMemoryModule:
             f"Write rate is not deterministic: {wr_first} vs {wr_second}"
         )
         assert 0.0 <= wr_first <= 1.0
+
+
+# ---------------------------------------------------------------------------
+# MemoryModule — Phase 16 ablation: use_null_gate=False
+# ---------------------------------------------------------------------------
+
+
+class TestMemoryModuleNullGateAblation:
+    """Tests for the null-retrieval-gate ablation (use_null_gate=False)."""
+
+    def test_no_null_gate_stores_attribute(self):
+        mem = MemoryModule(d_model=16, use_null_gate=False)
+        assert mem.use_null_gate is False
+
+    def test_null_gate_linear_not_created(self):
+        """When use_null_gate=False, null_gate attribute is None (no wasted params)."""
+        mem = MemoryModule(d_model=16, use_null_gate=False)
+        assert mem.null_gate is None
+
+    def test_default_still_creates_null_gate(self):
+        """Default (use_null_gate=True) still creates the Linear as before."""
+        mem = MemoryModule(d_model=16)
+        assert mem.null_gate is not None
+
+    def test_no_null_gate_output_shape(self, device):
+        """Output shape is identical whether null gate is on or off."""
+        dev = torch.device(device)
+        B, L = 2, 16
+        x = torch.randn(B, L, 32, device=dev)
+        mem_on = MemoryModule(d_model=32, use_null_gate=True).to(dev)
+        mem_off = MemoryModule(d_model=32, use_null_gate=False).to(dev)
+        assert mem_on(x).shape == mem_off(x).shape == (B, 32)
+
+    def test_no_null_gate_no_nan(self, device):
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32, use_null_gate=False).to(dev)
+        x = torch.randn(2, 24, 32, device=dev)
+        out = mem(x)
+        assert not torch.isnan(out).any()
+        assert not torch.isinf(out).any()
+
+    def test_no_null_gate_gradient_flows(self, device):
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32, use_null_gate=False).to(dev)
+        x = torch.randn(2, 16, 32, device=dev, requires_grad=True)
+        out = mem(x)
+        out.sum().backward()
+        assert x.grad is not None
+        assert not torch.isnan(x.grad).any()
+
+    def test_no_null_gate_write_rate_valid(self, device):
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32, use_null_gate=False).to(dev)
+        x = torch.randn(2, 48, 32, device=dev)
+        mem(x)
+        wr = mem.last_write_rate()
+        assert 0.0 <= wr <= 1.0
+
+    def test_no_null_gate_differs_from_gate_on(self, device):
+        """With identical weights-seed, gated and un-gated outputs should differ."""
+        dev = torch.device(device)
+        torch.manual_seed(7)
+        mem_on = MemoryModule(d_model=32, use_null_gate=True).to(dev)
+        torch.manual_seed(7)
+        mem_off = MemoryModule(d_model=32, use_null_gate=False).to(dev)
+        x = torch.randn(2, 16, 32, device=dev)
+        # Both are freshly seeded but architectures differ; outputs are not expected equal
+        out_on = mem_on(x)
+        out_off = mem_off(x)
+        assert out_on.shape == out_off.shape
+        # The outputs should differ because g_null multiplies by values in (0,1)
+        assert not torch.allclose(out_on, out_off)
+

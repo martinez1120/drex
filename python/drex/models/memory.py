@@ -333,12 +333,18 @@ class MemoryModule(nn.Module):
         - Validate write rate ∈ [0.10, 0.85] after any write-mechanism change.
     """
 
-    def __init__(self, d_model: int, gate_thresh: float = 0.70) -> None:
+    def __init__(
+        self,
+        d_model: int,
+        gate_thresh: float = 0.70,
+        use_null_gate: bool = True,
+    ) -> None:
         super().__init__()
         if d_model % 2 != 0:
             raise ValueError(f"d_model must be even for episodic/semantic split, got {d_model}")
         self.d_model = d_model
         self.gate_thresh = gate_thresh
+        self.use_null_gate = use_null_gate
         d_half = d_model // 2
         self._d_half = d_half
 
@@ -346,8 +352,12 @@ class MemoryModule(nn.Module):
         self.sem_proj = nn.Linear(d_model, d_half, bias=False)
         self.epi_proj = nn.Linear(d_model, d_half, bias=False)
 
-        # Null retrieval gate: learned scalar σ(w·q) suppresses empty-memory reads
-        self.null_gate = nn.Linear(d_model, 1)
+        # Null retrieval gate: learned scalar σ(w·q) suppresses empty-memory reads.
+        # Created only when use_null_gate=True so the ablation removes the parameters
+        # entirely (avoids unused weights influencing parameter-count comparisons).
+        self.null_gate: Optional[nn.Linear] = (
+            nn.Linear(d_model, 1) if use_null_gate else None
+        )
 
         # Output projection: concat(r_sem, r_epi) [d_model] → d_model
         self.out_proj = nn.Linear(d_model, d_model)
@@ -458,8 +468,10 @@ class MemoryModule(nn.Module):
         r_epi = torch.bmm(M_epi, qne.unsqueeze(-1)).squeeze(-1)
         r = torch.cat([r_sem, r_epi], dim=-1)                 # (B, d_model)
 
-        # Null retrieval gate: suppress readout when memory is irrelevant
-        g_null = torch.sigmoid(self.null_gate(q))             # (B, 1)
-        r = g_null * r
+        # Null retrieval gate: suppress readout when memory is irrelevant.
+        # Skipped (and the Linear not created) when use_null_gate=False.
+        if self.use_null_gate and self.null_gate is not None:
+            g_null = torch.sigmoid(self.null_gate(q))             # (B, 1)
+            r = g_null * r
 
         return self.out_proj(r)                               # (B, d_model)

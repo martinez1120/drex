@@ -344,3 +344,168 @@ class TestDrexTrainer:
         assert isinstance(loss, float)
         assert loss > 0.0
 
+
+# ---------------------------------------------------------------------------
+# Phase 16 ablation flags
+# ---------------------------------------------------------------------------
+
+
+def _epi_cfg(**overrides) -> "DrexConfig":
+    """Small episodic-memory config for ablation tests."""
+    from drex.models.transformer import DrexConfig
+    defaults = dict(
+        d_model=64, n_heads=4, n_layers=4,
+        ff_mult=2, vocab_size=256,
+        window_size=32, max_seq_len=64,
+        dropout=0.0, use_episodic_memory=True,
+        episodic_gate_thresh=0.70,
+    )
+    defaults.update(overrides)
+    return DrexConfig(**defaults)
+
+
+class TestFullSeqResidualAblation:
+    """full_seq_residual=True: memory residual is broadcast to all token positions."""
+
+    def test_output_shape_unchanged(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(full_seq_residual=True)
+        model = DrexTransformer(cfg).to(dev)
+        B, S = 2, 16
+        ids = torch.randint(0, cfg.vocab_size, (B, S), device=dev)
+        logits, states = model(ids)
+        assert logits.shape == (B, S, cfg.vocab_size)
+        assert len(states) == cfg.n_layers
+
+    def test_no_nan(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(full_seq_residual=True)
+        model = DrexTransformer(cfg).to(dev)
+        B, S = 2, 12
+        ids = torch.randint(0, cfg.vocab_size, (B, S), device=dev)
+        logits, _ = model(ids)
+        assert not torch.isnan(logits).any()
+        assert not torch.isinf(logits).any()
+
+    def test_backward(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(full_seq_residual=True)
+        model = DrexTransformer(cfg).to(dev)
+        ids = torch.randint(0, cfg.vocab_size, (2, 8), device=dev)
+        logits, _ = model(ids)
+        logits.sum().backward()
+        assert any(p.grad is not None for p in model.parameters())
+
+    def test_differs_from_last_token_residual(self, device):
+        """full_seq_residual and default (last-token only) produce different logits."""
+        dev = torch.device(device)
+        torch.manual_seed(42)
+        cfg_last = _epi_cfg(full_seq_residual=False)
+        torch.manual_seed(42)
+        cfg_full = _epi_cfg(full_seq_residual=True)
+        model_last = DrexTransformer(cfg_last).to(dev)
+        model_full = DrexTransformer(cfg_full).to(dev)
+        # Copy identical weights so only the residual mode differs
+        model_full.load_state_dict(model_last.state_dict(), strict=False)
+        ids = torch.randint(0, cfg_last.vocab_size, (1, 16), device=dev)
+        logits_last, _ = model_last(ids)
+        logits_full, _ = model_full(ids)
+        # The non-last positions should differ
+        assert not torch.allclose(logits_last[:, :-1], logits_full[:, :-1])
+
+
+class TestMemoryLastLayerOnlyAblation:
+    """memory_last_layer_only=True: MemoryModule only on the final layer."""
+
+    def test_only_last_layer_has_mem(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(memory_last_layer_only=True)
+        model = DrexTransformer(cfg).to(dev)
+        for i, layer in enumerate(model.layers):
+            if i < cfg.n_layers - 1:
+                assert layer.episodic_mem is None, (
+                    f"Layer {i} should not have episodic_mem when memory_last_layer_only=True"
+                )
+            else:
+                assert layer.episodic_mem is not None, (
+                    f"Final layer (index {i}) should have episodic_mem"
+                )
+
+    def test_output_shape_unchanged(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(memory_last_layer_only=True)
+        model = DrexTransformer(cfg).to(dev)
+        B, S = 2, 16
+        ids = torch.randint(0, cfg.vocab_size, (B, S), device=dev)
+        logits, states = model(ids)
+        assert logits.shape == (B, S, cfg.vocab_size)
+        assert len(states) == cfg.n_layers
+
+    def test_no_nan(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(memory_last_layer_only=True)
+        model = DrexTransformer(cfg).to(dev)
+        ids = torch.randint(0, cfg.vocab_size, (2, 12), device=dev)
+        logits, _ = model(ids)
+        assert not torch.isnan(logits).any()
+        assert not torch.isinf(logits).any()
+
+    def test_backward(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(memory_last_layer_only=True)
+        model = DrexTransformer(cfg).to(dev)
+        ids = torch.randint(0, cfg.vocab_size, (1, 8), device=dev)
+        logits, _ = model(ids)
+        logits.sum().backward()
+        assert any(p.grad is not None for p in model.parameters())
+
+    def test_fewer_params_than_all_layers(self, device):
+        """Last-layer-only has fewer memory parameters than all-layers variant."""
+        cfg_all = _epi_cfg(memory_last_layer_only=False)
+        cfg_last = _epi_cfg(memory_last_layer_only=True)
+        model_all = DrexTransformer(cfg_all)
+        model_last = DrexTransformer(cfg_last)
+        params_all = sum(p.numel() for p in model_all.parameters())
+        params_last = sum(p.numel() for p in model_last.parameters())
+        assert params_last < params_all
+
+
+class TestNoNullGateThroughTransformer:
+    """use_null_gate=False propagates correctly through DrexConfig → DrexLayer → MemoryModule."""
+
+    def test_no_null_gate_module_is_none(self, device):
+        cfg = _epi_cfg(use_null_gate=False)
+        model = DrexTransformer(cfg)
+        for layer in model.layers:
+            if layer.episodic_mem is not None:
+                assert layer.episodic_mem.null_gate is None
+
+    def test_output_shape_unchanged(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(use_null_gate=False)
+        model = DrexTransformer(cfg).to(dev)
+        B, S = 2, 16
+        ids = torch.randint(0, cfg.vocab_size, (B, S), device=dev)
+        logits, states = model(ids)
+        assert logits.shape == (B, S, cfg.vocab_size)
+        assert len(states) == cfg.n_layers
+
+    def test_no_nan(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(use_null_gate=False)
+        model = DrexTransformer(cfg).to(dev)
+        ids = torch.randint(0, cfg.vocab_size, (2, 12), device=dev)
+        logits, _ = model(ids)
+        assert not torch.isnan(logits).any()
+        assert not torch.isinf(logits).any()
+
+    def test_backward(self, device):
+        dev = torch.device(device)
+        cfg = _epi_cfg(use_null_gate=False)
+        model = DrexTransformer(cfg).to(dev)
+        ids = torch.randint(0, cfg.vocab_size, (1, 8), device=dev)
+        logits, _ = model(ids)
+        logits.sum().backward()
+        assert any(p.grad is not None for p in model.parameters())
+
+
