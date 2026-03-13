@@ -102,16 +102,26 @@ PYTHONPATH=python python3.12 scripts/train.py \
 
 | Metric | Value |
 |---|---|
-| Final train loss | 1.3312 |
-| Final train ppl | 3.79 |
-| Final val loss (step 2000) | 1.4369 |
-| Final val ppl | 4.21 |
-| Steady-state throughput | ~11,000–12,200 tok/s |
+| Status | **IN PROGRESS** — step 16,800 / 50,000 (2026-03-13) |
+| Best val_ppl so far | **1.82** at step 16,000 (resumed run, correct LR) |
+| Steady-state throughput | ~13,000–15,000 tok/s (MPS, resumed from step 15k) |
 | NaN skips total | 0 |
 | Parameters | 4,264,464 |
 
-> Note: This is a 2000-step convergence probe, not the full 50,000-step benchmark run.
-> The full run is pending (see Step 2 status below).
+**Checkpoint resume fix (Phase 16):** Run originally stopped at step 17,200 due to
+session termination. Resume bug (LR restarted from 3e-05 instead of ~2.53e-04) was
+diagnosed and fixed — optimizer and scheduler state now saved to `_opt.pt` companion
+file. Full training resumed from step 15,000 checkpoint with correct cosine-decay LR.
+
+**Partial val_ppl trajectory (to be completed at step 50k):**
+
+| Step | val_ppl | Notes |
+|---|---|---|
+| 4,000 | 3.83 | |
+| 9,000 | 3.57 | |
+| 12,000 | 2.52 | |
+| 14,000 | 2.82 | |
+| 16,000 | **1.82** | resumed run (corrected LR) |
 
 ---
 
@@ -257,27 +267,24 @@ PYTHONPATH=python python3.12 scripts/eval_babilong.py \
 
 ## Results Table
 
-**Status: BLOCKED.** Passkey and BABILong evaluations require trained Exp B checkpoint.
-Exp B full training is blocked by the MPS sequential-bmm throughput issue documented above.
-See the throughput note in the Exp B training log section.
-
-Once the sequential write loop is moved to CPU or a parallel scan is implemented, re-run
-the eval commands above and fill in the tables below.
+**Status: PENDING.** Exp A full 50k training in progress (step 16,800 as of 2026-03-13).
+Exp B will auto-start via `run_exp_b.sh` when Exp A final checkpoint appears. Passkey
+and BABILong evaluations planned once both final checkpoints are ready (Phase 17 Step 2).
 
 ### Passkey Recall Accuracy
 
 | Model | 512 ctx | 1k ctx | 2k ctx | 4k ctx | 8k ctx | 16k ctx |
 |---|---|---|---|---|---|---|
-| Exp A (baseline) | — | — | — | — | — | — |
-| Exp B (episodic) | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
+| Exp A (baseline) | pending | pending | pending | pending | pending | pending |
+| Exp B (episodic) | pending | pending | pending | pending | pending | pending |
 | Δ (B − A) | — | — | — | — | — | — |
 
 ### BABILong Accuracy at 8k context
 
 | Model | Task 1 | Task 2 | Task 3 | Task 4 | Task 5 | Mean |
 |---|---|---|---|---|---|---|
-| Exp A (baseline) | — | — | — | — | — | — |
-| Exp B (episodic) | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED | BLOCKED |
+| Exp A (baseline) | pending | pending | pending | pending | pending | pending |
+| Exp B (episodic) | pending | pending | pending | pending | pending | pending |
 
 ### Write Rate Validation (Exp B, seg_len=64 throughput probe)
 
