@@ -1,0 +1,87 @@
+%% neurips_2024.sty — minimal compatibility shim for drex paper draft
+%% Replace with official NeurIPS 2024 .sty before conference submission.
+%% Download from: https://neurips.cc/Conferences/2024/CallForPapers (LaTeX template)
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{neurips_2024}[2024/05/30 NeurIPS 2024 style shim]
+
+%% ── Options ──────────────────────────────────────────────────────────────────
+\newif\if@preprint\@preprinttrue
+\newif\if@final\@finalfalse
+\DeclareOption{preprint}{\@preprinttrue\@finalfalse}
+\DeclareOption{final}{\@preprintfalse\@finaltrue}
+\DeclareOption{nonatbib}{}
+\ProcessOptions\relax
+
+%% ── Page geometry ────────────────────────────────────────────────────────────
+\RequirePackage[letterpaper,top=1in,bottom=1in,left=1.25in,right=1.25in,headheight=14pt]{geometry}
+
+%% ── Fonts ────────────────────────────────────────────────────────────────────
+\RequirePackage[T1]{fontenc}
+\RequirePackage{times}
+\RequirePackage{microtype}
+
+%% ── Bibliography ─────────────────────────────────────────────────────────────
+\RequirePackage[numbers,compress,sort]{natbib}
+\bibliographystyle{plainnat}
+
+%% ── Math ─────────────────────────────────────────────────────────────────────
+\RequirePackage{amsmath,amssymb,amsthm}
+\RequirePackage{mathtools}
+\DeclareMathOperator{\EMA}{EMA}
+
+%% ── Floats, tables, figures ──────────────────────────────────────────────────
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+
+%% ── Colours and links ────────────────────────────────────────────────────────
+\RequirePackage{xcolor}
+\RequirePackage{url}
+\RequirePackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue,breaklinks=true]{hyperref}
+
+%% ── Section formatting ───────────────────────────────────────────────────────
+\RequirePackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+\titlespacing*{\section}{0pt}{1.5ex plus .5ex}{0.5ex}
+\titlespacing*{\subsection}{0pt}{1ex plus .3ex}{0.3ex}
+
+%% ── Abstract environment ─────────────────────────────────────────────────────
+\renewenvironment{abstract}{%
+  \vspace{1ex}%
+  \centerline{\large\bf Abstract}%
+  \vspace{0.5ex}%
+  \begin{quote}\small\setlength{\parindent}{0pt}\setlength{\parskip}{0.4ex}
+}{%
+  \end{quote}%
+  \vspace{1.5ex}%
+  \hrule%
+  \vspace{1.5ex}%
+}
+
+%% ── Paragraph spacing ────────────────────────────────────────────────────────
+\setlength{\parskip}{0.4ex plus 0.2ex}
+\setlength{\parindent}{0pt}
+
+%% ── Theorem environments ─────────────────────────────────────────────────────
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+%% ── TODO helper (placeholders for missing results) ───────────────────────────
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+%% ── Preprint footer ──────────────────────────────────────────────────────────
+\if@preprint
+  \RequirePackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhf{}
+  \rhead{\footnotesize Preprint -- under review}
+  \cfoot{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+\fi

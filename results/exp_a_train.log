@@ -1,0 +1,117 @@
+Device: mps
+Seed: 42
+  [WARNING] SSL certificate verification disabled (--no-ssl-verify).
+Loading TinyStories [train] …
+  Loaded 50,000,306 chars (56,013 stories)
+Dataset: 97,656 segments of 512 tokens
+  [WARNING] SSL certificate verification disabled (--no-ssl-verify).
+Loading TinyStories [validation] …
+  Loaded 500,948 chars (619 stories)
+  Validation: 978 segments of 512 tokens
+Model: 4,264,464 trainable parameters
+step    200  loss 3.8684  ppl   47.87  lr 3.00e-05  22,594 tok/s
+step    400  loss 2.4918  ppl   12.08  lr 6.00e-05  20,749 tok/s
+step    600  loss 2.0602  ppl    7.85  lr 9.00e-05  15,259 tok/s
+step    800  loss 1.5951  ppl    4.93  lr 1.20e-04  20,289 tok/s
+step   1000  loss 1.4559  ppl    4.29  lr 1.50e-04  22,441 tok/s
+  [val] step   1000  val_loss 2.1052  val_ppl    8.21
+step   1200  loss 1.4362  ppl    4.20  lr 1.80e-04  19,065 tok/s
+step   1400  loss 1.3442  ppl    3.84  lr 2.10e-04  21,514 tok/s
+step   1600  loss 1.3654  ppl    3.92  lr 2.40e-04  20,857 tok/s
+step   1800  loss 1.5291  ppl    4.61  lr 2.70e-04  21,332 tok/s
+step   2000  loss 1.3900  ppl    4.01  lr 3.00e-04  22,107 tok/s
+  [val] step   2000  val_loss 1.8782  val_ppl    6.54
+step   2200  loss 1.6584  ppl    5.25  lr 3.00e-04  19,378 tok/s
+step   2400  loss 1.7752  ppl    5.90  lr 3.00e-04  21,715 tok/s
+step   2600  loss 1.8224  ppl    6.19  lr 3.00e-04  20,933 tok/s
+step   2800  loss 1.6060  ppl    4.98  lr 3.00e-04  21,173 tok/s
+step   3000  loss 1.5020  ppl    4.49  lr 3.00e-04  20,709 tok/s
+  [val] step   3000  val_loss 1.9007  val_ppl    6.69
+step   3200  loss 1.3794  ppl    3.97  lr 3.00e-04  17,033 tok/s
+step   3400  loss 1.4924  ppl    4.45  lr 2.99e-04  21,166 tok/s
+step   3600  loss 1.3734  ppl    3.95  lr 2.99e-04  23,236 tok/s
+step   3800  loss 1.4195  ppl    4.13  lr 2.99e-04  23,532 tok/s
+step   4000  loss 1.5938  ppl    4.92  lr 2.99e-04  24,638 tok/s
+  [val] step   4000  val_loss 1.3437  val_ppl    3.83
+step   4200  loss 1.4414  ppl    4.23  lr 2.99e-04  20,755 tok/s
+step   4400  loss 1.3219  ppl    3.75  lr 2.98e-04  23,404 tok/s
+step   4600  loss 1.5563  ppl    4.74  lr 2.98e-04  24,484 tok/s
+step   4800  loss 1.5239  ppl    4.59  lr 2.98e-04  23,940 tok/s
+step   5000  loss 1.5010  ppl    4.49  lr 2.97e-04  23,854 tok/s
+  Checkpoint saved → checkpoints/exp_a/step_0005000.safetensors
+  [val] step   5000  val_loss 2.0426  val_ppl    7.71
+step   5200  loss 1.6362  ppl    5.14  lr 2.97e-04  19,489 tok/s
+step   5400  loss 1.5646  ppl    4.78  lr 2.97e-04  21,646 tok/s
+step   5600  loss 1.5912  ppl    4.91  lr 2.96e-04  22,484 tok/s
+step   5800  loss 1.6163  ppl    5.03  lr 2.96e-04  21,961 tok/s
+step   6000  loss 1.5387  ppl    4.66  lr 2.95e-04  22,136 tok/s
+  [val] step   6000  val_loss 1.8691  val_ppl    6.48
+step   6200  loss 1.6508  ppl    5.21  lr 2.95e-04  17,767 tok/s
+step   6400  loss 1.6935  ppl    5.44  lr 2.94e-04  21,465 tok/s
+step   6600  loss 1.7183  ppl    5.58  lr 2.94e-04  21,943 tok/s
+step   6800  loss 1.7443  ppl    5.72  lr 2.93e-04  21,464 tok/s
+step   7000  loss 1.6266  ppl    5.09  lr 2.93e-04  21,153 tok/s
+  [val] step   7000  val_loss 1.4065  val_ppl    4.08
+step   7200  loss 1.6628  ppl    5.27  lr 2.92e-04  17,124 tok/s
+step   7400  loss 1.4395  ppl    4.22  lr 2.92e-04  19,481 tok/s
+step   7600  loss 1.4336  ppl    4.19  lr 2.91e-04  19,924 tok/s
+step   7800  loss 1.6213  ppl    5.06  lr 2.90e-04  19,726 tok/s
+step   8000  loss 1.5874  ppl    4.89  lr 2.90e-04  19,764 tok/s
+  [val] step   8000  val_loss 1.6157  val_ppl    5.03
+step   8200  loss 1.4714  ppl    4.36  lr 2.89e-04  16,049 tok/s
+step   8400  loss 1.6557  ppl    5.24  lr 2.88e-04  18,721 tok/s
+step   8600  loss 1.4839  ppl    4.41  lr 2.88e-04  18,707 tok/s
+step   8800  loss 1.4918  ppl    4.45  lr 2.87e-04  18,429 tok/s
+step   9000  loss 1.5227  ppl    4.58  lr 2.86e-04  16,916 tok/s
+  [val] step   9000  val_loss 1.2721  val_ppl    3.57
+step   9200  loss 1.4589  ppl    4.30  lr 2.85e-04  14,666 tok/s
+step   9400  loss 1.4058  ppl    4.08  lr 2.84e-04  17,904 tok/s
+step   9600  loss 1.3622  ppl    3.90  lr 2.84e-04  17,852 tok/s
+step   9800  loss 1.2131  ppl    3.36  lr 2.83e-04  18,128 tok/s
+step  10000  loss 1.4099  ppl    4.10  lr 2.82e-04  16,562 tok/s
+  Checkpoint saved → checkpoints/exp_a/step_0010000.safetensors
+  [val] step  10000  val_loss 1.4963  val_ppl    4.47
+step  10200  loss 1.2455  ppl    3.47  lr 2.81e-04  7,204 tok/s
+step  10400  loss 1.3603  ppl    3.90  lr 2.80e-04  18,233 tok/s
+step  10600  loss 1.4387  ppl    4.22  lr 2.79e-04  18,538 tok/s
+step  10800  loss 1.4140  ppl    4.11  lr 2.78e-04  18,563 tok/s
+step  11000  loss 1.4039  ppl    4.07  lr 2.77e-04  18,627 tok/s
+  [val] step  11000  val_loss 1.3818  val_ppl    3.98
+step  11200  loss 1.2621  ppl    3.53  lr 2.76e-04  15,182 tok/s
+step  11400  loss 1.2789  ppl    3.59  lr 2.75e-04  17,624 tok/s
+step  11600  loss 1.0749  ppl    2.93  lr 2.74e-04  17,649 tok/s
+step  11800  loss 1.0357  ppl    2.82  lr 2.73e-04  18,232 tok/s
+step  12000  loss 1.2338  ppl    3.43  lr 2.72e-04  18,551 tok/s
+  [val] step  12000  val_loss 0.9230  val_ppl    2.52
+step  12200  loss 1.2129  ppl    3.36  lr 2.71e-04  15,698 tok/s
+step  12400  loss 1.2402  ppl    3.46  lr 2.70e-04  17,680 tok/s
+step  12600  loss 1.1741  ppl    3.24  lr 2.69e-04  18,013 tok/s
+step  12800  loss 1.2072  ppl    3.34  lr 2.68e-04  16,358 tok/s
+step  13000  loss 1.1223  ppl    3.07  lr 2.66e-04  16,472 tok/s
+  [val] step  13000  val_loss 1.0642  val_ppl    2.90
+step  13200  loss 1.2172  ppl    3.38  lr 2.65e-04  13,983 tok/s
+step  13400  loss 1.3035  ppl    3.68  lr 2.64e-04  16,506 tok/s
+step  13600  loss 1.0933  ppl    2.98  lr 2.63e-04  18,756 tok/s
+step  13800  loss 1.1766  ppl    3.24  lr 2.62e-04  23,850 tok/s
+step  14000  loss 0.8913  ppl    2.44  lr 2.60e-04  25,085 tok/s
+  [val] step  14000  val_loss 1.0372  val_ppl    2.82
+step  14200  loss 0.8875  ppl    2.43  lr 2.59e-04  21,384 tok/s
+step  14400  loss 1.1635  ppl    3.20  lr 2.58e-04  17,945 tok/s
+step  14600  loss 1.1140  ppl    3.05  lr 2.57e-04  8,814 tok/s
+step  14800  loss 1.1002  ppl    3.00  lr 2.55e-04  15,160 tok/s
+step  15000  loss 1.0090  ppl    2.74  lr 2.54e-04  17,883 tok/s
+  Checkpoint saved → checkpoints/exp_a/step_0015000.safetensors
+  [val] step  15000  val_loss 1.2678  val_ppl    3.55
+step  15200  loss 1.1935  ppl    3.30  lr 2.53e-04  14,957 tok/s
+step  15400  loss 1.0298  ppl    2.80  lr 2.51e-04  18,563 tok/s
+step  15600  loss 1.1650  ppl    3.21  lr 2.50e-04  18,031 tok/s
+step  15800  loss 0.9691  ppl    2.64  lr 2.49e-04  17,938 tok/s
+step  16000  loss 0.9693  ppl    2.64  lr 2.47e-04  17,379 tok/s
+  [val] step  16000  val_loss 1.0391  val_ppl    2.83
+step  16200  loss 0.9370  ppl    2.55  lr 2.46e-04  14,058 tok/s
+step  16400  loss 1.2551  ppl    3.51  lr 2.44e-04  15,993 tok/s
+step  16600  loss 1.2742  ppl    3.58  lr 2.43e-04  14,290 tok/s
+step  16800  loss 1.2944  ppl    3.65  lr 2.41e-04  17,293 tok/s
+step  17000  loss 1.2975  ppl    3.66  lr 2.40e-04  18,666 tok/s
+  [val] step  17000  val_loss 1.2018  val_ppl    3.33
+step  17200  loss 1.2156  ppl    3.37  lr 2.39e-04  15,098 tok/s

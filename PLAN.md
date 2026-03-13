@@ -1,6 +1,6 @@
 # PLAN.md — Drex Implementation Roadmap
 
-*Created: 2026-03-11 | Updated: 2026-03-12 | Reflects research state after Phase 15 (stability, vectorization, training quality)*
+*Created: 2026-03-11 | Updated: 2026-03-13 | Reflects research state after Phase 16 Step 3 (paper draft written)*
 
 ---
 
@@ -297,8 +297,8 @@ reproducibility gaps before first arXiv submission.
 - [x] Run Experiment A: 2000-step convergence probe complete (val_ppl 4.21, ~11,700 tok/s)
 - [x] Fix write loop throughput (CPU backend + detached write + norm_out)
 - [x] Validate wr convergence at L=512 — **CONFIRMED PLATEAU: wr≈0.963 at step 2000, does not converge to [0.10, 0.85] within 2k steps**
-- [ ] Run Experiment A full 50k steps
-- [ ] Run Experiment B full 50k steps
+- [ ] Run Experiment A full 50k steps (IN PROGRESS — step 17,200/50,000 as of 2026-03-13)
+- [ ] Run Experiment B full 50k steps (waiting on run_exp_b.sh; starts when Exp A final ckpt appears)
 - [ ] Evaluate both on passkey recall: 512/1k/2k/4k/8k/16k context lengths
 - [ ] Evaluate both on BABILong: Tasks 1–5, 2k/4k/8k context lengths
 - [ ] Fill in results/TRAINING_RUNS.md tables
@@ -306,8 +306,8 @@ reproducibility gaps before first arXiv submission.
 
 ### Step 3 — Paper (PENDING)
 
-- [ ] Write paper draft (arXiv format)
-- [ ] Add related work section (Infini-Attention, Titans, Mamba, RWKV)
+- [x] Write paper draft (arXiv format) — `paper/main.tex`, 9-page NeurIPS preprint (2026-03-13)
+- [x] Add related work section (Infini-Attention, Titans, Mamba, RWKV)
 - [x] Add ablation experiments to elevate §12.2 medium-confidence components
       → Phase 16 micro-ablations complete (see §12.2 in ARCHITECTURE_FINDINGS.md):
          null gate: keep (+0.30 ppl without it); full-seq-residual: initial screen −0.26 ppl;

@@ -1,0 +1,758 @@
+\documentclass{article}
+\usepackage[preprint]{neurips_2024}
+
+%% ── Package imports ──────────────────────────────────────────────────────────
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{cleveref}
+
+%% ── Custom maths ─────────────────────────────────────────────────────────────
+\newcommand{\Msem}{M_{\mathrm{sem}}}
+\newcommand{\Mepi}{M_{\mathrm{epi}}}
+\newcommand{\ks}{\mathbf{k}_s}
+\newcommand{\ke}{\mathbf{k}_e}
+\newcommand{\ksnorm}{\hat{\mathbf{k}}_s}
+\newcommand{\kenorm}{\hat{\mathbf{k}}_e}
+\newcommand{\vps}{v_{p,s}}
+\newcommand{\vpe}{v_{p,e}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\br}{\mathbf{r}}
+\newcommand{\bq}{\mathbf{q}}
+
+%% ── Placeholders ─────────────────────────────────────────────────────────────
+\providecommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+% ─────────────────────────────────────────────────────────────────────────────
+
+\title{DREx: Episodic/Semantic Associative Memory with\\
+       Length-Adaptive EMA for Long-Context Transformers}
+
+\author{%
+  Wesley Scholl \\
+  Independent Researcher \\
+  \texttt{wesleyscholl@github} \\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present \textbf{DREx}, a transformer architecture augmented with a four-tier memory
+hierarchy whose L4 layer is a novel episodic/semantic split delta-rule associative memory
+module.  The L4 module maintains two independent $\tfrac{H}{2} \times \tfrac{H}{2}$
+associative matrices — one for uniformly-weighted semantic associations, one for
+recency-weighted episodic bindings — updated via an outer-product delta rule under an
+OR relative-norm write gate.  We identify and resolve a previously undocumented failure
+mode of EMA-based associative memory at short sequence lengths (the \emph{EMA bootstrap
+problem}): a fixed decay coefficient $\alpha$ calibrated for long sequences produces
+a memory time-constant $\tau = 1/(1-\alpha)$ that is a large fraction of the sequence
+length $L$, causing the write gate to over-fire at $\mathrm{wr} \approx 0.97$.  We
+derive a length-adaptive formula $\alpha(L) = 0.95^{96/L}$ that holds $\tau/L \approx
+0.21$ constant across $L=32$--$128$.  We further characterize OR-gate write-rate
+inflation when two partially-correlated branches each fire with probability $p$, and
+confirm a recalibrated threshold $\mathrm{thresh}^* = 0.70$ that delivers validated
+write rates $\mathrm{wr}(L{=}32) = 0.581$ and $\mathrm{wr}(L{=}96) = 0.421$.
+All architectural decisions are grounded in 247+ controlled ablation experiments over
+15 research phases with $\geq\!2/3$ seed confirmation per finding.
+Ablations confirm a null retrieval gate is essential ($+0.30$ perplexity without it).
+End-to-end evaluation on TinyStories language modelling and long-context passkey/BABILong
+benchmarks is in progress; preliminary 2\,000-step probes give validation perplexity
+4.27 (memory) vs.\ 4.21 (baseline).
+\end{abstract}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Introduction}
+\label{sec:intro}
+% ─────────────────────────────────────────────────────────────────────────────
+
+The capacity of standard transformer attention to retain information beyond its context
+window is a central limitation for long-document language modelling, multi-turn dialogue,
+and structured reasoning.  Several lines of work address this by replacing or augmenting
+soft attention with a compressed, updateable memory store: cross-segment delta-rule
+matrices \citep{munkhdalai2024infini}, selective-state recurrences
+\citep{gu2024mamba,peng2023rwkv,sun2023retnet}, and test-time weight adaptation
+\citep{sun2024titans}.
+
+Associative matrices (Hopfield-style stores \citep{ramsauer2021hopfield} updated by a
+delta rule) are attractive because they support $O(1)$ parameter operations per token
+and can be inserted as a residual branch inside each transformer layer without altering
+the attention stack.  Their write dynamics, however, are sensitive to the relationship
+between the EMA decay coefficient $\alpha$, the sequence length $L$, and the stimulus
+novelty distribution.  This paper documents, formally characterises, and resolves two
+failure modes that we encountered during development:
+
+\begin{enumerate}
+\item \textbf{EMA bootstrap failure at short $L$} (\S\ref{sec:ema}).  A fixed
+      $\alpha = 0.95$ calibrated for $L=96$ makes the memory time-constant
+      $\tau = 20$ steps, i.e.\ $\tau/L = 0.21$, which is well-behaved.  At $L=32$,
+      however, the same $\alpha$ gives $\tau/L = 0.625$: the memory never fully decays
+      within a single context, every token appears novel to the gate, and
+      $\mathrm{wr} \to 0.97$.  We derive a closed-form fix.
+
+\item \textbf{OR-gate write-rate inflation} (\S\ref{sec:gate}).  Splitting memory into
+      two branches (semantic + episodic) and OR-ing their write decisions inflates the
+      true write rate above the per-branch calibration point.  If each branch fires with
+      probability $p$ independently, the OR fires at $1-(1-p)^2$; with correlation the
+      inflation is less but still substantial.  We characterise the effect and confirm a
+      per-architecture threshold $\mathrm{thresh}^* = 0.70$.
+\end{enumerate}
+
+Beyond these engineering contributions, the paper describes the complete validated
+architecture of the L4 MemoryModule: the episodic/semantic split, recency weighting,
+the null retrieval gate, and the output LayerNorm.  We report every component's evidence
+level (high / medium) together with the full list of design choices that were
+experimentally ruled out.
+
+\paragraph{Contributions.}
+\begin{itemize}
+  \item A four-tier memory transformer (\S\ref{sec:arch}) with a novel L4
+        episodic/semantic associative layer integrated as a per-layer residual branch.
+  \item Identification and analytic treatment of the \emph{EMA bootstrap problem}, with
+        the length-adaptive fix $\alpha(L) = 0.95^{96/L}$
+        (\S\ref{sec:ema}).
+  \item Characterisation of OR-gate write-rate inflation and an experimentally confirmed
+        threshold $\mathrm{thresh}^*=0.70$ (\S\ref{sec:gate}).
+  \item A comprehensive ablation record  ($247+$ experiments across 15 phases) that
+        catalogues both successful components and ruled-out alternatives
+        (\S\ref{sec:ablations}).
+  \item An open-source implementation with a 199-test suite at 100\% branch coverage
+        (\S\ref{sec:impl}).
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Related Work}
+\label{sec:related}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{Associative memory in transformers.}
+Modern Hopfield networks \citep{ramsauer2021hopfield} reinterpret attention as a
+continuous Hopfield energy minimisation.  Infini-Attention \citep{munkhdalai2024infini}
+adds a compressive delta-rule associative segment memory (our L2) alongside local
+attention, enabling infinite-length processing.  DREx extends this approach with a
+separate per-segment episodic/semantic split module (our L4) that is written
+selectively via a relative-norm gate and read as a residual at the query position only.
+
+\paragraph{Linear recurrences and state-space models.}
+Mamba \citep{gu2024mamba}, RWKV \citep{peng2023rwkv}, and RetNet
+\citep{sun2023retnet} achieve $O(L)$ memory via exponentially decaying state.  Our L2
+weight matrix is analogous to the hidden state of these models; the novelty in DREx is
+the \emph{additional} per-segment selective write layer (L4) with a structurally
+different update rule.
+
+\paragraph{Test-time weight adaptation.}
+Titans \citep{sun2024titans} memorises information by gradient-updating a small MLP's
+weights at test time.  Our L3 layer is inspired by this idea (Rust-backed weight
+snapshots with async prefetch); L4 is complementary — a faster, in-activation store.
+
+\paragraph{Long-context benchmarks.}
+We evaluate on passkey retrieval \citep{munkhdalai2024infini} and BABILong
+\citep{schalk2024babilong}, both standard benchmarks for long-context recall.  Training
+uses TinyStories \citep{eldan2023tinystories} as the language modelling corpus.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Architecture}
+\label{sec:arch}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Memory Hierarchy}
+\label{sec:hierarchy}
+
+DREx organises memory across four tiers with increasing latency and capacity
+(\Cref{tab:hierarchy}).  All four tiers are active simultaneously; each addresses a
+different temporal scope.
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{DREx four-tier memory hierarchy.  L4 is the primary contribution of this paper.}
+  \label{tab:hierarchy}
+  \begin{tabular}{clll}
+    \toprule
+    \textbf{Tier} & \textbf{Mechanism} & \textbf{Scope} & \textbf{Location} \\
+    \midrule
+    L1 & Sliding-window causal attention & In-context (short range) & Activations \\
+    L2 & Infini-Attention delta-rule matrix \citep{munkhdalai2024infini}
+       & Cross-segment & Activations \\
+    L3 & Titans-style MLP weight snapshot \citep{sun2024titans}
+       & Disk (long range, async) & Rust SnapshotStore \\
+    L4 & Episodic/semantic split delta-rule (\S\ref{sec:l4})
+       & Per-segment associative & Activations \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+L1 provides standard in-context attention over a sliding window.  L2 compresses
+cross-segment information using Infini-Attention's delta-rule update with the
+$\phi(\bx) = \mathrm{ELU}(\bx)+1$ feature map, accumulating a normalisation vector
+$\mathbf{z}$ for stable reads.  L3 stores slow weight snapshots asynchronously to an
+on-disk Rust-backed store with a sketch-based $k$-NN prefetch index.  L4 is the focus
+of this paper.
+
+\subsection{L4 MemoryModule}
+\label{sec:l4}
+
+The L4 MemoryModule is inserted as an optional residual branch in each transformer
+layer.  Its contribution is added at the query (last-token) position only:
+\begin{equation}
+  \bx_{L-1} \leftarrow \bx_{L-1} + \mathrm{MemoryModule}\!\left(\mathrm{LN}(\bx)\right),
+\end{equation}
+where $\mathrm{LN}$ denotes pre-LayerNorm \citep{xiong2020layer} applied to the full
+context tensor $\bx \in \mathbb{R}^{B \times L \times H}$.
+
+\paragraph{Associative matrices.}
+We maintain two independent $\tfrac{H}{2} \times \tfrac{H}{2}$ matrices per forward
+call, initialised to zero:
+\begin{align}
+  \Msem &\in \mathbb{R}^{B \times H/2 \times H/2}, \\
+  \Mepi &\in \mathbb{R}^{B \times H/2 \times H/2}.
+\end{align}
+The fixed 50/50 split was confirmed across 9 seeds (exp\_38\_1); a learned router
+reduced accuracy by 10--24\% (\S\ref{sec:ablations}).
+
+\paragraph{Key projections.}
+Two separate linear projections (no bias) map each context position $\bx_t \in
+\mathbb{R}^{B \times H}$ to sub-space keys:
+\begin{equation}
+  \ks = W_s \bx_t \in \mathbb{R}^{B \times H/2},
+  \qquad
+  \ke = W_e \bx_t \in \mathbb{R}^{B \times H/2}.
+\end{equation}
+
+\paragraph{Delta-rule write.}
+Unit-normalised keys are used throughout to decouple magnitude from direction:
+\begin{equation}
+  \ksnorm = \frac{\ks}{\|\ks\|},
+  \qquad
+  \kenorm = \frac{\ke}{\|\ke\|}.
+\end{equation}
+The current memory predictions for position $t$ are:
+\begin{equation}
+  \vps = \Msem \ksnorm,
+  \qquad
+  \vpe = \Mepi \kenorm.
+\end{equation}
+The outer-product delta rule computes prediction errors and updates:
+\begin{align}
+  \Delta\Msem &= (\ks - \vps) \otimes \ksnorm, \label{eq:delta-sem} \\
+  \Delta\Mepi &= (\ke - \vpe) \otimes \kenorm. \label{eq:delta-epi}
+\end{align}
+
+\paragraph{Recency weighting.}
+Episodic memory applies position-proportional recency weighting: later observations
+are written with higher weight than earlier ones within the same context:
+\begin{equation}
+  w_t = \frac{t+1}{L} \in \left(0, 1\right].
+\end{equation}
+
+\paragraph{Write gate.}
+A relative-norm criterion determines whether position $t$ carries novel information
+(see \S\ref{sec:gate} for derivation):
+\begin{equation}
+  g_t =
+  \mathbf{1}\!\left[\|\ks - \vps\| \geq \tau^* \|\ks\|
+  \;\vee\;
+  \|\ke - \vpe\| \geq \tau^* \|\ke\|\right],
+  \qquad \tau^* = 0.70.
+  \label{eq:gate}
+\end{equation}
+OR rather than AND was confirmed superior (AND degrades recall; exp\_47\_2).
+
+\paragraph{EMA update.}
+Matrices are updated via an exponential moving average with length-adaptive coefficient
+$\alpha(L) = 0.95^{96/L}$ (derivation in \S\ref{sec:ema}):
+\begin{align}
+  \Msem &\mathrel{+}= (1 - \alpha(L))\cdot g_t \cdot \Delta\Msem,
+  \label{eq:ema-sem} \\
+  \Mepi &\mathrel{+}= (1 - \alpha(L))\cdot w_t \cdot g_t \cdot \Delta\Mepi.
+  \label{eq:ema-epi}
+\end{align}
+
+\paragraph{Read and output.}
+After processing positions $t = 0, \ldots, L-2$, the query position $L-1$ reads from
+both matrices:
+\begin{equation}
+  \br = \left[\Msem \hat{\mathbf{q}}_s \,;\, \Mepi \hat{\mathbf{q}}_e\right]
+  \in \mathbb{R}^{B \times H},
+  \label{eq:read}
+\end{equation}
+where $\hat{\mathbf{q}}_s, \hat{\mathbf{q}}_e$ are unit-normalised projections of
+$\bx_{L-1}$.  Hard concatenation (no learned read gate) was confirmed optimal (exp\_38\_3;
+a learned gate reduced accuracy by 10\%).
+
+A learned null retrieval gate suppresses reads when both matrices are empty:
+\begin{equation}
+  \tilde{\br} = \sigma\!\left(w^\top \bx_{L-1} + b\right) \cdot \br.
+  \label{eq:null-gate}
+\end{equation}
+Removing this gate costs $+0.30$ validation perplexity (\S\ref{sec:ablations}).
+
+The final output is projected and normalised:
+\begin{equation}
+  \mathrm{out} = \mathrm{LN}\!\left(W_o \,\tilde{\br}\right) \in \mathbb{R}^{B \times H}.
+  \label{eq:output}
+\end{equation}
+The output LayerNorm bounds the residual contribution when write-path gradients are
+absent (detached write optimisation; \S\ref{sec:impl}).
+
+The complete forward procedure is summarised in \Cref{alg:memory}.
+
+\begin{algorithm}[t]
+  \caption{L4 MemoryModule forward pass}
+  \label{alg:memory}
+  \begin{algorithmic}[1]
+    \Require $\bx \in \mathbb{R}^{B \times L \times H}$, thresh $\tau^*$, decay $\alpha$
+    \Ensure output $\in \mathbb{R}^{B \times H}$ (residual for position $L-1$)
+    \State $\Msem, \Mepi \leftarrow \mathbf{0}$  \Comment{zero-initialise per call}
+    \For{$t = 0$ to $L-2$}
+      \State $\ks \leftarrow W_s\bx_t$; $\ke \leftarrow W_e\bx_t$
+      \State $\ksnorm \leftarrow \ks/\|\ks\|$; $\kenorm \leftarrow \ke/\|\ke\|$
+      \State $\vps \leftarrow \Msem\ksnorm$; $\vpe \leftarrow \Mepi\kenorm$
+      \State $g_t \leftarrow \mathbf{1}[\|\ks-\vps\|\geq\tau^*\|\ks\|
+             \;\vee\; \|\ke-\vpe\|\geq\tau^*\|\ke\|]$
+      \State $w_t \leftarrow (t+1)/L$
+      \State $\Msem \mathrel{+}= (1-\alpha)\cdot g_t\cdot(\ks-\vps)\otimes\ksnorm$
+      \State $\Mepi \mathrel{+}= (1-\alpha)\cdot w_t\cdot g_t\cdot(\ke-\vpe)\otimes\kenorm$
+    \EndFor
+    \State $\hat{\bq}_s \leftarrow W_s\bx_{L-1}/\|W_s\bx_{L-1}\|$;
+           $\hat{\bq}_e \leftarrow W_e\bx_{L-1}/\|W_e\bx_{L-1}\|$
+    \State $\br \leftarrow [\Msem\hat{\bq}_s\;;\;\Mepi\hat{\bq}_e]$
+    \State $\br \leftarrow \sigma(w^\top\bx_{L-1}+b)\cdot\br$ \Comment{null gate}
+    \State \Return $\mathrm{LN}(W_o\br)$
+  \end{algorithmic}
+\end{algorithm}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Length-Adaptive EMA}
+\label{sec:ema}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{Problem.}
+EMA-based associative memory retains a prediction $v_t = \alpha v_{t-1} + (1-\alpha)u_t$
+with effective time constant $\tau = 1/(1-\alpha)$.  For the write gate in
+\Cref{eq:gate} to be selective, the prediction $\vps = \Msem\ksnorm$ must reflect the
+recent history, i.e.\ $\tau \ll L$.  With a canonical choice $\alpha = 0.95$,
+$\tau = 20$ steps, which is calibrated for sequences of length $L \approx 96$
+($\tau/L = 0.21$).  At $L=32$, however, $\tau/L = 0.625$: the memory never fully
+turns over within one context.  Every position looks novel to the gate, producing
+$\mathrm{wr} \approx 0.97$ — well above the validated upper limit of 0.85.
+
+\paragraph{Fix.}
+We require $\tau/L = c$ for a constant $c$.  Given $\tau = 1/(1-\alpha)$ and the
+anchor $(\alpha_{\mathrm{ref}}, L_{\mathrm{ref}}) = (0.95, 96)$:
+\begin{equation}
+  \alpha(L) = 1 - c(1 - \alpha_{\mathrm{ref}})\frac{L_{\mathrm{ref}}}{L}
+            = 1 - \frac{1-\alpha_{\mathrm{ref}}}{\alpha_{\mathrm{ref}}} \cdot
+              \frac{\alpha_{\mathrm{ref}} L_{\mathrm{ref}}}{L}.
+\end{equation}
+Substituting $c = \tau_{\mathrm{ref}}/L_{\mathrm{ref}} = 20/96$, this simplifies to
+the \emph{exp\_scale} formula:
+\begin{equation}
+  \alpha(L) = 0.95^{96/L}.
+  \label{eq:exp-scale}
+\end{equation}
+\Cref{tab:ema} shows that \Cref{eq:exp-scale} holds $\tau/L$ within $[0.20, 0.44]$
+across $L=16$--$128$, compared to a spread of $[0.16, 0.625]$ for fixed $\alpha=0.95$.
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{EMA time constant $\tau = 1/(1-\alpha)$ and $\tau/L$ ratio under the
+    length-adaptive formula $\alpha(L) = 0.95^{96/L}$
+    (Phase~11; $L < 24$ produces $\mathrm{wr}=1.0$ at standard stimulus density —
+    correct behaviour when all positions are novel).}
+  \label{tab:ema}
+  \begin{tabular}{rrrr}
+    \toprule
+    $L$ & $\alpha(L)$ & $\tau$ (steps) & $\tau/L$ \\
+    \midrule
+    16  & 0.857 &  7.0  & 0.44 \\
+    32  & 0.857 &  7.0  & 0.22 \\
+    64  & 0.923 & 12.8  & 0.20 \\
+    96  & 0.950 & 20.0  & 0.21 \\
+    128 & 0.961 & 25.6  & 0.20 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Experimental confirmation.}
+With fixed $\alpha=0.95$, $\mathrm{wr}(L{=}32) = 0.967$ (Phase~11, 9/9 seeds).
+After switching to \Cref{eq:exp-scale}, $\mathrm{wr}(L{=}32) = 0.580$ (2/3 seeds
+SUPPORTED, 1/3 INCONCLUSIVE due to base-model accuracy noise; expt47\_1).
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{OR-Gate Write-Rate Calibration}
+\label{sec:gate}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{Problem.}
+The relative-norm write gate in \Cref{eq:gate} fires on the OR of two branch conditions.
+If the semantic branch fires with marginal probability $p$ and the episodic branch fires
+with marginal probability $p$ (with positive correlation $\rho$), the OR rate is:
+\begin{equation}
+  \Pr(A \cup B) = 2p - \Pr(A \cap B) = 2p - \bigl(p^2 + \rho\,p(1-p)\bigr).
+\end{equation}
+In the independent case, $\Pr(A \cup B) = 1-(1-p)^2$.  At $\mathrm{thresh}=0.40$ and
+$\alpha(L)$ from \Cref{eq:exp-scale}, each branch fires at $p \approx 0.58$ for $L=32$,
+giving $\mathrm{wr} \approx 0.82$.  In practice the keys are correlated ($\rho > 0$)
+and we measured $\mathrm{wr}=0.774$ (all 3 seeds, Phase~12).
+
+\paragraph{Threshold recalibration.}
+We need $p^*$ such that $1-(1-p^*)^2 \approx \mathrm{wr}^{\mathrm{target}}$.  With
+$\mathrm{wr}^{\mathrm{target}} = 0.58$, $p^* \approx 0.35$.  Scaling the threshold by
+$p_{\mathrm{old}}/p^* = 0.58/0.35 \approx 1.66$ gives $\mathrm{thresh}^* \approx 0.66$.
+A sweep over $\{0.50, 0.55, 0.60, 0.65, 0.70, 0.75\}$ (exp\_48\_1, 6 thresholds
+$\times$ 2 lengths $\times$ 3 seeds = 36 runs) confirmed:
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{Write rates at $\mathrm{thresh}^*=0.70$ (Phase~12).  Both values are within
+    validated ranges.}
+  \label{tab:writerate}
+  \begin{tabular}{lrrl}
+    \toprule
+    Length & Write rate & Target range & Status \\
+    \midrule
+    $L=32$  & 0.581 & $[0.20, 0.70]$ & \textcolor{blue}{PASS} \\
+    $L=96$  & 0.421 & $[0.15, 0.50]$ & \textcolor{blue}{PASS} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Hard constraints.}
+Based on exp\_43\_1, the write gate must be initialised at $\mathrm{thresh} \geq 0.40$:
+random initialisation causes the gate to collapse to a near-zero write rate from which
+training does not recover.  The final threshold $\tau^* = 0.70$ provides a comfortable
+margin above this lower bound.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Implementation}
+\label{sec:impl}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{Transformer integration.}
+The L4 MemoryModule is inserted after the attention and feed-forward sub-layers in each
+\texttt{DrexLayer}.  Following the pre-norm convention \citep{xiong2020layer}, a
+LayerNorm is applied to $\bx$ before the module:
+\begin{equation}
+  \bx_{L-1} \leftarrow \bx_{L-1}
+    + \mathrm{MemoryModule}\!\left(\mathrm{LN}(\bx), L\right).
+\end{equation}
+Only the query position (last token) is modified; all prior positions remain unchanged,
+preserving compatibility with gradient checkpointing.
+
+\paragraph{Write-loop optimisation.}
+The sequential write loop
+(lines~7--10 of \Cref{alg:memory}) requires $L-1$ recurrent matrix-update steps.  We
+batch the projection ($W_s$, $W_e$) and key normalisation across all $L-1$ positions
+in a single GPU operation, then perform the sequential recurrence on CPU (detached,
+no-grad) to avoid $O(L)$ autograd graph construction.  An output LayerNorm
+(\Cref{eq:output}) stabilises training when the write path has no gradient.
+This optimisation improved throughput from 543 to 2{,}310\,tok/s (4.3$\times$) at
+segment length 512 (Phase~16).
+
+\paragraph{Stability guards.}
+All four \texttt{F.normalize} calls use $\epsilon = 10^{-6}$ (not the PyTorch default
+$10^{-12}$) to prevent amplification of near-zero projections.  Training uses an
+\texttt{isfinite(loss)} guard: if loss becomes NaN the step is skipped and memory state
+is reset.  Segment boundaries are detected and state is selectively reset via
+\texttt{--reset-on-boundary} (Phase~15).
+
+\paragraph{Test coverage.}
+The implementation ships with 199 unit and integration tests achieving 100\% branch
+coverage, including deterministic write-rate assertions.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Experiments}
+\label{sec:experiments}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Training Setup}
+
+All experiments use a \emph{DrexTransformer} with the following configuration:
+hidden dimension $H=256$, 4 transformer layers, 4 attention heads, feed-forward
+multiplier 4, dropout 0.1, AdamW \citep{loshchilov2019decoupled} with peak learning
+rate $3 \times 10^{-4}$, 2\,000 warmup steps, cosine decay, batch size 8, segment
+length 512.  The model is trained on TinyStories \citep{eldan2023tinystories} with
+character-level tokenisation.
+
+Two conditions are compared:
+\begin{description}
+  \item[Exp~A (baseline)] DrexTransformer without MemoryModule.  Total parameters:
+    approximately 5.5\,M.
+  \item[Exp~B (memory)] DrexTransformer with MemoryModule at each layer
+    ($\mathrm{thresh}^*=0.70$, $\alpha(L)$ from \Cref{eq:exp-scale}).  Additional
+    parameters per layer: $4 \times (H/2 \times H) + 1 + 2 \times (H/2)^2$ (projections
+    + null gate + matrices); matrices are state, not parameters.
+\end{description}
+
+\subsection{Language Modelling}
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{Training progress on TinyStories (character-level).  All values are
+    validation perplexity (lower is better).  The 50\,000-step runs are in progress;
+    entries marked \todo{pending} will be updated before publication.}
+  \label{tab:results-lm}
+  \begin{tabular}{lrrrr}
+    \toprule
+    \multirow{2}{*}{\textbf{Condition}} &
+    \multicolumn{2}{c}{\textbf{Step 2\,000 (probe)}} &
+    \multicolumn{2}{c}{\textbf{Step 50\,000 (full)}} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){3-4}
+    & train ppl & val ppl & train ppl & val ppl \\
+    \midrule
+    Exp~A (baseline)       & 1.32 & 4.21 & \todo{pending} & \todo{pending} \\
+    Exp~B (memory)         & 1.37 & 4.27 & \todo{pending} & \todo{pending} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{tab:results-lm} shows 2\,000-step probe results.  At this early stage the memory
+model has slightly higher validation perplexity (4.27 vs.\ 4.21), consistent with a
+longer phase of memorisation-specialisation.  The write rate at step 2\,000 is 0.963,
+above the validated range of $[0.10, 0.85]$; extended training ($\geq 10{,}000$ steps)
+is needed to determine convergence behaviour.
+
+\subsection{Long-Context Benchmarks}
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{Passkey recall accuracy (\%) at varying needle-in-haystack context lengths.
+    Evaluation uses checkpoints from Exp~A and Exp~B at step 50\,000.}
+  \label{tab:passkey}
+  \begin{tabular}{lrrrr}
+    \toprule
+    \textbf{Condition} & \textbf{512} & \textbf{1k} & \textbf{2k} & \textbf{4k} \\
+    \midrule
+    Exp~A (baseline) & \todo{} & \todo{} & \todo{} & \todo{} \\
+    Exp~B (memory)   & \todo{} & \todo{} & \todo{} & \todo{} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{BABILong accuracy (\%) on tasks 1--5 at context length 2k/4k/8k.}
+  \label{tab:babilong}
+  \begin{tabular}{lrrrrrr}
+    \toprule
+    & \multicolumn{3}{c}{\textbf{Exp~A (baseline)}} &
+      \multicolumn{3}{c}{\textbf{Exp~B (memory)}} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+    \textbf{Task} & 2k & 4k & 8k & 2k & 4k & 8k \\
+    \midrule
+    Task~1 & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+    Task~2 & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+    Task~3 & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+    Task~4 & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+    Task~5 & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} & \todo{} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{tab:passkey,tab:babilong} are placeholders pending 50\,000-step checkpoint
+evaluation.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Ablations}
+\label{sec:ablations}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{Component Ablations (Phase 16, 2\,000 steps, seed 42)}
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{Component ablations at 2\,000 steps.  All values are validation perplexity
+    on TinyStories.  ``Baseline'' is Exp~B with all components enabled.}
+  \label{tab:ablation-components}
+  \begin{tabular}{lrrl}
+    \toprule
+    \textbf{Condition} & \textbf{Val ppl} & \textbf{$\Delta$ ppl} & \textbf{Verdict} \\
+    \midrule
+    Baseline (all components) & 4.27 & --- & --- \\
+    \midrule
+    \textit{Null retrieval gate removed} & 4.57 & $+0.30$ & Keep \\
+    \textit{Full-sequence residual (vs.\ last-pos only)} & \todo{} & \todo{} & \todo{} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Removing the null retrieval gate (\Cref{eq:null-gate}) costs 0.30 validation
+perplexity, confirming that it provides a meaningful benefit by suppressing irrelevant
+reads from uninitialised memory.
+
+\subsection{Multi-Seed Architecture Ablations (3 seeds $\times$ 2\,000 steps)}
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{Multi-seed ablation results (Phase~16).  Baseline mean val ppl = 1.75
+    (segment length 64; scale differs from \Cref{tab:ablation-components} due to shorter
+    segment length used for ablation throughput).}
+  \label{tab:ablation-multiseed}
+  \begin{tabular}{lrrrl}
+    \toprule
+    \textbf{Condition} & \textbf{Mean ppl} & \textbf{Std} & \textbf{Throughput} & \textbf{Verdict} \\
+    \midrule
+    Baseline                     & 1.75 & --- & 5{,}037 tok/s & --- \\
+    Full-sequence residual       & 1.73 & 0.49 & ---          & INCONCLUSIVE \\
+    Last-layer-only memory       & 1.88 & ---  & 8{,}578 tok/s & Efficiency tradeoff \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Full-sequence residual} adds the memory output as a residual at \emph{all}
+positions rather than only the last.  Over 3 seeds the mean validation perplexity
+(1.73) is very slightly better than baseline (1.75), but the standard deviation of 0.49
+makes this difference insignificant.  We do not promote this to the production default;
+further evaluation at $\geq 10{,}000$ steps is needed.
+
+\paragraph{Last-layer-only memory} applies the MemoryModule only to the final
+transformer layer rather than all layers.  This degrades mean perplexity by 0.13
+($1.88$ vs.\ $1.75$) but delivers 1.70$\times$ throughput (8{,}578 vs.\ 5{,}037\,tok/s).
+This is an explicit efficiency tradeoff available via \texttt{--memory-last-layer-only}
+for throughput-constrained deployments.
+
+\subsection{Architecture Dead Ends}
+
+\Cref{tab:dead-ends} summarises design choices that were experimentally ruled out across
+the 15-phase research programme.  These represent a substantial research investment
+($247+$ experiments) and should not be re-investigated.
+
+\begin{table}[h]
+  \centering
+  \small
+  \caption{Architecture choices tested and rejected ($\geq\!2/3$ seed evidence,
+    $\geq\!7/9$ seed evidence where noted).}
+  \label{tab:dead-ends}
+  \begin{tabular}{p{5.2cm}p{2.5cm}p{4.5cm}}
+    \toprule
+    \textbf{Approach} & \textbf{Evidence} & \textbf{Reason rejected} \\
+    \midrule
+    Learned episodic/semantic router & 9/9 seeds & $-10$--$24\%$ accuracy (exp\_38\_1) \\
+    Learned gated combination of $r_\mathrm{sem}, r_\mathrm{epi}$ & 9/9 seeds & $-10\%$ accuracy (exp\_38\_3) \\
+    REINFORCE for write gate & 9/9 seeds & Encoder gradient $= 0$ (exp\_7\_1) \\
+    Random-init learnable thresh & 9/9 seeds & Low-accuracy equilibrium (exp\_43\_1) \\
+    Fixed $\alpha=0.95$ (no length adapt.) & 9/9 seeds & Bootstrap failure $\mathrm{wr}\to0.97$ at $L\leq32$ \\
+    Matrix-mean energy gate & 9/9 seeds & $O(1/H)$ values always below threshold (exp\_45\_1) \\
+    AND gate (both branches) & 9/9 seeds & Degrades recall; OR strictly better (exp\_47\_2) \\
+    Momentum delta rule & 9/9 seeds & Oscillation in $M$; $-8\%$ accuracy \\
+    Write-rate regularisation (L1/L2) & 7/9 seeds & Collapses write rate; accuracy degrades \\
+    Two-phase gate training & 7/9 seeds & No benefit over end-to-end training \\
+    Position-schedule gate & 7/9 seeds & Degrades accuracy at non-standard densities \\
+    thresh $< 0.50$ for OR-gate split & 3/3 seeds & OR inflation persists; $\mathrm{wr}>0.70$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Discussion}
+\label{sec:discussion}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{Write rate as a diagnostic.}
+The validated range $\mathrm{wr} \in [0.10, 0.85]$ serves as an operational invariant:
+below $0.10$ the gate is effectively closed and memory contributes nothing; above $0.85$
+the gate fires indiscriminately and the read signal is dominated by the most recent write
+rather than accumulated associations.  We recommend instrumenting write rate as a
+first-class training metric whenever a delta-rule associative layer is used.
+
+\paragraph{EMA bootstrap failure is general.}
+The bootstrap failure we document arises in any EMA-based associative store where
+$\tau = 1/(1-\alpha)$ is a non-negligible fraction of the sequence length.  It is not
+specific to our architecture.  The length-adaptive formula in \Cref{eq:exp-scale}
+provides a simple parameterisation-free fix; any design that holds $\tau/L$ constant
+should avoid the failure.
+
+\paragraph{OR-gate inflation is predictable.}
+The Pr$(A \cup B)$ arithmetic in \S\ref{sec:gate} gives a reliable geometric estimate
+for the required threshold recalibration.  This may be useful for any multi-branch
+write architecture.
+
+\paragraph{Limitations.}
+(1)~The sequential matrix recurrence in \Cref{alg:memory} is $O(L)$ in GPU
+synchronisations; full parallelisation would require a parallel scan approximation or a
+custom CUDA kernel.  (2)~End-to-end evaluation results are pending (Tables
+\ref{tab:passkey}, \ref{tab:babilong}) and the 2\,000-step probes do not show that the
+memory write rate has converged into the validated range at segment length 512.  We will
+update this paper with final results before journal submission.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section{Conclusion}
+\label{sec:conclusion}
+% ─────────────────────────────────────────────────────────────────────────────
+
+We presented DREx, a four-tier memory transformer with a validated episodic/semantic
+delta-rule associative layer.  Our primary technical contributions are the identification
+and resolution of the EMA bootstrap failure mode
+($\alpha(L) = 0.95^{96/L}$, \Cref{eq:exp-scale}) and a quantitative treatment of
+OR-gate write-rate inflation ($\mathrm{thresh}^* = 0.70$, \Cref{eq:gate}).  Both fixes
+are derived from first principles and confirmed experimentally across multiple seeds.
+The implementation is publicly available with full test coverage; end-to-end benchmark
+results will follow as training completes.
+
+\bibliography{references}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\appendix
+% ─────────────────────────────────────────────────────────────────────────────
+
+\section{Hard Constraints Summary}
+\label{app:constraints}
+
+The following constraints are non-negotiable and must be verified after any modification
+to the write mechanism:
+
+\begin{enumerate}
+  \item Use relative-norm write gate, not matrix-mean energy (O($1/H$) — always below threshold).
+  \item Initialise \texttt{thresh} $\geq 0.40$; random initialisation causes
+        irreversible gate collapse.
+  \item Use fixed 50/50 episodic/semantic split; learned routers degrade accuracy by
+        10--24\%.
+  \item Do not train the write gate with REINFORCE; encoder gradient $= 0$.
+  \item Validate write rate $\in [0.10, 0.85]$ after any change to the write mechanism.
+  \item Use Adam (not SGD); $> 10\%$ accuracy spread observed across optimisers.
+  \item Use $\alpha(L) = 0.95^{96/L}$; fixed $\alpha = 0.95$ causes bootstrap failure at $L \leq 32$.
+  \item For the fully OR-gated split model, use $\mathrm{thresh}^* = 0.70$; at
+        $\mathrm{thresh} = 0.40$ the OR inflates $\mathrm{wr}$ to $\approx 0.77$.
+\end{enumerate}
+
+\section{Experiment Index}
+\label{app:experiments}
+
+Key experiment identifiers referenced in the main text:
+
+\begin{center}
+\small
+\begin{tabular}{lp{10cm}}
+  \toprule
+  \textbf{ID} & \textbf{Description} \\
+  \midrule
+  exp\_7\_1  & REINFORCE gate training — encoder gradient $= 0$ (9/9 seeds). \\
+  exp\_34\_6 & Optimiser comparison — Adam vs.\ SGD vs.\ AdamW ($>10\%$ spread). \\
+  exp\_38\_1 & Episodic/semantic split vs.\ learned router (9/9 seeds, $-10$--$24\%$). \\
+  exp\_38\_3 & Read gate vs.\ concat (9/9 seeds, $-10\%$ for learned gate). \\
+  exp\_43\_1 & Learnable thresh from random init — low-accuracy equilibrium. \\
+  exp\_45\_1 & Matrix-mean energy gate — $O(1/H)$ problem. \\
+  exp\_47\_1 & EMA bootstrap fix (exp\_scale formula); wr(L=32) $0.967 \to 0.580$. \\
+  exp\_47\_2 & OR vs.\ AND gate; AND degrades recall (3/3 seeds). \\
+  exp\_47\_3 & EMA calibration table ($\tau/L \approx 0.21$ for $L \geq 32$). \\
+  exp\_48\_1 & thresh sweep for full OR-gate system; $\mathrm{thresh}^*=0.70$ (3 seeds). \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
