@@ -362,6 +362,13 @@ class MemoryModule(nn.Module):
         # Output projection: concat(r_sem, r_epi) [d_model] → d_model
         self.out_proj = nn.Linear(d_model, d_model)
 
+        # Output LayerNorm: applied after out_proj to bound the memory
+        # contribution before it is added to the residual stream.  This is
+        # necessary with the detached write loop (no gradient through M
+        # accumulation) where the write-key norms are unconstrained and can
+        # cause M to grow, producing large r values that destabilise training.
+        self.norm_out = nn.LayerNorm(d_model)
+
         # Write-rate from the most recent forward pass (float, updated in forward)
         self._last_write_rate: float = 0.0
 
@@ -397,8 +404,9 @@ class MemoryModule(nn.Module):
                the query; positions 0..L-2 are written into memory.
 
         Returns:
-            (B, d_model) — memory retrieval after the null gate and output
-            projection.
+            (B, d_model) — memory retrieval after the null gate, output
+            projection, and output LayerNorm (norm_out).  The LayerNorm bounds
+            the residual contribution regardless of M accumulation magnitude.
         """
         B, L, _ = x.shape
         a = self.alpha(L)
@@ -499,4 +507,4 @@ class MemoryModule(nn.Module):
             g_null = torch.sigmoid(self.null_gate(q))             # (B, 1)
             r = g_null * r
 
-        return self.out_proj(r)                               # (B, d_model)
+        return self.norm_out(self.out_proj(r))   # (B, d_model) — bounded output

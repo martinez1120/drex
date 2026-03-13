@@ -708,3 +708,88 @@ class TestMemoryModuleCpuBackend:
         assert out.device.type == dev.type
         assert not torch.isnan(out).any()
         assert mem.last_write_rate() == 0.0
+
+
+class TestMemoryModuleNormOut:
+    """
+    Tests for the norm_out LayerNorm added to MemoryModule.
+
+    norm_out is applied after out_proj to bound the memory residual contribution
+    regardless of M accumulation magnitude.  This prevents training instability
+    when the detached write loop (no write-path gradient) allows write-key norms
+    to grow unconstrained across steps.
+    """
+
+    def test_norm_out_attribute_exists(self, device):
+        """MemoryModule must expose norm_out as an nn.LayerNorm."""
+        import torch.nn as nn
+        mem = MemoryModule(d_model=32).to(torch.device(device))
+        assert hasattr(mem, "norm_out")
+        assert isinstance(mem.norm_out, nn.LayerNorm)
+
+    def test_norm_out_normalized_shape(self, device):
+        """norm_out must normalise over the full d_model dimension."""
+        d = 64
+        mem = MemoryModule(d_model=d)
+        assert mem.norm_out.normalized_shape == (d,)
+
+    def test_norm_out_weight_and_bias_present(self, device):
+        """norm_out must have learnable weight and bias parameters."""
+        mem = MemoryModule(d_model=32)
+        assert mem.norm_out.weight is not None
+        assert mem.norm_out.bias is not None
+
+    def test_output_not_nan_with_large_sequence(self, device):
+        """Output must be non-NaN even with L=256 and potentially large M values."""
+        torch.manual_seed(7)
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(4, 256, 32, device=dev)
+        out = mem(x)
+        assert not torch.isnan(out).any()
+        assert not torch.isinf(out).any()
+
+    def test_output_scale_is_bounded(self, device):
+        """After norm_out the output Frobenius norm should be O(sqrt(d_model)).
+
+        LayerNorm centres and scales each sample; for unit-scale outputs the
+        expected vector norm is approximately sqrt(d_model).  We allow a generous
+        10× factor to avoid brittleness on edge cases.
+        """
+        torch.manual_seed(42)
+        dev = torch.device(device)
+        d = 64
+        mem = MemoryModule(d_model=d).to(dev)
+        x = torch.randn(4, 64, d, device=dev) * 10  # large input to stress M growth
+        with torch.no_grad():
+            out = mem(x)
+        # Expected ~sqrt(d) per vector; allow 10× margin
+        per_vector_norm = out.norm(dim=-1)
+        upper = 10 * (d ** 0.5)
+        assert (per_vector_norm < upper).all(), (
+            f"norm_out output magnitude unexpectedly large: max={per_vector_norm.max():.1f}"
+        )
+
+    def test_norm_out_params_receive_gradients(self, device):
+        """norm_out.weight and norm_out.bias must have non-None gradients."""
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(2, 16, 32, device=dev)
+        mem(x).sum().backward()
+        assert mem.norm_out.weight.grad is not None, "norm_out.weight missing grad"
+        assert mem.norm_out.bias.grad is not None, "norm_out.bias missing grad"
+
+    def test_norm_out_affects_output(self, device):
+        """Modifying norm_out.weight must change the output (norm is not bypassed)."""
+        torch.manual_seed(0)
+        dev = torch.device(device)
+        mem = MemoryModule(d_model=32).to(dev)
+        x = torch.randn(2, 16, 32, device=dev)
+        with torch.no_grad():
+            out_default = mem(x).clone()
+            # Scale up all elements via the gain parameter
+            mem.norm_out.weight.fill_(2.0)
+            out_scaled = mem(x).clone()
+        # The outputs must differ
+        assert not torch.allclose(out_default, out_scaled)
+
