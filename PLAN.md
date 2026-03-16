@@ -755,3 +755,54 @@ commitment during the smoke test; full ternary tested at 5k+ steps.
    - 1D (HESTIA): gate <20,000; `tau_decay=0.9997`, `tau_floor=0.3`
 
 **Status:** 6/7 PASS smoke tests. Optimizer bug confirmed fixed. HESTIA tau fix staged for run 3.
+
+---
+
+## HESTIA Root Cause 3 — Near-zero logit initialization (discovered after run 2)
+
+### Summary
+
+All three HESTIA failures share a deeper root cause not addressed in runs 1+2:
+`BitLinear.__init__` initializes logits as `torch.randn(out_f, in_f, 3) * 0.02`.
+
+With logits ~N(0, 0.02) and any tau, the HESTIA expected weight is:
+```
+E[w] = sum_s(s × softmax(logits/tau)[s])  where s ∈ {-1, 0, +1}
+# With logits ≈ 0:  softmax ≈ [1/3, 1/3, 1/3]  →  E[w] ≈ -1/3 + 0 + 1/3 = 0
+```
+
+The FFN layers produce **near-zero output from step 1**. The model can only use
+the attention layers (standard nn.MultiheadAttention, unaffected). Block-local
+denoising loss trains *something* (train_loss decreases), but the global LM
+metric (val_ppl) never improves because the transformer has no feed-forward
+nonlinearity. This explains why val_ppl starts at 50k and stays there or worsens.
+
+The tau=1.5 start (hardcoded `tau = 1.5`) compounds the issue: high tau further
+flattens softmax toward uniform, making effective weights even closer to zero.
+
+Runs 1+2 only addressed the *when* of the collapse (tau crossing 1.0), not
+the *from-the-start* zero-weight problem.
+
+### Fix for run 3
+
+Two changes applied to `noprop_lightning.ipynb` and `noprop_kaggle_5k.ipynb`:
+
+1. **`BitLinear` logit init scale: `* 0.02` → `* 0.5`** (hestia branch only)
+   - logits ~N(0, 0.5) with tau=0.5: E[w] ≈ ±0.2–0.3 — informative from step 1
+
+2. **Add `tau_init` parameter** to `run_global` / `run_noprop` (default 1.5)
+   - Set `"tau_init": 0.5` for all HESTIA experiments
+   - tau(1200, decay=0.9998) = 0.5 × 0.9998^1200 ≈ 0.39 → clamped at floor=0.3
+   - Stays in [0.3, 0.5] throughout — never crosses 1.0 → no Gumbel collapse
+
+| Parameter | runs 1+2 | run 3 | Effect |
+|-----------|----------|-------|--------|
+| logit init std | 0.02 | 0.5 | E[w] ≈ 0 vs ≈ ±0.2-0.3 |
+| tau_init | 1.5 (hardcoded) | 0.5 | less uniform softmax from step 1 |
+| tau_decay | 0.999/0.9993 | 0.9998 | tau stays in [0.3,0.5], not [0.3,1.5] |
+| tau_floor | 0.05/0.3 | 0.3 | soft ternary throughout smoke test |
+
+Non-HESTIA experiments (0A/1A/0B/0C/1B/1C) are unaffected: they use `self.weight`
+not `self.logits`, and default `tau_init=1.5` maintains previous behavior.
+
+**Status:** HESTIA fix staged for run 3. Upload updated `noprop_lightning.ipynb` to Lightning AI.
