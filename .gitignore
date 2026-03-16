@@ -16,7 +16,9 @@ dist/
 
 # Jupyter
 .ipynb_checkpoints/
-notebooks/*.ipynb
+# track source notebooks; exclude generated/executed copies
+!notebooks/noprop_ternary_colab_free_tier.ipynb
+!notebooks/noprop_ternary_scale_runs.ipynb
 !notebooks/.gitkeep
 
 # L3 snapshot cache (runtime data, not source)
