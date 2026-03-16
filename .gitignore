@@ -20,6 +20,8 @@ dist/
 !notebooks/noprop_ternary_colab_free_tier.ipynb
 !notebooks/noprop_ternary_scale_runs.ipynb
 !notebooks/.gitkeep
+# platform-specific parallel notebooks
+!notebooks/platforms/*.ipynb
 
 # L3 snapshot cache (runtime data, not source)
 /tmp/drex_l3/
