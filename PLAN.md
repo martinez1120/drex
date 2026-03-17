@@ -1006,3 +1006,70 @@ if lr_schedule == "cosine":
 **Expected run 4 outcome:** NoProp val_ppl converges toward ~3,700 and stays there (or improves),
 matching or beating the 5k run 3 trajectory. HESTIA and STE should both land in the 3,000–5,000
 range and hold.
+
+---
+
+## Lightning + Colab Run 4 Results (2026-03-17) — with cosine LR
+
+### Lightning — 1D HESTIA, 1200 steps (lightning_20260317_131749)
+
+| step | val_ppl (run3) | val_ppl (run4) | Δ |
+|------|---------------|----------------|---|
+| 1 | 49,799 | 49,799 | — |
+| **200** | **3,689** | **3,648** | best (same) |
+| 400 | 6,180 | 5,736 | improved |
+| 600 | 8,637 | 7,069 | improved |
+| 800 | 12,662 | 7,549 | **2× better** |
+| 1000 | 17,743 | 7,812 | **2.3× better** |
+| 1200 | 21,391 | **7,707** ✅ | **2.8× better** |
+
+gate_ppl_pass=True. Cosine LR cuts the end-of-run ppl from 21,391 → 7,707.
+Curve plateaus around step 800–1200 between 7,500–7,800 — model approaches a new steady state.
+
+### Colab — 0A + 1A, 800 steps (colab_20260317_131505)
+
+| Exp | run3 final | run4 final | Best ppl | gate_pass |
+|-----|-----------|-----------|----------|-----------|
+| 0A fp32_noprop | 25,305 | **19,247** | ~19,247 @800 | ✅ |
+| 1A noprop_ste | 20,566 | **7,339** | **3,514 @200** | ✅ |
+
+1A training curve: 48,833 → **3,514** → 6,090 → 5,646 → 7,339 (still drifting but slowly)
+0A training curve: 51,942 → 89,254 → 37,253 → 52,924 → 19,247 (chaotic — diverges then recovers)
+
+### Key observations from run 4
+
+1. **Cosine LR works** — HESTIA end-ppl dropped 21k→7.7k; STE end-ppl dropped 21k→7.3k
+2. **Post-200 drift still present** — both curves climb after step 200, just much more slowly
+3. **0A fp32_noprop stays chaotic** — step 200 spiked to 89,254 (WORSE than start). fp32 NoProp
+   has no quantization noise to stabilize gradients; the STE/HESTIA discrete approximation is
+   acting as a natural regularizer.
+4. **Step-200 minimum is universal** — 3,648 (HESTIA) and 3,514 (STE) both at exactly step 200.
+   This minimum cannot be held with cosine-only because blocks 0–4 have NO LM signal to anchor to.
+
+### Root cause of remaining drift — LM manifold erosion
+
+Blocks 0–4 optimize `alpha * MSE(out, y_emb)` — entirely unsupervised denoising.
+After step 200, these blocks perfectly solve the denoising task and continue micro-adjusting
+representations. Each micro-adjustment shifts the input space that block 5 sees, destabilizing
+the head's calibration. The head is only corrected by CE at block 5, but that signal only reaches
+block 5 — it cannot propagate back to blocks 0–4 (that's the whole point of NoProp).
+
+**The fix is a small "alignment signal" at every block.** A tiny `ce_align=0.05` CE weight at
+all intermediate blocks (vs `ce_weight=0.5` at the last) gives each block a weak LM-consistency
+objective that acts as an anchor without overwhelming the denoising task.
+
+### Fixes applied for run 5
+
+Added `ce_align=0.05` parameter to `run_noprop` in all three notebooks:
+```python
+is_last = (b == model.n_blocks - 1)
+ce_term = (ce_weight if is_last else ce_align) * F.cross_entropy(
+    logits.reshape(-1, vocab), y.reshape(-1))
+loss = alpha * F.mse_loss(out, y_emb) + ce_term
+```
+- Last block (b=5): `0.5 × CE` — strong LM training signal (same as run 4)
+- Intermediate blocks (b=0..4): `0.05 × CE` — gentle anchor, 10× weaker than last block
+- Cosine LR retained; clip_norm retained; all other params unchanged
+
+**Expected run 5 outcome:** Drift should stop or dramatically reduce. The ~3,500 minimum at
+step 200 should be maintained or improve through the full 800–1200 step run.
