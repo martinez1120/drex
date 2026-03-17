@@ -867,3 +867,70 @@ early (~step 200–400) then diverges monotonically.
    - 1D HESTIA: <15000 (run1 hit 14,910 without fixes)
 
 **Status:** 5k run 1 complete. Fixes applied. Upload updated `noprop_kaggle_5k.ipynb` for run 2.
+
+---
+
+## kaggle_5k Run 2 Results (2026-03-17) — kaggle5k_20260317_005307
+
+All 7 experiments ran 5000 steps on Tesla T4. ce_weight=0.5 + grad_clip(max_norm=1.0) applied.
+
+### Full results table
+
+| Exp | 5k Run 1 | 5k Run 2 | Δ | Gate | Result |
+|-----|----------|----------|---|------|--------|
+| 0C fp32_backprop | 223 | **223** | stable | <230 | ✅ PASS |
+| 0B ternary_backprop | 286 | **285** | stable | <300 | ✅ PASS |
+| 1D noprop_hestia | **14,910** | 62,530 | **4× worse** | <15000 | ❌ FAIL |
+| 1C noprop_dqt | 67,211 | 79,844 | worse | <5000 | ❌ FAIL |
+| 1B noprop_trust | 90,937 | 96,584 | worse | <5000 | ❌ FAIL |
+| 0A fp32_noprop | 87,832 | 93,535 | worse | <5000 | ❌ FAIL |
+| 1A noprop_ste | 170,681 | **98,753** | better | <5000 | ❌ FAIL |
+
+Backprop baselines unchanged. Dead neuron rate = 0.000 for all — architecture is healthy.
+
+### Root cause 1 — HESTIA regression (14,910 → 62,530)
+
+`clip_norm=1.0` throttled the Gumbel-softmax logit gradients. HESTIA's ternary weight parameters
+(`self.logits`, shape `[out_f, in_f, 3]`) update via gradients flowing back *through* the soft
+ternary samples. At ce_weight=0.5 this gradient was already clipped before reaching the logits,
+reducing the effective ternary steering signal relative to run 1 where no clip existed.
+
+In run 1 (no clip, ce_weight=0.1): logit grads flowed freely → HESTIA 14,910
+In run 2 (clip=1.0, ce_weight=0.5): logit grads throttled per block → HESTIA 62,530
+
+### Root cause 2 — CE at every block is theoretically unjustified
+
+The original NoProp paper trains each block with **only** the denoising MSE objective. Adding
+`ce_weight * CE(head(block_b_out), y)` at intermediate blocks (b=0..4) asks a 2–5 layer prefix
+to solve the full LM classification problem — an impossible constraint that creates conflicting
+gradients with the MSE denoising loss. The head accumulates CE gradients from all 6 blocks,
+but blocks 0–4 produce immature representations; their CE gradient is noise.
+
+Block 5 (the final block) is the only one whose output the head should classify over.
+
+### Fixes applied for kaggle_5k run 3
+
+**`noprop_kaggle_5k.ipynb` Cell 8:**
+1. **CE only at last block** — intermediate blocks are pure denoisers:
+   ```python
+   ce_term = (ce_weight * F.cross_entropy(logits.reshape(-1, vocab), y.reshape(-1))
+              if b == model.n_blocks - 1 else 0.0)
+   loss = alpha * F.mse_loss(out, y_emb) + ce_term
+   ```
+2. **`clip_norm` parameter** added to `run_noprop(... clip_norm=1.0)`:
+   ```python
+   if clip_norm is not None:
+       torch.nn.utils.clip_grad_norm_(..., max_norm=clip_norm)
+   ```
+   HESTIA experiment config sets `"clip_norm": None`.
+
+**`noprop_kaggle_5k.ipynb` Cell 10:**
+3. HESTIA config gains `"clip_norm": None`.
+4. `run_noprop` call passes `clip_norm=e.get("clip_norm", 1.0)`.
+
+**Expected outcomes for run 3:**
+- 1D HESTIA: should return to ~14k range (or lower) — clip was the sole regression cause
+- 1A/1B/1C/0A: CE-at-last-block removes conflicting intermediate objectives; may improve
+- 0B/0C: unchanged (use `run_global`, not `run_noprop`)
+
+**Status:** 5k run 2 complete. Run 3 fixes applied. Upload updated `noprop_kaggle_5k.ipynb` for run 3.
