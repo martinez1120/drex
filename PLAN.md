@@ -1073,3 +1073,123 @@ loss = alpha * F.mse_loss(out, y_emb) + ce_term
 
 **Expected run 5 outcome:** Drift should stop or dramatically reduce. The ~3,500 minimum at
 step 200 should be maintained or improve through the full 800–1200 step run.
+
+---
+
+## Lightning + Colab Run 5 Results (2026-03-17) — with ce_align=0.05
+
+### Lightning — 1D HESTIA, 1200 steps (lightning_20260317_135030)
+
+| step | val_ppl (run4) | val_ppl (run5) | Δ |
+|------|----------------|----------------|---|
+| 1 | 49,799 | 49,799 | — |
+| **200** | **3,648** | ? | ~4,500 (estimated) |
+| 1200 | **7,707** | **10,718** ❌ | **+39% WORSE** |
+
+`gate_ppl_pass=True` (gate=40,000). `train_loss=0.908` at final step.
+No per-step log CSV in lightning run5 (only summary row).
+
+### Colab — 0A + 1A, 800 steps (colab_20260317_134911)
+
+| Exp | run4 best | run5 best | run4 final | run5 final | Δ final |
+|-----|-----------|-----------|------------|------------|---------|
+| 0A fp32_noprop | ~19,247 @800 (chaotic) | **3,681 @200** | 19,247 | **10,298** ✅ | **−47% better** |
+| 1A noprop_ste | **3,514 @200** | **4,598 @200** | 7,339 | **10,404** ❌ | **+42% WORSE** |
+
+#### 0A fp32 curve (run5):
+`51,662 → 3,681 @200 → 9,222 @400 → 10,640 @600 → 10,298 @800`
+
+#### 1A STE curve (run5):
+`48,982 → 4,598 @200 → 9,947 @400 → 11,277 @600 → 10,404 @800`
+
+### Key observations from run 5
+
+1. **ce_align HURTS quantized modes** — HESTIA +39%, STE +42% worse than run4
+2. **ce_align HELPS fp32** — 0A fp32 finally converges (19k→10k), because fp32 has stable
+   gradients that benefit from anchoring
+3. **Step-200 best degraded for STE**: 3,514 (run4) → 4,598 (run5) — intermediate CE
+   disrupts even the initial convergence phase for quantized modes
+4. **Post-200 drift is faster with ce_align** than pure cosine (run4)
+
+### Root cause — ce_align sends noisy gradients to the shared head
+
+Analysing the training code: `forward_block_local` uses
+`h = self.base_embed(x).detach() + self.noise_proj[b](z_noisy.detach())` — so the input
+embedding gradient path is already cut. However, `logits = self.head(out)` means the CE loss
+for intermediate blocks (b=0..4) flows gradients to `self.head` (which is in `opt_shared`).
+
+With `opt_shared.zero_grad()` called once OUTSIDE the block loop, all 6 backward passes
+accumulate into opt_shared before its single `step()`. With ce_align=0.05:
+- 5 intermediate blocks contribute `0.05 × CE_gradient` to head (poor logits → noisy signal)
+- 1 last block contributes `0.5 × CE_gradient` to head (good logits → clean signal)
+- Net: head receives 5 low-quality gradient contributions for every 1 high-quality one
+
+For fp32 (run4 was chaotic anyway), the 5 noisy gradients happened to regularize chaotic
+behaviour. For STE/HESTIA (already converging cleanly in run4), they added destructive noise.
+
+---
+
+## Run 6 Plan — cosine LR with warmup plateau + fine-grained eval
+
+### Root cause of remaining drift (run4 and run5)
+
+The training loss still decreases to ~0.91 at step 1200 while val_ppl climbs from 3,648 to
+7,707. This is a classic **overfitting pattern**: block-local MSE drives each block to
+memorize training embeddings while the LM head, only updated at the last block, cannot keep
+up. The cosine LR in run4 decays from 3e-4 → ~0 starting from step 1, which means at step
+200 (when val_ppl is optimal) the LR is already at 85% of its initial value — the decay only
+kicks in slowly, providing insufficient restraint against post-200 drift.
+
+### Fix: Warmup plateau + cosine decay from step 200
+
+Hold full LR for `lr_warmup=200` steps (the natural convergence window), then apply cosine
+decay from step 200 onward to `lr_min=1e-5` (not zero — prevents complete stall):
+
+```python
+if lr_schedule == "cosine":
+    if step <= lr_warmup:
+        lr_t = lr                      # full rate during convergence
+    else:
+        progress = (step - lr_warmup) / max(1, steps - lr_warmup)
+        lr_t = lr_min + (lr - lr_min) * 0.5 * (1.0 + math.cos(math.pi * progress))
+    for opt in bopts + [opt_shared]:
+        for pg in opt.param_groups: pg["lr"] = lr_t
+```
+
+**Key difference vs run4 cosine:**
+
+| step | run4 LR (cosine from 1) | run6 LR (plateau+cosine from 200) | Δ |
+|------|------------------------|-----------------------------------|---|
+| 1    | 3.00e-4 (100%)         | 3.00e-4 (100%)                    | same |
+| 100  | 2.91e-4 (97%)          | 3.00e-4 (100%)                    | +3% |
+| 200  | 2.56e-4 (85%)          | 3.00e-4 (100%)                    | +15% |
+| 400  | 1.50e-4 (50%)          | 2.28e-4 (76%)                     | +52% |
+| 600  | 0.44e-4 (15%)          | 1.55e-4 (52%)                     | +252% |
+| 800  | ~0                     | 1.00e-5 (3%)                      | ∞ |
+
+LR after step 200 is substantially higher in run6, keeping optimizers more active to resist
+drift. The non-zero `lr_min=1e-5` prevents complete optimization stall.
+
+### Additional change: eval_every=50 (lightning/colab)
+
+Increased from 200 to 50 evaluation steps so we can precisely identify when the val_ppl
+minimum occurs and track the drift trajectory. Currently we only know the minimum is "around
+step 200" — with 50-step granularity we'll know if it's step 150, 200, or 250.
+
+### Fixes applied for run 6
+
+In all three notebooks (`run_noprop` function, cell 8):
+
+1. **Signature**: removed `ce_align=0.05`, added `lr_warmup=200, lr_min=1e-5`
+2. **CE computation**: reverted to last-block-only (same as run3/run4):
+   ```python
+   ce_term = (ce_weight * F.cross_entropy(logits.reshape(-1, vocab), y.reshape(-1))
+               if b == model.n_blocks - 1 else 0.0)
+   ```
+3. **LR schedule**: replaced simple cosine with warmup plateau (code above)
+4. **eval_every**: lightning/colab now use `eval_every=50` via experiment dict default;
+   kaggle_5k uses `eval_every=500` for the longer 5000-step runs
+
+**Expected run 6 outcome:** Model converges quickly to ~3,500 ppl at step 200,
+then LR begins decaying from full rate, slowing drift. Final val_ppl should stay
+below 5,000 (vs run4's 7,700) for HESTIA and STE.

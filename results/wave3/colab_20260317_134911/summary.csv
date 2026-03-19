@@ -1,0 +1,3 @@
+exp_id,step,train_loss,val_loss,val_ppl,grad_norm,dead_rate,max_mem_gb,elapsed_sec,checkpoint,gate_ppl_pass,gate_dead_pass
+0A_fp32_noprop,800,1.131848047176997,9.239708938598632,10298.040759487894,0.09650243893022388,6.357828776041666e-07,2.5702695846557617,315.4,/content/drive/MyDrive/drex_parallel_results/colab_20260317_134911/checkpoints/0A_fp32_noprop_step_0000800.pt,True,True
+1A_noprop_ste,800,0.9110042353471121,9.249941711425782,10403.959266934462,0.03116943972437213,1.2715657552083333e-06,2.585843563079834,330.6,/content/drive/MyDrive/drex_parallel_results/colab_20260317_134911/checkpoints/1A_noprop_ste_step_0000800.pt,True,True

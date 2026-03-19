@@ -1,0 +1,23 @@
+{
+  "platform": "lightning",
+  "run_name": "lightning_20260317_135030",
+  "device": "cuda",
+  "seed": 42,
+  "experiments": [
+    {
+      "exp_id": "1D_noprop_hestia",
+      "step": 1200,
+      "train_loss": 0.9079629977544149,
+      "val_loss": 9.279711380004883,
+      "val_ppl": 10718.33794333268,
+      "grad_norm": 0.045752341506140826,
+      "dead_rate": 2.2252400716145835e-06,
+      "max_mem_gb": 2.5702695846557617,
+      "tau": 0.3933,
+      "elapsed_sec": 433.3,
+      "checkpoint": "/teamspace/studios/this_studio/drex_parallel_results/lightning_20260317_135030/checkpoints/1D_noprop_hestia_step_0001200.pt",
+      "gate_ppl_pass": true,
+      "gate_dead_pass": true
+    }
+  ]
+}

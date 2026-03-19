@@ -1,0 +1,36 @@
+{
+  "platform": "colab",
+  "run_name": "colab_20260317_134911",
+  "device": "cuda",
+  "seed": 42,
+  "experiments": [
+    {
+      "exp_id": "0A_fp32_noprop",
+      "step": 800,
+      "train_loss": 1.131848047176997,
+      "val_loss": 9.239708938598632,
+      "val_ppl": 10298.040759487894,
+      "grad_norm": 0.09650243893022388,
+      "dead_rate": 6.357828776041666e-07,
+      "max_mem_gb": 2.5702695846557617,
+      "elapsed_sec": 315.4,
+      "checkpoint": "/content/drive/MyDrive/drex_parallel_results/colab_20260317_134911/checkpoints/0A_fp32_noprop_step_0000800.pt",
+      "gate_ppl_pass": true,
+      "gate_dead_pass": true
+    },
+    {
+      "exp_id": "1A_noprop_ste",
+      "step": 800,
+      "train_loss": 0.9110042353471121,
+      "val_loss": 9.249941711425782,
+      "val_ppl": 10403.959266934462,
+      "grad_norm": 0.03116943972437213,
+      "dead_rate": 1.2715657552083333e-06,
+      "max_mem_gb": 2.585843563079834,
+      "elapsed_sec": 330.6,
+      "checkpoint": "/content/drive/MyDrive/drex_parallel_results/colab_20260317_134911/checkpoints/1A_noprop_ste_step_0000800.pt",
+      "gate_ppl_pass": true,
+      "gate_dead_pass": true
+    }
+  ]
+}
